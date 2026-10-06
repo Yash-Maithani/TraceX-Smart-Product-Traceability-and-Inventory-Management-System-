@@ -1,0 +1,112 @@
+=== TraceX Live Token Flow (Port 8081) ===
+
+--- Step 1: Login as Admin ---
+Login successful. Admin token acquired.
+Selected Product: Wild Berry Juice Concentrate (6ac1c437b820d073691b4e9a)
+
+--- Step 2: Create Batch via POST /api/v1/batches ---
+HTTP 201 Response Body:
+{
+    "success":  true,
+    "requestId":  "9a634584-891d-4370-b090-81e896d1c226",
+    "data":  {
+                 "id":  "6ac49cd06b5e5b18926b53df",
+                 "batchCode":  "TX-2026-10-014",
+                 "productName":  "Wild Berry Juice Concentrate",
+                 "sku":  "WBJC",
+                 "sourceLotCode":  "LOT-P7-LIVE-001",
+                 "farmerName":  "Ramesh Kumar",
+                 "village":  "Kumaon Hills",
+                 "quantityProduced":  100,
+                 "unit":  "Kg",
+                 "yieldPercent":  85.5,
+                 "packDate":  "2026-10-06",
+                 "expiryDate":  "2026-11-06",
+                 "dataSource":  "fallback",
+                 "shelfLifeSource":  "manual",
+                 "lifecycleState":  "ACTIVE",
+                 "status":  "READY",
+                 "daysUntilExpiry":  31,
+                 "priorityScore":  334.0,
+                 "qualityCheck":  null,
+                 "createdBy":  "admin",
+                 "createdAt":  "2026-10-06T07:01:36.992097300Z",
+                 "updatedAt":  "2026-10-06T07:01:36.992097300Z",
+                 "traceabilityNote":  "Traceability test note for Phase 7.1 live verification",
+                 "noteHistory":  [
+
+                                 ],
+                 "dispatchHistory":  [
+
+                                     ],
+                 "deletedAt":  null,
+                 "deletedBy":  null,
+                 "deleteNote":  null,
+                 "dispatchDate":  null,
+                 "buyerName":  null,
+                 "qrAbsoluteUrl":  "http://localhost:5173/trace/t/kGe2ivbqxYNE5QnuE3hrpg.c55HQ3QfONIvDbT7dyb4Zw",
+                 "deleted":  false
+             }
+}
+
+Confirming qrAbsoluteUrl starts with http://localhost:5173:
+qrAbsoluteUrl: http://localhost:5173/trace/t/kGe2ivbqxYNE5QnuE3hrpg.c55HQ3QfONIvDbT7dyb4Zw
+CONFIRMED: qrAbsoluteUrl starts with http://localhost:5173
+
+--- Step 3: Authenticated QR Retrieval via GET /api/v1/batches/:id/qr ---
+HTTP 200 QR Response Body (qrCodeDataUrl truncated for display):
+{
+    "success":  true,
+    "requestId":  "5d62987d-e736-4f3b-bf0e-ec5ef30ccdae",
+    "data":  {
+                 "qrAbsoluteUrl":  "http://localhost:5173/trace/t/kGe2ivbqxYNE5QnuE3hrpg.c55HQ3QfONIvDbT7dyb4Zw",
+                 "qrCodeDataUrl":  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAA... [truncated base64 PNG data URL]"
+             }
+}
+Extracted traceToken: kGe2ivbqxYNE5QnuE3hrpg.c55HQ3QfONIvDbT7dyb4Zw
+
+--- Step 4: Public Trace GET /api/v1/qr/trace/t/:token (No Auth Header) ---
+Status: 200 OK
+Response Body:
+{
+    "success":  true,
+    "requestId":  "2d199f61-a9d4-4128-bf54-92ce533887fd",
+    "data":  {
+                 "batchCode":  "TX-2026-10-014",
+                 "productName":  "Wild Berry Juice Concentrate",
+                 "sku":  "WBJC",
+                 "village":  "Kumaon Hills",
+                 "packDate":  "2026-10-06",
+                 "expiryDate":  "2026-11-06",
+                 "status":  "READY",
+                 "qualityCheck":  null,
+                 "traceabilityNote":  "Traceability test note for Phase 7.1 live verification"
+             }
+}
+Keys present in response data:
+  - batchCode
+  - expiryDate
+  - packDate
+  - productName
+  - qualityCheck
+  - sku
+  - status
+  - traceabilityNote
+  - village
+
+--- Step 5: Forged Token GET /api/v1/qr/trace/t/<forged-token> ---
+Forged Token: kGe2ivbqxYNE5QnuE3hrpg.c55HQ3QfONIvDbT7dyb4Zx (length: 45 vs original: 45)
+Status: 404 NotFound
+Response Body: {"success":false,"requestId":"79820311-2674-4c4b-be35-9bdcbdb89f50","code":"NOT_FOUND","error":"Batch not found or unavailable"}
+
+--- Step 6: Archive Batch via DELETE /api/v1/batches/:id ---
+Batch 6ac49cd06b5e5b18926b53df archived successfully. LifecycleState: ACTIVE
+
+--- Step 7: Archived Batch GET /api/v1/qr/trace/t/:token ---
+Status: 404 NotFound
+Response Body: {"success":false,"requestId":"b73ae34f-491e-4947-a680-f74fc4a9bb8c","code":"NOT_FOUND","error":"Batch not found or unavailable"}
+
+--- Step 8: Diff 404 Responses (requestId removed) ---
+Forged canonical 404:   {"success":false,"code":"NOT_FOUND","error":"Batch not found or unavailable"}
+Archived canonical 404: {"success":false,"code":"NOT_FOUND","error":"Batch not found or unavailable"}
+RESULT: Byte-for-byte identical 404 responses (apart from requestId).

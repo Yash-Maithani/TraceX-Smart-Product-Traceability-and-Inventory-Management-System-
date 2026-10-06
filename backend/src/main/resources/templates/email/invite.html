@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>TraceX Account Invitation</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f6f8; margin: 0; padding: 20px; color: #333333; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 6px; padding: 30px; border: 1px solid #e1e4e8; }
+        .header { font-size: 20px; font-weight: bold; margin-bottom: 20px; color: #1a202c; }
+        .button { display: inline-block; background-color: #2b6cb0; color: #ffffff !important; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; margin: 20px 0; }
+        .footer { font-size: 12px; color: #718096; margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 15px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">Welcome to TraceX</div>
+    <p>Hello %NAME%,</p>
+    <p>Your access request for TraceX has been approved. Please click the button below to set your account password and activate your account:</p>
+    <p><a href="%ACTIVATION_URL%" class="button">Activate Account</a></p>
+    <p>Or paste this URL into your browser:</p>
+    <p><code>%ACTIVATION_URL%</code></p>
+    <p>This invitation link expires in 48 hours.</p>
+    <div class="footer">
+        <p>TraceX Smart Product Traceability and Inventory Management System</p>
+    </div>
+</div>
+</body>
+</html>

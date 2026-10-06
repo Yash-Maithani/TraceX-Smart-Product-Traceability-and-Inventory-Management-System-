@@ -1,0 +1,370 @@
+/* ==========================================================================
+   TraceX Design System Tokens (SPEC Â§5.1, D-21)
+   - Three Palettes: editorial (warm paper), obsidian (cool slate), emerald (botanical)
+   - Two Modes: light, dark (controlled via html[data-theme="light"|"dark"])
+   - Accents: auto (follows palette) + 4 fixed choices: cobalt, emerald, amber, rose
+   - Radii: 6px maximum on every control, badges included
+   - Motion: 150ms or less; 0s when prefers-reduced-motion: reduce
+   - System Font Stack Only (zero external network font requests per D-21)
+   ========================================================================== */
+
+:root {
+  /* Typography â€” System Font Stack Only (D-21), scale xs to 2xl */
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* Spacing Scale (4px base) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Border Radius (6px maximum on every control, badges included) */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 6px;
+  --radius-xl: 6px;
+  --radius-full: 6px;
+
+  /* One Subtle Elevation + Backdrop */
+  --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.08);
+  --shadow-md: var(--shadow-sm);
+  --shadow-lg: var(--shadow-sm);
+  --backdrop-overlay: rgba(15, 23, 42, 0.55);
+
+  /* Z-Index Scale */
+  --z-sticky: 20;
+  --z-drawer: 40;
+  --z-modal: 50;
+  --z-toast: 60;
+  --z-skip: 100;
+
+  /* Motion (150ms maximum) */
+  --duration-fast: 100ms;
+  --duration-normal: 150ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Layout Dimensions */
+  --sidebar-width: 16.5rem;
+  --topbar-height: 3.75rem;
+  --touch-target-min: 2.5rem;
+}
+
+/* ==========================================================================
+   Palette 1: Editorial (Default) â€” Light & Dark
+   ========================================================================== */
+:root,
+html[data-palette="editorial"][data-theme="light"] {
+  --bg-canvas: #f8f7f4;
+  --bg-surface: #ffffff;
+  --bg-elevated: #f1efe9;
+  --bg-muted: #e6e3db;
+  --text-primary: #141413;
+  --text-secondary: #4a4843;
+  --text-muted: #5c5953;
+  --border-subtle: #dcd8ce;
+  --border-strong: #736e64;
+  --backdrop-scrim: rgba(20, 20, 19, 0.82);
+  --backdrop-fallback-bg: #1b1b18;
+  --banner-title: #f8f7f4;
+  --banner-subtitle: #e6e3db;
+  --banner-control-bg: #1b1b18;
+  --banner-control-border: #f5f3ee;
+  --banner-control-text: #f8f7f4;
+}
+
+html[data-palette="editorial"][data-theme="dark"] {
+  --bg-canvas: #121210;
+  --bg-surface: #1b1b18;
+  --bg-elevated: #252521;
+  --bg-muted: #30302b;
+  --text-primary: #f5f3ee;
+  --text-secondary: #c9c5bc;
+  --text-muted: #a6a196;
+  --border-subtle: #33322d;
+  --border-strong: #8c877b;
+  --backdrop-scrim: rgba(18, 18, 16, 0.84);
+  --backdrop-fallback-bg: #1b1b18;
+  --banner-title: #f5f3ee;
+  --banner-subtitle: #e6e3db;
+  --banner-control-bg: #1b1b18;
+  --banner-control-border: #f5f3ee;
+  --banner-control-text: #f5f3ee;
+}
+
+/* ==========================================================================
+   Palette 2: Obsidian (Cool Slate) â€” Light & Dark
+   ========================================================================== */
+html[data-palette="obsidian"][data-theme="light"] {
+  --bg-canvas: #f4f6f9;
+  --bg-surface: #ffffff;
+  --bg-elevated: #eaeff5;
+  --bg-muted: #dce4ee;
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #475569;
+  --border-subtle: #cbd5e1;
+  --border-strong: #64748b;
+  --backdrop-scrim: rgba(15, 23, 42, 0.82);
+  --backdrop-fallback-bg: #111827;
+  --banner-title: #f8fafc;
+  --banner-subtitle: #dce4ee;
+  --banner-control-bg: #111827;
+  --banner-control-border: #f8fafc;
+  --banner-control-text: #f8fafc;
+}
+
+html[data-palette="obsidian"][data-theme="dark"] {
+  --bg-canvas: #0b0f19;
+  --bg-surface: #111827;
+  --bg-elevated: #1e293b;
+  --bg-muted: #283548;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --border-subtle: #263248;
+  --border-strong: #7c8ea6;
+  --backdrop-scrim: rgba(11, 15, 25, 0.84);
+  --backdrop-fallback-bg: #111827;
+  --banner-title: #f8fafc;
+  --banner-subtitle: #dce4ee;
+  --banner-control-bg: #111827;
+  --banner-control-border: #f8fafc;
+  --banner-control-text: #f8fafc;
+}
+
+/* ==========================================================================
+   Palette 3: Emerald (Botanical Supply Chain) â€” Light & Dark
+   ========================================================================== */
+html[data-palette="emerald"][data-theme="light"] {
+  --bg-canvas: #f3f7f5;
+  --bg-surface: #ffffff;
+  --bg-elevated: #e7f0ec;
+  --bg-muted: #d6e5de;
+  --text-primary: #0c1f17;
+  --text-secondary: #28473a;
+  --text-muted: #3d5c4f;
+  --border-subtle: #c5d9d0;
+  --border-strong: #5c7d6f;
+  --backdrop-scrim: rgba(12, 31, 23, 0.82);
+  --backdrop-fallback-bg: #102019;
+  --banner-title: #eef7f3;
+  --banner-subtitle: #d6e5de;
+  --banner-control-bg: #102019;
+  --banner-control-border: #eef7f3;
+  --banner-control-text: #eef7f3;
+}
+
+html[data-palette="emerald"][data-theme="dark"] {
+  --bg-canvas: #091410;
+  --bg-surface: #102019;
+  --bg-elevated: #182e25;
+  --bg-muted: #223d32;
+  --text-primary: #eef7f3;
+  --text-secondary: #bfd6cc;
+  --text-muted: #94b5a7;
+  --border-subtle: #213b30;
+  --border-strong: #6f9686;
+  --backdrop-scrim: rgba(9, 20, 16, 0.84);
+  --backdrop-fallback-bg: #102019;
+  --banner-title: #eef7f3;
+  --banner-subtitle: #d6e5de;
+  --banner-control-bg: #102019;
+  --banner-control-border: #eef7f3;
+  --banner-control-text: #eef7f3;
+}
+
+/* ==========================================================================
+   Accents (4 fixed choices: cobalt, emerald, amber, rose; 'auto' maps per palette)
+   All primary button text/bg pairs verified >= 4.5:1 and focus-ring >= 3.0:1
+   ========================================================================== */
+:root,
+html[data-accent="cobalt"][data-theme="light"] {
+  --accent-primary: #1d4ed8;
+  --accent-primary-hover: #1e40af;
+  --accent-on-primary: #ffffff;
+  --accent-subtle-bg: #dbeafe;
+  --accent-subtle-text: #1e3a8a;
+  --focus-ring: #1d4ed8;
+  --banner-focus-ring: #93c5fd;
+}
+
+html[data-accent="cobalt"][data-theme="dark"] {
+  --accent-primary: #60a5fa;
+  --accent-primary-hover: #93c5fd;
+  --accent-on-primary: #0b1329;
+  --accent-subtle-bg: #1e3a8a;
+  --accent-subtle-text: #dbeafe;
+  --focus-ring: #60a5fa;
+  --banner-focus-ring: #93c5fd;
+}
+
+html[data-accent="emerald"][data-theme="light"] {
+  --accent-primary: #047857;
+  --accent-primary-hover: #065f46;
+  --accent-on-primary: #ffffff;
+  --accent-subtle-bg: #d1fae5;
+  --accent-subtle-text: #064e3b;
+  --focus-ring: #047857;
+  --banner-focus-ring: #6ee7b7;
+}
+
+html[data-accent="emerald"][data-theme="dark"] {
+  --accent-primary: #34d399;
+  --accent-primary-hover: #6ee7b7;
+  --accent-on-primary: #052016;
+  --accent-subtle-bg: #064e3b;
+  --accent-subtle-text: #d1fae5;
+  --focus-ring: #34d399;
+  --banner-focus-ring: #6ee7b7;
+}
+
+html[data-accent="amber"][data-theme="light"] {
+  --accent-primary: #b45309;
+  --accent-primary-hover: #92400e;
+  --accent-on-primary: #ffffff;
+  --accent-subtle-bg: #fef3c7;
+  --accent-subtle-text: #78350f;
+  --focus-ring: #b45309;
+  --banner-focus-ring: #fcd34d;
+}
+
+html[data-accent="amber"][data-theme="dark"] {
+  --accent-primary: #fbbf24;
+  --accent-primary-hover: #fcd34d;
+  --accent-on-primary: #211202;
+  --accent-subtle-bg: #78350f;
+  --accent-subtle-text: #fef3c7;
+  --focus-ring: #fbbf24;
+  --banner-focus-ring: #fcd34d;
+}
+
+html[data-accent="rose"][data-theme="light"] {
+  --accent-primary: #be123c;
+  --accent-primary-hover: #9f1239;
+  --accent-on-primary: #ffffff;
+  --accent-subtle-bg: #ffe4e6;
+  --accent-subtle-text: #881337;
+  --focus-ring: #be123c;
+  --banner-focus-ring: #fda4af;
+}
+
+html[data-accent="rose"][data-theme="dark"] {
+  --accent-primary: #fb7185;
+  --accent-primary-hover: #fda4af;
+  --accent-on-primary: #29060d;
+  --accent-subtle-bg: #881337;
+  --accent-subtle-text: #ffe4e6;
+  --focus-ring: #fb7185;
+  --banner-focus-ring: #fda4af;
+}
+
+/* ==========================================================================
+   Semantic Status & Freshness Tier Tokens â€” Light & Dark
+   Used by StatusBadge, ErrorState, Toast, etc.
+   Every text/bg pair is verified >= 4.5:1
+   ========================================================================== */
+:root,
+html[data-theme="light"] {
+  /* Danger / EXPIRED / FAILED / REJECTED */
+  --status-danger-bg: #fee2e2;
+  --status-danger-text: #991b1b;
+  --status-danger-border: #dc2626;
+  --btn-danger-bg: #b91c1c;
+  --btn-danger-hover: #991b1b;
+  --btn-danger-text: #ffffff;
+
+  /* Urgent (1-7d) */
+  --status-urgent-bg: #ffedd5;
+  --status-urgent-text: #9a3412;
+  --status-urgent-border: #ea580c;
+
+  /* Warning (8-30d) / FLAGGED / PENDING */
+  --status-warning-bg: #fef3c7;
+  --status-warning-text: #854d0e;
+  --status-warning-border: #ca8a04;
+
+  /* Success / READY (>30d) / PASSED / APPROVED */
+  --status-success-bg: #dcfce7;
+  --status-success-text: #166534;
+  --status-success-border: #16a34a;
+
+  /* Info / DISPATCHED */
+  --status-info-bg: #dbeafe;
+  --status-info-text: #1e40af;
+  --status-info-border: #2563eb;
+
+  /* Neutral / EXCEPTION / ARCHIVED */
+  --status-neutral-bg: #e2e8f0;
+  --status-neutral-text: #1e293b;
+  --status-neutral-border: #64748b;
+}
+
+html[data-theme="dark"] {
+  --status-danger-bg: #451212;
+  --status-danger-text: #fecaca;
+  --status-danger-border: #f87171;
+  --btn-danger-bg: #f87171;
+  --btn-danger-hover: #fca5a5;
+  --btn-danger-text: #280505;
+
+  --status-urgent-bg: #431807;
+  --status-urgent-text: #fed7aa;
+  --status-urgent-border: #fb923c;
+
+  --status-warning-bg: #3f2706;
+  --status-warning-text: #fef08a;
+  --status-warning-border: #facc15;
+
+  --status-success-bg: #08331c;
+  --status-success-text: #bbf7d0;
+  --status-success-border: #4ade80;
+
+  --status-info-bg: #11244d;
+  --status-info-text: #bfdbfe;
+  --status-info-border: #60a5fa;
+
+  --status-neutral-bg: #273244;
+  --status-neutral-text: #e2e8f0;
+  --status-neutral-border: #94a3b8;
+}
+
+/* Reduced Motion Support â€” sets all transition and animation durations to 0s */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0s;
+    --duration-normal: 0s;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0s !important;
+    scroll-behavior: auto !important;
+  }
+}

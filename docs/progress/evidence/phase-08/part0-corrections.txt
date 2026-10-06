@@ -1,0 +1,41 @@
+=== Part 0.1: docs/progress/phase-08-0.md lines 204-210 & PROGRESS.md line 376 ===
+## Verification 3 (Part 0 Item 3): `management.health.mail.enabled=false` Scoped to `dev`, `test`, and `e2e` Profiles
+
+### Decision & Reason
+- **Decision**: Removed `management.health.mail.enabled=false` from base `backend/src/main/resources/application.properties` and added it to `application-dev.properties` and `application-test.properties` (`backend/src/test/resources/application-test.properties`); `application-e2e.properties` already had `management.health.mail.enabled=false` and was not modified (as shown in the Verification 6 file modification list at lines 474â€“476). Thus `management.health.mail.enabled=false` is active only in the `dev`, `test`, and `e2e` profiles. Recorded in `SPEC.md` Â§8.3 and `PROGRESS.md`.
+- **Reason**: The `dev`, `test`, and `e2e` profiles set `tracex.mail.sink.enabled=true` (`DevMailSink`) and have no SMTP server running on `localhost:587` (except during `SmtpEmailServiceTest`, which starts an embedded GreenMail server on a test port). Leaving `MailHealthIndicator` enabled in those three profiles would cause `/actuator/health` to fail with `503 DOWN` attempting to connect to `localhost:587`. Removing `management.health.mail.enabled=false` from base `application.properties` ensures `prod` (`tracex.mail.sink.enabled=false`, where `SmtpEmailService` is active) does not silently inherit a disabled mail health check.
+
+### Profile Files (`docs/progress/evidence/phase-08-0/profile-files.txt`)
+---
+- **Part 0 Item 3 (`management.health.mail.enabled=false` Scoped to `dev`, `test`, and `e2e` Profiles)**: Removed `management.health.mail.enabled=false` from base `backend/src/main/resources/application.properties` and added it to `application-dev.properties` and `application-test.properties` (`application-e2e.properties` already had `management.health.mail.enabled=false` and was not modified), because those three profiles use `DevMailSink` (`tracex.mail.sink.enabled=true`) with no SMTP server on `localhost:587`, whereas `prod` uses `SmtpEmailService`. Documented in `SPEC.md` Â§8.3, verified `/actuator/health` returns `{"status":"UP"}` under `dev` and `prod` (`actuator-health.txt`), and verified `.\mvnw.cmd clean verify` passes (`477` tests, `0` failures, `mvnw-verify.txt`).
+- **Part A (Bulk Import Reference Extraction)**: Audited `import.controller.js`, `ImportJob.model.js`, `import.routes.js`, `requireAdmin.js`, `expiryCalculator.js`, `productContract.js`, `ImportPanel.jsx`, `useImport.js`, `csvParser.js`, `csvParser.test.js`, and `rbac.test.js` in the reference workspace and wrote `docs/00-audit/import-reference.md` covering all 11 required sections with exact file/line citations and verbatim code excerpts (`<= 15` lines each).
+- **Part B (`SPEC.md` Â§3.7, Deviations Table, `D-23`, `D-24`, Role Wording, and Open Questions)**: Added `SPEC.md` Â§3.7 (`Bulk Import`) and the 3-column Deviations Table, recorded `D-23` and `D-24` as `Proposed` in `PROGRESS.md` and `SPEC.md`, aligned `SPEC.md` Â§2 and Â§6.3 importer role wording with `requireImporter` and `docs/permission-matrix.csv` (`super-admin`, `admin`, `manager`, `factory-manager`), verified `scripts/lint-md-tables.ps1` passed across `34` Markdown files (`lint-md-tables.txt`), and documented Phase 8 open questions in [docs/progress/phase-08-0.md](docs/progress/phase-08-0.md).
+=== Part 0.2: docs/progress/evidence/phase-08-0/lint-md-tables.txt ===
+=== Markdown Table Linter ===
+Scanning 34 Markdown files...
+
+
+=== Summary ===
+Files checked: 34
+Errors: 0
+Warnings: 0
+STATUS: PASSED (Zero problems found)
+--- docs/progress/phase-08-0.md lines 538-555 ---
+### 7b. Markdown Table Linter (`scripts\lint-md-tables.ps1` â€” 34 Markdown files)
+Command:
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\lint-md-tables.ps1 2>&1 | Tee-Object -FilePath docs\progress\evidence\phase-08-0\lint-md-tables.txt
+```
+
+Output (`docs/progress/evidence/phase-08-0/lint-md-tables.txt` â€” 34 files checked after `docs/progress/phase-08-0.md` was created):
+```text
+=== Markdown Table Linter ===
+Scanning 34 Markdown files...
+
+
+=== Summary ===
+Files checked: 34
+Errors: 0
+Warnings: 0
+STATUS: PASSED (Zero problems found)
+```

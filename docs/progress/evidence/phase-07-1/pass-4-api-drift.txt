@@ -1,0 +1,5 @@
+
+> tracex-frontend@1.0.0 check:api-drift
+> node scripts/check-api-drift.mjs
+
+OpenAPI schema drift check PASSED (compare-only, zero file writes): src/api/generated/schema.d.ts and docs/openapi.json match backend/src/main/resources/openapi/tracex-api.yaml.

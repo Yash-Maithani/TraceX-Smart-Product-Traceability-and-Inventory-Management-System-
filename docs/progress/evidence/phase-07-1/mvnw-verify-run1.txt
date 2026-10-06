@@ -1,0 +1,661 @@
+
+C:\Users\yashm\OneDrive\Desktop\TraceX\backend>"C:\Program Files\Eclipse Adoptium\jdk-21.0.12.101-hotspot\\bin\java.exe"  "-Dmaven.multiModuleProjectDirectory=C:\Users\yashm\OneDrive\Desktop\TraceX\backend\." -classpath "C:\Users\yashm\OneDrive\Desktop\TraceX\backend\.mvn\wrapper\maven-wrapper.jar" org.apache.maven.wrapper.MavenWrapperMain clean verify 
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------------< com.tracex:tracex-backend >----------------------
+[INFO] Building tracex-backend 1.0.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.3.2:clean (default-clean) @ tracex-backend ---
+[INFO] Deleting C:\Users\yashm\OneDrive\Desktop\TraceX\backend\target
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ tracex-backend ---
+[INFO] Copying 5 resources from src\main\resources to target\classes
+[INFO] Copying 7 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ tracex-backend ---
+[INFO] Changes detected - recompiling the module! :source
+[INFO] Compiling 95 source files with javac [debug release 21] to target\classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ tracex-backend ---
+[INFO] Copying 4 resources from src\test\resources to target\test-classes
+[INFO] 
+[INFO] --- compiler:3.11.0:testCompile (default-testCompile) @ tracex-backend ---
+[INFO] Changes detected - recompiling the module! :dependency
+[INFO] Compiling 25 source files with javac [debug release 21] to target\test-classes
+[INFO] 
+[INFO] --- surefire:3.2.5:test (default-test) @ tracex-backend ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.tracex.RbacMatrixTest
+12:14:25.478 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.tracex.RbacMatrixTest]: RbacMatrixTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+12:14:25.581 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.tracex.TraceXApplication for test class com.tracex.RbacMatrixTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.5)
+
+2026-10-06T12:14:25.907+05:30  INFO 4292 --- [           main] com.tracex.RbacMatrixTest                : Starting RbacMatrixTest using Java 21.0.12.1 with PID 4292 (started by yashm in C:\Users\yashm\OneDrive\Desktop\TraceX\backend)
+2026-10-06T12:14:25.908+05:30  INFO 4292 --- [           main] com.tracex.RbacMatrixTest                : The following 1 profile is active: "test"
+2026-10-06T12:14:26.846+05:30  INFO 4292 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data MongoDB repositories in DEFAULT mode.
+2026-10-06T12:14:26.920+05:30  INFO 4292 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 70 ms. Found 8 MongoDB repository interfaces.
+2026-10-06T12:14:27.671+05:30  INFO 4292 --- [           main] org.mongodb.driver.client                : MongoClient with metadata {"driver": {"name": "mongo-java-driver|sync|spring-boot", "version": "4.11.2"}, "os": {"type": "Windows", "name": "Windows 11", "architecture": "amd64", "version": "10.0"}, "platform": "Java/Eclipse Adoptium/21.0.12.1+1-LTS"} created with settings MongoClientSettings{readPreference=primary, writeConcern=WriteConcern{w=null, wTimeout=null ms, journal=null}, retryWrites=true, retryReads=true, readConcern=ReadConcern{level=null}, credential=null, transportSettings=null, streamFactoryFactory=null, commandListeners=[io.micrometer.core.instrument.binder.mongodb.MongoMetricsCommandListener@42cc5460], codecRegistry=ProvidersCodecRegistry{codecProviders=[ValueCodecProvider{}, BsonValueCodecProvider{}, DBRefCodecProvider{}, DBObjectCodecProvider{}, DocumentCodecProvider{}, CollectionCodecProvider{}, IterableCodecProvider{}, MapCodecProvider{}, GeoJsonCodecProvider{}, GridFSFileCodecProvider{}, Jsr310CodecProvider{}, JsonObjectCodecProvider{}, BsonCodecProvider{}, EnumCodecProvider{}, com.mongodb.client.model.mql.ExpressionCodecProvider@5486ee92, com.mongodb.Jep395RecordCodecProvider@20820df0, com.mongodb.KotlinCodecProvider@9e62fb]}, loggerSettings=LoggerSettings{maxDocumentLength=1000}, clusterSettings={hosts=[localhost:27017], srvServiceName=mongodb, mode=SINGLE, requiredClusterType=UNKNOWN, requiredReplicaSetName='null', serverSelector='null', clusterListeners='[]', serverSelectionTimeout='30000 ms', localThreshold='15 ms'}, socketSettings=SocketSettings{connectTimeoutMS=10000, readTimeoutMS=0, receiveBufferSize=0, proxySettings=ProxySettings{host=null, port=null, username=null, password=null}}, heartbeatSocketSettings=SocketSettings{connectTimeoutMS=10000, readTimeoutMS=10000, receiveBufferSize=0, proxySettings=ProxySettings{host=null, port=null, username=null, password=null}}, connectionPoolSettings=ConnectionPoolSettings{maxSize=100, minSize=0, maxWaitTimeMS=120000, maxConnectionLifeTimeMS=0, maxConnectionIdleTimeMS=0, maintenanceInitialDelayMS=0, maintenanceFrequencyMS=60000, connectionPoolListeners=[io.micrometer.core.instrument.binder.mongodb.MongoMetricsConnectionPoolListener@205159dc], maxConnecting=2}, serverSettings=ServerSettings{heartbeatFrequencyMS=10000, minHeartbeatFrequencyMS=500, serverListeners='[]', serverMonitorListeners='[]'}, sslSettings=SslSettings{enabled=false, invalidHostNameAllowed=false, context=null}, applicationName='null', compressorList=[], uuidRepresentation=JAVA_LEGACY, serverApi=null, autoEncryptionSettings=null, dnsClient=null, inetAddressResolver=null, contextProvider=null}
+2026-10-06T12:14:27.706+05:30  INFO 4292 --- [localhost:27017] org.mongodb.driver.cluster               : Monitor thread successfully connected to server with description ServerDescription{address=localhost:27017, type=STANDALONE, state=CONNECTED, ok=true, minWireVersion=0, maxWireVersion=28, maxDocumentSize=16777216, logicalSessionTimeoutMinutes=30, roundTripTimeNanos=24981300}
+2026-10-06T12:14:29.432+05:30  WARN 4292 --- [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: d761268d-36cd-41a6-888d-f8562e83ba8b
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-10-06T12:14:30.064+05:30  INFO 4292 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint(s) beneath base path '/actuator'
+2026-10-06T12:14:30.190+05:30  INFO 4292 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@c3d4bd7, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@2626aa35, org.springframework.security.web.context.SecurityContextHolderFilter@3e0e0ba7, org.springframework.security.web.header.HeaderWriterFilter@34b462e0, org.springframework.web.filter.CorsFilter@5ca8c904, org.springframework.security.web.authentication.logout.LogoutFilter@22cb8e5f, com.tracex.security.RequestIdFilter@4c614d8c, com.tracex.security.JwtAuthFilter@2ae4c424, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@cbdc0f4, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@11174bf, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@3980b44f, org.springframework.security.web.session.SessionManagementFilter@2b82018, org.springframework.security.web.access.ExceptionTranslationFilter@fd0e118, org.springframework.security.web.access.intercept.AuthorizationFilter@49bc71b4]
+2026-10-06T12:14:30.699+05:30  INFO 4292 --- [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-10-06T12:14:30.700+05:30  INFO 4292 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-10-06T12:14:30.701+05:30  INFO 4292 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-10-06T12:14:30.753+05:30  INFO 4292 --- [           main] com.tracex.RbacMatrixTest                : Started RbacMatrixTest in 5.048 seconds (process running for 6.052)
+2026-10-06T12:14:30.861+05:30  INFO 4292 --- [           main] c.t.s.BatchTraceTokenBackfillRunner      : [traceToken backfill] No batches missing traceToken. 0 batches updated.
+2026-10-06T12:14:30.862+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Executing idempotent database seed for demo users, access requests, products, batches, and inspections...
+2026-10-06T12:14:31.317+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Database seeding completed.
+.\mvnw.cmd : OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap 
+classpath has been appended
+At line:1 char:1
++ .\mvnw.cmd clean verify 2>&1 | Tee-Object -FilePath ..\docs\progress\ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (OpenJDK 64-Bit ...s been appended:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+WARNING: A Java agent has been loaded dynamically 
+(C:\Users\yashm\.m2\repository\net\bytebuddy\byte-buddy-agent\1.14.13\byte-buddy-agent-1.14.13.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+2026-10-06T12:14:32.588+05:30  INFO 4292 --- [           main] com.tracex.RbacMatrixTest                : Generated 322 dynamic tests for 46 active phase rows
+[INFO] Tests run: 322, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 9.994 s -- in com.tracex.RbacMatrixTest
+[INFO] Running com.tracex.ForwardedHeadersEmpiricalTest
+[INFO] Running com.tracex.ForwardedHeadersEmpiricalTest$NativeStrategyTrustedProxyTests
+2026-10-06T12:14:35.319+05:30  INFO 4292 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.tracex.ForwardedHeadersEmpiricalTest$NativeStrategyTrustedProxyTests]: NativeStrategyTrustedProxyTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-06T12:14:35.326+05:30  INFO 4292 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.tracex.TraceXApplication for test class com.tracex.ForwardedHeadersEmpiricalTest$NativeStrategyTrustedProxyTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.5)
+
+2026-10-06T12:14:35.369+05:30  INFO 4292 --- [           main] icalTest$NativeStrategyTrustedProxyTests : Starting ForwardedHeadersEmpiricalTest.NativeStrategyTrustedProxyTests using Java 21.0.12.1 with PID 4292 (started by yashm in C:\Users\yashm\OneDrive\Desktop\TraceX\backend)
+2026-10-06T12:14:35.370+05:30  INFO 4292 --- [           main] icalTest$NativeStrategyTrustedProxyTests : The following 1 profile is active: "test"
+2026-10-06T12:14:35.737+05:30  INFO 4292 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data MongoDB repositories in DEFAULT mode.
+2026-10-06T12:14:35.758+05:30  INFO 4292 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 20 ms. Found 8 MongoDB repository interfaces.
+2026-10-06T12:14:35.947+05:30  INFO 4292 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 0 (http)
+2026-10-06T12:14:35.961+05:30  INFO 4292 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-10-06T12:14:35.961+05:30  INFO 4292 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.20]
+2026-10-06T12:14:36.019+05:30  INFO 4292 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-10-06T12:14:36.020+05:30  INFO 4292 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 646 ms
+2026-10-06T12:14:36.064+05:30  INFO 4292 --- [           main] org.mongodb.driver.client                : MongoClient with metadata {"driver": {"name": "mongo-java-driver|sync|spring-boot", "version": "4.11.2"}, "os": {"type": "Windows", "name": "Windows 11", "architecture": "amd64", "version": "10.0"}, "platform": "Java/Eclipse Adoptium/21.0.12.1+1-LTS"} created with settings MongoClientSettings{readPreference=primary, writeConcern=WriteConcern{w=null, wTimeout=null ms, journal=null}, retryWrites=true, retryReads=true, readConcern=ReadConcern{level=null}, credential=null, transportSettings=null, streamFactoryFactory=null, commandListeners=[io.micrometer.core.instrument.binder.mongodb.MongoMetricsCommandListener@5813046e], codecRegistry=ProvidersCodecRegistry{codecProviders=[ValueCodecProvider{}, BsonValueCodecProvider{}, DBRefCodecProvider{}, DBObjectCodecProvider{}, DocumentCodecProvider{}, CollectionCodecProvider{}, IterableCodecProvider{}, MapCodecProvider{}, GeoJsonCodecProvider{}, GridFSFileCodecProvider{}, Jsr310CodecProvider{}, JsonObjectCodecProvider{}, BsonCodecProvider{}, EnumCodecProvider{}, com.mongodb.client.model.mql.ExpressionCodecProvider@5486ee92, com.mongodb.Jep395RecordCodecProvider@20820df0, com.mongodb.KotlinCodecProvider@9e62fb]}, loggerSettings=LoggerSettings{maxDocumentLength=1000}, clusterSettings={hosts=[localhost:27017], srvServiceName=mongodb, mode=SINGLE, requiredClusterType=UNKNOWN, requiredReplicaSetName='null', serverSelector='null', clusterListeners='[]', serverSelectionTimeout='30000 ms', localThreshold='15 ms'}, socketSettings=SocketSettings{connectTimeoutMS=10000, readTimeoutMS=0, receiveBufferSize=0, proxySettings=ProxySettings{host=null, port=null, username=null, password=null}}, heartbeatSocketSettings=SocketSettings{connectTimeoutMS=10000, readTimeoutMS=10000, receiveBufferSize=0, proxySettings=ProxySettings{host=null, port=null, username=null, password=null}}, connectionPoolSettings=ConnectionPoolSettings{maxSize=100, minSize=0, maxWaitTimeMS=120000, maxConnectionLifeTimeMS=0, maxConnectionIdleTimeMS=0, maintenanceInitialDelayMS=0, maintenanceFrequencyMS=60000, connectionPoolListeners=[io.micrometer.core.instrument.binder.mongodb.MongoMetricsConnectionPoolListener@6b1e72a4], maxConnecting=2}, serverSettings=ServerSettings{heartbeatFrequencyMS=10000, minHeartbeatFrequencyMS=500, serverListeners='[]', serverMonitorListeners='[]'}, sslSettings=SslSettings{enabled=false, invalidHostNameAllowed=false, context=null}, applicationName='null', compressorList=[], uuidRepresentation=JAVA_LEGACY, serverApi=null, autoEncryptionSettings=null, dnsClient=null, inetAddressResolver=null, contextProvider=null}
+2026-10-06T12:14:36.065+05:30  INFO 4292 --- [localhost:27017] org.mongodb.driver.cluster               : Monitor thread successfully connected to server with description ServerDescription{address=localhost:27017, type=STANDALONE, state=CONNECTED, ok=true, minWireVersion=0, maxWireVersion=28, maxDocumentSize=16777216, logicalSessionTimeoutMinutes=30, roundTripTimeNanos=1101300}
+2026-10-06T12:14:36.303+05:30  WARN 4292 --- [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 7a2ad36f-15ad-4745-b8e3-39e80fd5f320
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-10-06T12:14:36.386+05:30  INFO 4292 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint(s) beneath base path '/actuator'
+2026-10-06T12:14:36.403+05:30  INFO 4292 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@365ad794, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@4471f216, org.springframework.security.web.context.SecurityContextHolderFilter@62cad0e8, org.springframework.security.web.header.HeaderWriterFilter@43a8dd9b, org.springframework.web.filter.CorsFilter@4528a8bf, org.springframework.security.web.authentication.logout.LogoutFilter@31c87223, com.tracex.security.RequestIdFilter@7a725c89, com.tracex.security.JwtAuthFilter@553d9329, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@1659a0ff, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@1398e3aa, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@1927c2c6, org.springframework.security.web.session.SessionManagementFilter@1c7159d5, org.springframework.security.web.access.ExceptionTranslationFilter@1d7d2345, org.springframework.security.web.access.intercept.AuthorizationFilter@3e9c59ed]
+2026-10-06T12:14:36.545+05:30  INFO 4292 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 50385 (http) with context path ''
+2026-10-06T12:14:36.567+05:30  INFO 4292 --- [           main] icalTest$NativeStrategyTrustedProxyTests : Started ForwardedHeadersEmpiricalTest.NativeStrategyTrustedProxyTests in 1.233 seconds (process running for 11.866)
+2026-10-06T12:14:36.575+05:30  INFO 4292 --- [           main] c.t.s.BatchTraceTokenBackfillRunner      : [traceToken backfill] No batches missing traceToken. 0 batches updated.
+2026-10-06T12:14:36.576+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Executing idempotent database seed for demo users, access requests, products, batches, and inspections...
+2026-10-06T12:14:36.783+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Database seeding completed.
+2026-10-06T12:14:37.072+05:30  INFO 4292 --- [o-auto-1-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-10-06T12:14:37.072+05:30  INFO 4292 --- [o-auto-1-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-10-06T12:14:37.075+05:30  INFO 4292 --- [o-auto-1-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 3 ms
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.798 s -- in com.tracex.ForwardedHeadersEmpiricalTest$NativeStrategyTrustedProxyTests
+[INFO] Running com.tracex.ForwardedHeadersEmpiricalTest$FrameworkStrategyTests
+2026-10-06T12:14:37.116+05:30  INFO 4292 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.tracex.ForwardedHeadersEmpiricalTest$FrameworkStrategyTests]: FrameworkStrategyTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-06T12:14:37.118+05:30  INFO 4292 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.tracex.TraceXApplication for test class com.tracex.ForwardedHeadersEmpiricalTest$FrameworkStrategyTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.5)
+
+2026-10-06T12:14:37.141+05:30  INFO 4292 --- [           main] dersEmpiricalTest$FrameworkStrategyTests : Starting ForwardedHeadersEmpiricalTest.FrameworkStrategyTests using Java 21.0.12.1 with PID 4292 (started by yashm in C:\Users\yashm\OneDrive\Desktop\TraceX\backend)
+2026-10-06T12:14:37.141+05:30  INFO 4292 --- [           main] dersEmpiricalTest$FrameworkStrategyTests : The following 1 profile is active: "test"
+2026-10-06T12:14:37.428+05:30  INFO 4292 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data MongoDB repositories in DEFAULT mode.
+2026-10-06T12:14:37.446+05:30  INFO 4292 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 18 ms. Found 8 MongoDB repository interfaces.
+2026-10-06T12:14:37.504+05:30  INFO 4292 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 0 (http)
+2026-10-06T12:14:37.504+05:30  INFO 4292 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-10-06T12:14:37.504+05:30  INFO 4292 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.20]
+2026-10-06T12:14:37.535+05:30  INFO 4292 --- [           main] o.a.c.c.C.[Tomcat-1].[localhost].[/]     : Initializing Spring embedded WebApplicationContext
+2026-10-06T12:14:37.536+05:30  INFO 4292 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 393 ms
+2026-10-06T12:14:37.580+05:30  INFO 4292 --- [           main] org.mongodb.driver.client                : MongoClient with metadata {"driver": {"name": "mongo-java-driver|sync|spring-boot", "version": "4.11.2"}, "os": {"type": "Windows", "name": "Windows 11", "architecture": "amd64", "version": "10.0"}, "platform": "Java/Eclipse Adoptium/21.0.12.1+1-LTS"} created with settings MongoClientSettings{readPreference=primary, writeConcern=WriteConcern{w=null, wTimeout=null ms, journal=null}, retryWrites=true, retryReads=true, readConcern=ReadConcern{level=null}, credential=null, transportSettings=null, streamFactoryFactory=null, commandListeners=[io.micrometer.core.instrument.binder.mongodb.MongoMetricsCommandListener@5d7d2cb5], codecRegistry=ProvidersCodecRegistry{codecProviders=[ValueCodecProvider{}, BsonValueCodecProvider{}, DBRefCodecProvider{}, DBObjectCodecProvider{}, DocumentCodecProvider{}, CollectionCodecProvider{}, IterableCodecProvider{}, MapCodecProvider{}, GeoJsonCodecProvider{}, GridFSFileCodecProvider{}, Jsr310CodecProvider{}, JsonObjectCodecProvider{}, BsonCodecProvider{}, EnumCodecProvider{}, com.mongodb.client.model.mql.ExpressionCodecProvider@5486ee92, com.mongodb.Jep395RecordCodecProvider@20820df0, com.mongodb.KotlinCodecProvider@9e62fb]}, loggerSettings=LoggerSettings{maxDocumentLength=1000}, clusterSettings={hosts=[localhost:27017], srvServiceName=mongodb, mode=SINGLE, requiredClusterType=UNKNOWN, requiredReplicaSetName='null', serverSelector='null', clusterListeners='[]', serverSelectionTimeout='30000 ms', localThreshold='15 ms'}, socketSettings=SocketSettings{connectTimeoutMS=10000, readTimeoutMS=0, receiveBufferSize=0, proxySettings=ProxySettings{host=null, port=null, username=null, password=null}}, heartbeatSocketSettings=SocketSettings{connectTimeoutMS=10000, readTimeoutMS=10000, receiveBufferSize=0, proxySettings=ProxySettings{host=null, port=null, username=null, password=null}}, connectionPoolSettings=ConnectionPoolSettings{maxSize=100, minSize=0, maxWaitTimeMS=120000, maxConnectionLifeTimeMS=0, maxConnectionIdleTimeMS=0, maintenanceInitialDelayMS=0, maintenanceFrequencyMS=60000, connectionPoolListeners=[io.micrometer.core.instrument.binder.mongodb.MongoMetricsConnectionPoolListener@105fa381], maxConnecting=2}, serverSettings=ServerSettings{heartbeatFrequencyMS=10000, minHeartbeatFrequencyMS=500, serverListeners='[]', serverMonitorListeners='[]'}, sslSettings=SslSettings{enabled=false, invalidHostNameAllowed=false, context=null}, applicationName='null', compressorList=[], uuidRepresentation=JAVA_LEGACY, serverApi=null, autoEncryptionSettings=null, dnsClient=null, inetAddressResolver=null, contextProvider=null}
+2026-10-06T12:14:37.581+05:30  INFO 4292 --- [localhost:27017] org.mongodb.driver.cluster               : Monitor thread successfully connected to server with description ServerDescription{address=localhost:27017, type=STANDALONE, state=CONNECTED, ok=true, minWireVersion=0, maxWireVersion=28, maxDocumentSize=16777216, logicalSessionTimeoutMinutes=30, roundTripTimeNanos=1071700}
+2026-10-06T12:14:37.753+05:30  WARN 4292 --- [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 1523a5f1-c3a8-4180-ad37-fdb119b02974
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-10-06T12:14:37.832+05:30  INFO 4292 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint(s) beneath base path '/actuator'
+2026-10-06T12:14:37.847+05:30  INFO 4292 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@4d5bfb1a, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@17fe4f0f, org.springframework.security.web.context.SecurityContextHolderFilter@34577542, org.springframework.security.web.header.HeaderWriterFilter@464aff63, org.springframework.web.filter.CorsFilter@65c6a7a, org.springframework.security.web.authentication.logout.LogoutFilter@1fe8a2fc, com.tracex.security.RequestIdFilter@648ebda1, com.tracex.security.JwtAuthFilter@1f619466, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@29b78b34, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@3817d886, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@38d583cd, org.springframework.security.web.session.SessionManagementFilter@2131229e, org.springframework.security.web.access.ExceptionTranslationFilter@b92cdf9, org.springframework.security.web.access.intercept.AuthorizationFilter@cc64e22]
+2026-10-06T12:14:37.926+05:30  INFO 4292 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 50390 (http) with context path ''
+2026-10-06T12:14:37.939+05:30  INFO 4292 --- [           main] dersEmpiricalTest$FrameworkStrategyTests : Started ForwardedHeadersEmpiricalTest.FrameworkStrategyTests in 0.817 seconds (process running for 13.239)
+2026-10-06T12:14:37.943+05:30  INFO 4292 --- [           main] c.t.s.BatchTraceTokenBackfillRunner      : [traceToken backfill] No batches missing traceToken. 0 batches updated.
+2026-10-06T12:14:37.943+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Executing idempotent database seed for demo users, access requests, products, batches, and inspections...
+2026-10-06T12:14:38.150+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Database seeding completed.
+2026-10-06T12:14:38.241+05:30  INFO 4292 --- [o-auto-2-exec-1] o.a.c.c.C.[Tomcat-1].[localhost].[/]     : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-10-06T12:14:38.241+05:30  INFO 4292 --- [o-auto-2-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-10-06T12:14:38.241+05:30  INFO 4292 --- [o-auto-2-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.139 s -- in com.tracex.ForwardedHeadersEmpiricalTest$FrameworkStrategyTests
+[INFO] Running com.tracex.ForwardedHeadersEmpiricalTest$NativeStrategyUntrustedDirectTests
+2026-10-06T12:14:38.256+05:30  INFO 4292 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.tracex.ForwardedHeadersEmpiricalTest$NativeStrategyUntrustedDirectTests]: NativeStrategyUntrustedDirectTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-06T12:14:38.258+05:30  INFO 4292 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.tracex.TraceXApplication for test class com.tracex.ForwardedHeadersEmpiricalTest$NativeStrategyUntrustedDirectTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.5)
+
+2026-10-06T12:14:38.280+05:30  INFO 4292 --- [           main] lTest$NativeStrategyUntrustedDirectTests : Starting ForwardedHeadersEmpiricalTest.NativeStrategyUntrustedDirectTests using Java 21.0.12.1 with PID 4292 (started by yashm in C:\Users\yashm\OneDrive\Desktop\TraceX\backend)
+2026-10-06T12:14:38.280+05:30  INFO 4292 --- [           main] lTest$NativeStrategyUntrustedDirectTests : The following 1 profile is active: "test"
+2026-10-06T12:14:38.534+05:30  INFO 4292 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data MongoDB repositories in DEFAULT mode.
+2026-10-06T12:14:38.552+05:30  INFO 4292 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 17 ms. Found 8 MongoDB repository interfaces.
+2026-10-06T12:14:38.607+05:30  INFO 4292 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 0 (http)
+2026-10-06T12:14:38.607+05:30  INFO 4292 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-10-06T12:14:38.608+05:30  INFO 4292 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.20]
+2026-10-06T12:14:38.631+05:30  INFO 4292 --- [           main] o.a.c.c.C.[Tomcat-2].[localhost].[/]     : Initializing Spring embedded WebApplicationContext
+2026-10-06T12:14:38.631+05:30  INFO 4292 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 349 ms
+2026-10-06T12:14:38.667+05:30  INFO 4292 --- [           main] org.mongodb.driver.client                : MongoClient with metadata {"driver": {"name": "mongo-java-driver|sync|spring-boot", "version": "4.11.2"}, "os": {"type": "Windows", "name": "Windows 11", "architecture": "amd64", "version": "10.0"}, "platform": "Java/Eclipse Adoptium/21.0.12.1+1-LTS"} created with settings MongoClientSettings{readPreference=primary, writeConcern=WriteConcern{w=null, wTimeout=null ms, journal=null}, retryWrites=true, retryReads=true, readConcern=ReadConcern{level=null}, credential=null, transportSettings=null, streamFactoryFactory=null, commandListeners=[io.micrometer.core.instrument.binder.mongodb.MongoMetricsCommandListener@3243d4ca], codecRegistry=ProvidersCodecRegistry{codecProviders=[ValueCodecProvider{}, BsonValueCodecProvider{}, DBRefCodecProvider{}, DBObjectCodecProvider{}, DocumentCodecProvider{}, CollectionCodecProvider{}, IterableCodecProvider{}, MapCodecProvider{}, GeoJsonCodecProvider{}, GridFSFileCodecProvider{}, Jsr310CodecProvider{}, JsonObjectCodecProvider{}, BsonCodecProvider{}, EnumCodecProvider{}, com.mongodb.client.model.mql.ExpressionCodecProvider@5486ee92, com.mongodb.Jep395RecordCodecProvider@20820df0, com.mongodb.KotlinCodecProvider@9e62fb]}, loggerSettings=LoggerSettings{maxDocumentLength=1000}, clusterSettings={hosts=[localhost:27017], srvServiceName=mongodb, mode=SINGLE, requiredClusterType=UNKNOWN, requiredReplicaSetName='null', serverSelector='null', clusterListeners='[]', serverSelectionTimeout='30000 ms', localThreshold='15 ms'}, socketSettings=SocketSettings{connectTimeoutMS=10000, readTimeoutMS=0, receiveBufferSize=0, proxySettings=ProxySettings{host=null, port=null, username=null, password=null}}, heartbeatSocketSettings=SocketSettings{connectTimeoutMS=10000, readTimeoutMS=10000, receiveBufferSize=0, proxySettings=ProxySettings{host=null, port=null, username=null, password=null}}, connectionPoolSettings=ConnectionPoolSettings{maxSize=100, minSize=0, maxWaitTimeMS=120000, maxConnectionLifeTimeMS=0, maxConnectionIdleTimeMS=0, maintenanceInitialDelayMS=0, maintenanceFrequencyMS=60000, connectionPoolListeners=[io.micrometer.core.instrument.binder.mongodb.MongoMetricsConnectionPoolListener@b8d10c9], maxConnecting=2}, serverSettings=ServerSettings{heartbeatFrequencyMS=10000, minHeartbeatFrequencyMS=500, serverListeners='[]', serverMonitorListeners='[]'}, sslSettings=SslSettings{enabled=false, invalidHostNameAllowed=false, context=null}, applicationName='null', compressorList=[], uuidRepresentation=JAVA_LEGACY, serverApi=null, autoEncryptionSettings=null, dnsClient=null, inetAddressResolver=null, contextProvider=null}
+2026-10-06T12:14:38.668+05:30  INFO 4292 --- [localhost:27017] org.mongodb.driver.cluster               : Monitor thread successfully connected to server with description ServerDescription{address=localhost:27017, type=STANDALONE, state=CONNECTED, ok=true, minWireVersion=0, maxWireVersion=28, maxDocumentSize=16777216, logicalSessionTimeoutMinutes=30, roundTripTimeNanos=918500}
+2026-10-06T12:14:38.838+05:30  WARN 4292 --- [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 71c284bc-de92-47ce-b830-a0d217990fb9
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-10-06T12:14:38.894+05:30  INFO 4292 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint(s) beneath base path '/actuator'
+2026-10-06T12:14:38.906+05:30  INFO 4292 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@22fc72e8, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@50d3db27, org.springframework.security.web.context.SecurityContextHolderFilter@6d3e720e, org.springframework.security.web.header.HeaderWriterFilter@af913dc, org.springframework.web.filter.CorsFilter@6ffac1f3, org.springframework.security.web.authentication.logout.LogoutFilter@25dae0f0, com.tracex.security.RequestIdFilter@6fbe879b, com.tracex.security.JwtAuthFilter@6c9b2d0e, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@1305f8e3, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@51a07eac, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@3878672c, org.springframework.security.web.session.SessionManagementFilter@bdc2f96, org.springframework.security.web.access.ExceptionTranslationFilter@76d11298, org.springframework.security.web.access.intercept.AuthorizationFilter@4ba39ece]
+2026-10-06T12:14:38.982+05:30  INFO 4292 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 50395 (http) with context path ''
+2026-10-06T12:14:38.986+05:30  INFO 4292 --- [           main] lTest$NativeStrategyUntrustedDirectTests : Started ForwardedHeadersEmpiricalTest.NativeStrategyUntrustedDirectTests in 0.725 seconds (process running for 14.285)
+2026-10-06T12:14:38.990+05:30  INFO 4292 --- [           main] c.t.s.BatchTraceTokenBackfillRunner      : [traceToken backfill] No batches missing traceToken. 0 batches updated.
+2026-10-06T12:14:38.990+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Executing idempotent database seed for demo users, access requests, products, batches, and inspections...
+2026-10-06T12:14:39.200+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Database seeding completed.
+2026-10-06T12:14:39.288+05:30  INFO 4292 --- [o-auto-3-exec-1] o.a.c.c.C.[Tomcat-2].[localhost].[/]     : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-10-06T12:14:39.288+05:30  INFO 4292 --- [o-auto-3-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-10-06T12:14:39.289+05:30  INFO 4292 --- [o-auto-3-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.044 s -- in com.tracex.ForwardedHeadersEmpiricalTest$NativeStrategyUntrustedDirectTests
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.986 s -- in com.tracex.ForwardedHeadersEmpiricalTest
+[INFO] Running com.tracex.TokenAndSessionTests
+2026-10-06T12:14:39.303+05:30  INFO 4292 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.tracex.TokenAndSessionTests]: TokenAndSessionTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-06T12:14:39.307+05:30  INFO 4292 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.tracex.TraceXApplication for test class com.tracex.TokenAndSessionTests
+2026-10-06T12:14:40.037+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Executing idempotent database seed for demo users, access requests, products, batches, and inspections...
+2026-10-06T12:14:40.199+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Database seeding completed.
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.897 s -- in com.tracex.TokenAndSessionTests
+[INFO] Running com.tracex.ErrorCodeSpecSyncTest
+2026-10-06T12:14:40.204+05:30  INFO 4292 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.tracex.ErrorCodeSpecSyncTest]: ErrorCodeSpecSyncTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.017 s -- in com.tracex.ErrorCodeSpecSyncTest
+[INFO] Running com.tracex.ConfigurationAndSeedTests
+2026-10-06T12:14:40.222+05:30  INFO 4292 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.tracex.ConfigurationAndSeedTests]: ConfigurationAndSeedTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-06T12:14:40.224+05:30  INFO 4292 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.tracex.TraceXApplication for test class com.tracex.ConfigurationAndSeedTests
+2026-10-06T12:14:40.230+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Executing idempotent database seed for demo users, access requests, products, batches, and inspections...
+2026-10-06T12:14:40.389+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Database seeding completed.
+2026-10-06T12:14:41.026+05:30  WARN 4292 --- [           main] o.s.b.a.data.mongo.MongoHealthIndicator  : MongoDB health check failed
+
+java.lang.NullPointerException: Cannot invoke "org.bson.Document.getInteger(Object)" because "result" is null
+	at org.springframework.boot.actuate.data.mongo.MongoHealthIndicator.doHealthCheck(MongoHealthIndicator.java:47) ~[spring-boot-actuator-3.2.5.jar:3.2.5]
+	at org.springframework.boot.actuate.health.AbstractHealthIndicator.health(AbstractHealthIndicator.java:82) ~[spring-boot-actuator-3.2.5.jar:3.2.5]
+	at com.tracex.ConfigurationAndSeedTests.testMongoHealthIndicatorDownWhenUnavailable(ConfigurationAndSeedTests.java:236) ~[test-classes/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:728) ~[junit-platform-commons-1.10.2.jar:1.10.2]
+	at org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60) ~[junit-jupiter-engine-5.10.2.jar:5.10.2]
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:131) ~[junit-jupiter-engine-5.10.2.jar:5.10.2]
+	at org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:156) ~[junit-jupiter-engine-5.10.2.jar:5.10.2]
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:147) ~[junit-jupiter-engine-5.10.2.jar:5.10.2]
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:86) ~[junit-jupiter-engine-5.10.2.jar:5.10.2]
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(InterceptingExecutableInvoker.java:103) ~[junit-jupiter-engine-5.10.2.jar:5.10.2]
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.lambda$invoke$0(InterceptingExecutableInvoker.java:93) ~[junit-jupiter-engine-5.10.2.jar:5.10.2]
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:106) ~[junit-jupiter-engine-5.10.2.jar:5.10.2]
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:64) ~[junit-jupiter-engine-5.10.2.jar:5.10.2]
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:45) ~[junit-jupiter-engine-5.10.2.jar:5.10.2]
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:37) ~[junit-jupiter-engine-5.10.2.jar:5.10.2]
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:92) ~[junit-jupiter-engine-5.10.2.jar:5.10.2]
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:86) ~[junit-jupiter-engine-5.10.2.jar:5.10.2]
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$7(TestMethodTestDescriptor.java:218) ~[junit-jupiter-engine-5.10.2.jar:5.10.2]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73) ~[junit-platform-engine-1.10.2.jar:1.10.2]
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:214) ~[junit-jupiter-engine-5.10.2.jar:5.10.2]
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:139) ~[junit-jupiter-engine-5.10.2.jar:5.10.2]
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:69) ~[junit-jupiter-engine-5.10.2.jar:5.10.2]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:151) ~[junit-platform-engine-1.10.2.jar:1.10.2]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73) ~[junit-platform-engine-1.10.2.jar:1.10.2]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141) ~[junit-platform-engine-1.10.2.jar:1.10.2]
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137) ~[junit-platform-engine-1.10.2.jar:1.10.2]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139) ~[junit-platform-engine-1.10.2.jar:1.10.2]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73) ~[junit-platform-engine-1.10.2.jar:1.10.2]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138) ~[junit-platform-engine-1.10.2.jar:1.10.2]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95) ~[junit-platform-engine-1.10.2.jar:1.10.2]
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596) ~[na:na]
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41) ~[junit-platform-engine-1.10.2.jar:1.10.2]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155) ~[junit-platform-engine-1.10.2.jar:1.10.2]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73) ~[junit-platform-engine-1.10.2.jar:1.10.2]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141) ~[junit-platform-engine-1.10.2.jar:1.10.2]
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137) ~[junit-platform-engine-1.10.2.jar:1.10.2]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139) ~[junit-platform-engine-1.10.2.jar:1.10.2]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73) ~[junit-platform-engine-1.10.2.jar:1.10.2]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138) ~[junit-platform-engine-1.10.2.jar:1.10.2]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95) ~[junit-platform-engine-1.10.2.jar:1.10.2]
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596) ~[na:na]
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41) ~[junit-platform-engine-1.10.2.jar:1.10.2]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155) ~[junit-platform-engine-1.10.2.jar:1.10.2]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73) ~[junit-platform-engine-1.10.2.jar:1.10.2]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141) ~[junit-platform-engine-1.10.2.jar:1.10.2]
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137) ~[junit-platform-engine-1.10.2.jar:1.10.2]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139) ~[junit-platform-engine-1.10.2.jar:1.10.2]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73) ~[junit-platform-engine-1.10.2.jar:1.10.2]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138) ~[junit-platform-engine-1.10.2.jar:1.10.2]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95) ~[junit-platform-engine-1.10.2.jar:1.10.2]
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:35) ~[junit-platform-engine-1.10.2.jar:1.10.2]
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:57) ~[junit-platform-engine-1.10.2.jar:1.10.2]
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:54) ~[junit-platform-engine-1.10.2.jar:1.10.2]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:198) ~[junit-platform-launcher-1.10.2.jar:1.10.2]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:169) ~[junit-platform-launcher-1.10.2.jar:1.10.2]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:93) ~[junit-platform-launcher-1.10.2.jar:1.10.2]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.lambda$execute$0(EngineExecutionOrchestrator.java:58) ~[junit-platform-launcher-1.10.2.jar:1.10.2]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.withInterceptedStreams(EngineExecutionOrchestrator.java:141) ~[junit-platform-launcher-1.10.2.jar:1.10.2]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:57) ~[junit-platform-launcher-1.10.2.jar:1.10.2]
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:103) ~[junit-platform-launcher-1.10.2.jar:1.10.2]
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:85) ~[junit-platform-launcher-1.10.2.jar:1.10.2]
+	at org.junit.platform.launcher.core.DelegatingLauncher.execute(DelegatingLauncher.java:47) ~[junit-platform-launcher-1.10.2.jar:1.10.2]
+	at org.apache.maven.surefire.junitplatform.LazyLauncher.execute(LazyLauncher.java:56) ~[surefire-junit-platform-3.2.5.jar:3.2.5]
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.execute(JUnitPlatformProvider.java:184) ~[surefire-junit-platform-3.2.5.jar:3.2.5]
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invokeAllTests(JUnitPlatformProvider.java:148) ~[surefire-junit-platform-3.2.5.jar:3.2.5]
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invoke(JUnitPlatformProvider.java:122) ~[surefire-junit-platform-3.2.5.jar:3.2.5]
+	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385) ~[surefire-booter-3.2.5.jar:3.2.5]
+	at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162) ~[surefire-booter-3.2.5.jar:3.2.5]
+	at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507) ~[surefire-booter-3.2.5.jar:3.2.5]
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495) ~[surefire-booter-3.2.5.jar:3.2.5]
+
+2026-10-06T12:14:41.075+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Executing idempotent database seed for demo users, access requests, products, batches, and inspections...
+2026-10-06T12:14:41.514+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Database seeding completed.
+2026-10-06T12:14:41.516+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Executing idempotent database seed for demo users, access requests, products, batches, and inspections...
+2026-10-06T12:14:41.791+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Database seeding completed.
+2026-10-06T12:14:41.816+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Executing idempotent database seed for demo users, access requests, products, batches, and inspections...
+2026-10-06T12:14:42.073+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Database seeding completed.
+2026-10-06T12:14:42.092+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Executing idempotent database seed for demo users, access requests, products, batches, and inspections...
+2026-10-06T12:14:42.313+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Database seeding completed.
+2026-10-06T12:14:42.338+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Executing idempotent database seed for demo users, access requests, products, batches, and inspections...
+2026-10-06T12:14:42.571+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Database seeding completed.
+2026-10-06T12:14:42.580+05:30 ERROR 4292 --- [           main] com.tracex.config.AppConfig              : Missing FRONTEND_URL. In production profile, FRONTEND_URL must be specified.
+2026-10-06T12:14:42.596+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Executing idempotent database seed for demo users, access requests, products, batches, and inspections...
+2026-10-06T12:14:42.799+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Database seeding completed.
+2026-10-06T12:14:43.026+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Executing idempotent database seed for demo users, access requests, products, batches, and inspections...
+2026-10-06T12:14:43.199+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Database seeding completed.
+2026-10-06T12:14:43.551+05:30 ERROR 4292 --- [           main] com.tracex.service.SeedRunner            : Missing SEED_DEFAULT_PASSWORD. SEED_DEFAULT_PASSWORD is required whenever seeding runs.
+2026-10-06T12:14:43.553+05:30 ERROR 4292 --- [           main] com.tracex.service.SeedRunner            : Missing SEED_DEFAULT_PASSWORD. SEED_DEFAULT_PASSWORD is required whenever seeding runs.
+2026-10-06T12:14:43.554+05:30 ERROR 4292 --- [           main] com.tracex.service.SeedRunner            : Missing SEED_DEFAULT_PASSWORD. SEED_DEFAULT_PASSWORD is required whenever seeding runs.
+2026-10-06T12:14:43.560+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Executing idempotent database seed for demo users, access requests, products, batches, and inspections...
+2026-10-06T12:14:43.734+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Database seeding completed.
+2026-10-06T12:14:43.757+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Executing idempotent database seed for demo users, access requests, products, batches, and inspections...
+2026-10-06T12:14:43.908+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Database seeding completed.
+2026-10-06T12:14:43.910+05:30 ERROR 4292 --- [           main] com.tracex.config.AppConfig              : Missing or invalid JWT_SECRET. In production profile, JWT_SECRET must be at least 32 characters long.
+2026-10-06T12:14:43.916+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Executing idempotent database seed for demo users, access requests, products, batches, and inspections...
+2026-10-06T12:14:44.071+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Database seeding completed.
+2026-10-06T12:14:44.091+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Executing idempotent database seed for demo users, access requests, products, batches, and inspections...
+2026-10-06T12:14:44.236+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Database seeding completed.
+2026-10-06T12:14:44.254+05:30 ERROR 4292 --- [           main] com.tracex.config.AppConfig              : Missing or invalid SEED_DEFAULT_PASSWORD. In production profile with SEED_ENABLED=true, SEED_DEFAULT_PASSWORD must be at least 12 characters long.
+2026-10-06T12:14:44.254+05:30 ERROR 4292 --- [           main] com.tracex.config.AppConfig              : Missing or invalid SEED_DEFAULT_PASSWORD. In production profile with SEED_ENABLED=true, SEED_DEFAULT_PASSWORD must be at least 12 characters long.
+2026-10-06T12:14:44.259+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Executing idempotent database seed for demo users, access requests, products, batches, and inspections...
+2026-10-06T12:14:44.432+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Database seeding completed.
+SEEDED_BATCH: sourceLotCode=DEMO-LOT-001, batchCode=TX-2026-10-001, packDate=2026-03-20, expiryDate=2026-10-01, lifecycleState=ACTIVE
+SEEDED_BATCH: sourceLotCode=DEMO-LOT-002, batchCode=TX-2026-10-002, packDate=2026-07-09, expiryDate=2026-10-07, lifecycleState=ACTIVE
+SEEDED_BATCH: sourceLotCode=DEMO-LOT-003, batchCode=TX-2026-10-003, packDate=2025-10-13, expiryDate=2026-10-13, lifecycleState=ACTIVE
+SEEDED_BATCH: sourceLotCode=DEMO-LOT-004, batchCode=TX-2026-10-004, packDate=2026-01-17, expiryDate=2026-10-14, lifecycleState=ACTIVE
+SEEDED_BATCH: sourceLotCode=DEMO-LOT-005, batchCode=TX-2026-10-005, packDate=2026-08-07, expiryDate=2026-11-05, lifecycleState=ACTIVE
+SEEDED_BATCH: sourceLotCode=DEMO-LOT-006, batchCode=TX-2026-10-006, packDate=2026-05-10, expiryDate=2026-11-06, lifecycleState=ACTIVE
+SEEDED_BATCH: sourceLotCode=DEMO-LOT-007, batchCode=TX-2026-10-007, packDate=2025-01-04, expiryDate=2027-01-04, lifecycleState=ACTIVE
+SEEDED_BATCH: sourceLotCode=DEMO-LOT-008, batchCode=TX-2026-10-008, packDate=2026-03-20, expiryDate=2027-03-20, lifecycleState=DISPATCHED
+SEEDED_BATCH: sourceLotCode=DEMO-LOT-009, batchCode=TX-2026-10-009, packDate=2026-08-17, expiryDate=2027-02-13, lifecycleState=DISPATCHED
+SEEDED_BATCH: sourceLotCode=DEMO-LOT-010, batchCode=TX-2026-10-010, packDate=2026-06-28, expiryDate=2026-09-26, lifecycleState=ACTIVE
+SEEDED_BATCH: sourceLotCode=DEMO-LOT-011, batchCode=TX-2026-10-011, packDate=2026-03-10, expiryDate=2026-12-05, lifecycleState=ACTIVE
+SEEDED_BATCH: sourceLotCode=DEMO-LOT-012, batchCode=TX-2026-10-012, packDate=2025-01-04, expiryDate=2027-01-04, lifecycleState=ACTIVE
+2026-10-06T12:14:44.457+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Executing idempotent database seed for demo users, access requests, products, batches, and inspections...
+2026-10-06T12:14:44.597+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Database seeding completed.
+2026-10-06T12:14:44.763+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Executing idempotent database seed for demo users, access requests, products, batches, and inspections...
+2026-10-06T12:14:44.903+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Database seeding completed.
+[INFO] Tests run: 13, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.705 s -- in com.tracex.ConfigurationAndSeedTests
+[INFO] Running com.tracex.ProductAndBatchTests
+2026-10-06T12:14:44.936+05:30  INFO 4292 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.tracex.ProductAndBatchTests]: ProductAndBatchTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-06T12:14:44.941+05:30  INFO 4292 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.tracex.TraceXApplication for test class com.tracex.ProductAndBatchTests
+2026-10-06T12:14:46.285+05:30  WARN 4292 --- [           main] c.t.util.BatchLocalDateValueConverter    : Unparseable Batch LocalDate value '2026-00-10' encountered during MongoDB read; returning null
+2026-10-06T12:14:46.286+05:30  WARN 4292 --- [           main] c.t.util.BatchLocalDateValueConverter    : Unparseable Batch LocalDate value '2026-13-01' encountered during MongoDB read; returning null
+2026-10-06T12:14:46.286+05:30  WARN 4292 --- [           main] c.t.util.BatchLocalDateValueConverter    : Unparseable Batch LocalDate value '2100-02-29' encountered during MongoDB read; returning null
+A0-1 Impossible Date Check [status=EXPIRED]: containsAnyImpossible=false
+A0-1 Impossible Date Check [status=URGENT]: containsAnyImpossible=false
+A0-1 Impossible Date Check [status=WARNING]: containsAnyImpossible=false
+A0-1 Impossible Date Check [status=READY]: containsAnyImpossible=false
+2026-10-06T12:14:46.394+05:30  WARN 4292 --- [           main] c.t.util.BatchLocalDateValueConverter    : Unparseable Batch LocalDate value '2026-02-29' encountered during MongoDB read; returning null
+2026-10-06T12:14:46.394+05:30  WARN 4292 --- [           main] c.t.util.BatchLocalDateValueConverter    : Unparseable Batch LocalDate value '2026-02-31' encountered during MongoDB read; returning null
+2026-10-06T12:14:46.394+05:30  WARN 4292 --- [           main] c.t.util.BatchLocalDateValueConverter    : Unparseable Batch LocalDate value '2026-04-31' encountered during MongoDB read; returning null
+A0-1 Impossible Date Check [status=EXCEPTION]: codes=[TX-IMP-2026-02-29, TX-IMP-2026-02-31, TX-IMP-2026-04-31]
+2026-10-06T12:14:46.401+05:30  WARN 4292 --- [           main] c.t.util.BatchLocalDateValueConverter    : Unparseable Batch LocalDate value '2026-02-29' encountered during MongoDB read; returning null
+2026-10-06T12:14:46.401+05:30  WARN 4292 --- [           main] c.t.util.BatchLocalDateValueConverter    : Unparseable Batch LocalDate value '2026-02-31' encountered during MongoDB read; returning null
+2026-10-06T12:14:46.401+05:30  WARN 4292 --- [           main] c.t.util.BatchLocalDateValueConverter    : Unparseable Batch LocalDate value '2026-04-31' encountered during MongoDB read; returning null
+R1 Seeded Batch [TX-2026-10-002] Raw Mongo Document: {"_id": {"$oid": "6ac49827a3116e4f5b256641"}, "productId": "6ac49827a3116e4f5b25663c", "productName": "Kumaon Royal Multigrain Crackers", "sku": "KMGC", "sourceLotCode": "DEMO-LOT-002", "farmerName": "Demo Farmer", "village": "Demo Village", "quantityProduced": 150, "unit": "Kg", "yieldPercent": 82.0, "batchCode": "TX-2026-10-002", "traceToken": "v67e4dpvbDgKUyWVse675A.ws8wE-Xcj2TFODKJz8pfSw", "packDate": "2026-07-09", "expiryDate": "2026-10-07", "dataSource": "predicted", "shelfLifeSource": "predicted", "lifecycleState": "ACTIVE", "priorityScore": 414.0, "traceabilityNote": "Demo batch - DEMO-LOT-002", "createdBy": "[DEMO] Seed", "noteHistory": [], "dispatchHistory": [], "isDeleted": false, "version": 76, "createdAt": {"$date": "2026-10-06T06:41:43.602Z"}, "updatedAt": {"$date": "2026-10-06T06:44:47.751Z"}, "_class": "com.tracex.model.Batch"}
+R1 Seeded Batch [TX-2026-10-002]: mongo.packDate=2026-07-09 (java.lang.String), mongo.expiryDate=2026-10-07 (java.lang.String), GET /api/v1/batches/6ac49827a3116e4f5b256641 => {"success":true,"requestId":"1913e20a-0510-41bb-a624-e065d006d35b","data":{"id":"6ac49827a3116e4f5b256641","batchCode":"TX-2026-10-002","productName":"Kumaon Royal Multigrain Crackers","sku":"KMGC","sourceLotCode":"DEMO-LOT-002","farmerName":"Demo Farmer","village":"Demo Village","quantityProduced":150,"unit":"Kg","yieldPercent":82.0,"packDate":"2026-07-09","expiryDate":"2026-10-07","dataSource":"predicted","shelfLifeSource":"predicted","lifecycleState":"ACTIVE","status":"URGENT","daysUntilExpiry":1,"priorityScore":414.0,"qualityCheck":null,"createdBy":"[DEMO] Seed","createdAt":"2026-10-06T06:41:43.602Z","updatedAt":"2026-10-06T06:44:47.751Z","traceabilityNote":"Demo batch - DEMO-LOT-002","noteHistory":[],"dispatchHistory":[],"deletedAt":null,"deletedBy":null,"deleteNote":null,"dispatchDate":null,"buyerName":null,"qrAbsoluteUrl":"http://localhost:5174/trace/t/v67e4dpvbDgKUyWVse675A.ws8wE-Xcj2TFODKJz8pfSw","deleted":false}}
+R1 Round-Trip [JVM TZ=UTC]: mongo.packDate=2026-10-09 (java.lang.String), mongo.expiryDate=2026-10-09 (java.lang.String), GET /api/v1/batches/6ac498df83bd4c054610b395 => {"success":true,"requestId":"1c667efa-7220-4fdc-b539-58bd80536a85","data":{"id":"6ac498df83bd4c054610b395","batchCode":"TX-2026-10-3839","productName":"Wild Berry Juice Concentrate","sku":"WBJC","sourceLotCode":"R1-TZ-UTC","farmerName":"R1 Farmer","village":"R1 Village","quantityProduced":100,"unit":"Kg","yieldPercent":88.5,"packDate":"2026-10-09","expiryDate":"2026-10-09","dataSource":"fallback","shelfLifeSource":"manual","lifecycleState":"ACTIVE","status":"URGENT","daysUntilExpiry":3,"priorityScore":362.0,"qualityCheck":null,"createdBy":"test_factory_mgr","createdAt":"2026-10-06T06:44:47.834Z","updatedAt":"2026-10-06T06:44:47.834Z","traceabilityNote":"Best before 2026-10-09","noteHistory":[],"dispatchHistory":[],"deletedAt":null,"deletedBy":null,"deleteNote":null,"dispatchDate":null,"buyerName":null,"qrAbsoluteUrl":"http://localhost:5174/trace/t/LGBjxtL1-jdUJGZGhL77gA.8mEcByXxxTtfHl0mIbWCBw","deleted":false}}
+R1 Round-Trip [JVM TZ=Asia/Kolkata]: mongo.packDate=2026-10-09 (java.lang.String), mongo.expiryDate=2026-10-09 (java.lang.String), GET /api/v1/batches/6ac498df83bd4c054610b397 => {"success":true,"requestId":"21035880-5ce2-4de2-8433-32803ba1af69","data":{"id":"6ac498df83bd4c054610b397","batchCode":"TX-2026-10-3840","productName":"Wild Berry Juice Concentrate","sku":"WBJC","sourceLotCode":"R1-TZ-ASIA-KOLKATA","farmerName":"R1 Farmer","village":"R1 Village","quantityProduced":100,"unit":"Kg","yieldPercent":88.5,"packDate":"2026-10-09","expiryDate":"2026-10-09","dataSource":"fallback","shelfLifeSource":"manual","lifecycleState":"ACTIVE","status":"URGENT","daysUntilExpiry":3,"priorityScore":362.0,"qualityCheck":null,"createdBy":"test_factory_mgr","createdAt":"2026-10-06T06:44:47.852Z","updatedAt":"2026-10-06T06:44:47.852Z","traceabilityNote":"Best before 2026-10-09","noteHistory":[],"dispatchHistory":[],"deletedAt":null,"deletedBy":null,"deleteNote":null,"dispatchDate":null,"buyerName":null,"qrAbsoluteUrl":"http://localhost:5174/trace/t/33mxZdAgjb24h1Q9z91jGQ.NvsmBMLpZ2fa5n9w2e-whw","deleted":false}}
+R1 Round-Trip [JVM TZ=America/Los_Angeles]: mongo.packDate=2026-10-09 (java.lang.String), mongo.expiryDate=2026-10-09 (java.lang.String), GET /api/v1/batches/6ac498df83bd4c054610b399 => {"success":true,"requestId":"8ab395b7-834e-499a-8057-9ca6eb91e7cb","data":{"id":"6ac498df83bd4c054610b399","batchCode":"TX-2026-10-3841","productName":"Wild Berry Juice Concentrate","sku":"WBJC","sourceLotCode":"R1-TZ-AMERICA-LOS_ANGELES","farmerName":"R1 Farmer","village":"R1 Village","quantityProduced":100,"unit":"Kg","yieldPercent":88.5,"packDate":"2026-10-09","expiryDate":"2026-10-09","dataSource":"fallback","shelfLifeSource":"manual","lifecycleState":"ACTIVE","status":"URGENT","daysUntilExpiry":3,"priorityScore":362.0,"qualityCheck":null,"createdBy":"test_factory_mgr","createdAt":"2026-10-06T06:44:47.872Z","updatedAt":"2026-10-06T06:44:47.872Z","traceabilityNote":"Best before 2026-10-09","noteHistory":[],"dispatchHistory":[],"deletedAt":null,"deletedBy":null,"deleteNote":null,"dispatchDate":null,"buyerName":null,"qrAbsoluteUrl":"http://localhost:5174/trace/t/faEnO4kBKQDuhCGw5TskKw.04e028Xex5P3JSzc0h6hPA","deleted":false}}
+2026-10-06T12:14:48.098+05:30  WARN 4292 --- [           main] c.t.util.BatchLocalDateValueConverter    : Unparseable Batch LocalDate value '' encountered during MongoDB read; returning null
+2026-10-06T12:14:48.099+05:30  WARN 4292 --- [           main] c.t.util.BatchLocalDateValueConverter    : Unparseable Batch LocalDate value '2026-00-10' encountered during MongoDB read; returning null
+2026-10-06T12:14:48.099+05:30  WARN 4292 --- [           main] c.t.util.BatchLocalDateValueConverter    : Unparseable Batch LocalDate value '2026-02-31' encountered during MongoDB read; returning null
+2026-10-06T12:14:48.099+05:30  WARN 4292 --- [           main] c.t.util.BatchLocalDateValueConverter    : Unparseable Batch LocalDate value '2026-13-01' encountered during MongoDB read; returning null
+2026-10-06T12:14:48.099+05:30  WARN 4292 --- [           main] c.t.util.BatchLocalDateValueConverter    : Unparseable Batch LocalDate value '2100-02-29' encountered during MongoDB read; returning null
+2026-10-06T12:14:48.099+05:30  WARN 4292 --- [           main] c.t.util.BatchLocalDateValueConverter    : Unparseable Batch LocalDate value 'not-a-date' encountered during MongoDB read; returning null
+Partition check: TX-PART-TODAY -> [EXPIRED]
+Partition check: TX-PART-PLUS1 -> [URGENT]
+Partition check: TX-PART-PLUS7 -> [URGENT]
+Partition check: TX-PART-PLUS8 -> [WARNING]
+Partition check: TX-PART-PLUS30 -> [WARNING]
+Partition check: TX-PART-PLUS31 -> [READY]
+Partition check: TX-PART-2028-02-29 -> [READY]
+Partition check: TX-PART-2000-02-29 -> [EXPIRED]
+Partition check: TX-PART-2026-12-31 -> [READY]
+Partition check: TX-PART-2100-02-29 -> [EXCEPTION]
+Partition check: TX-PART-2026-13-01 -> [EXCEPTION]
+Partition check: TX-PART-2026-00-10 -> [EXCEPTION]
+Partition check: TX-PART-2026-02-31 -> [EXCEPTION]
+Partition check: TX-PART-NOTADATE -> [EXCEPTION]
+Partition check: TX-PART-EMPTY -> [EXCEPTION]
+Partition check: TX-PART-DISPATCHED -> [DISPATCHED]
+2026-10-06T12:14:48.618+05:30  WARN 4292 --- [           main] c.t.util.BatchLocalDateValueConverter    : Unparseable Batch LocalDate value 'not-a-date' encountered during MongoDB read; returning null
+A0-1 Filter [status=EXPIRED]: count=1, codes=[TX-2026-10-001], containsMissing=false, containsNull=false, containsNotADate=false
+A0-1 Filter [status=URGENT]: count=5, codes=[TX-2026-10-002, TX-2026-10-3839, TX-2026-10-3840, TX-2026-10-3841, TX-2026-10-003], containsMissing=false, containsNull=false, containsNotADate=false
+A0-1 Filter [status=WARNING]: count=2, codes=[TX-2026-10-004, TX-2026-10-005], containsMissing=false, containsNull=false, containsNotADate=false
+A0-1 Filter [status=READY]: count=21, codes=[TX-2026-10-006, TX-2026-10-3780, TX-2026-10-3781, TX-2026-10-011, TX-2026-10-3782, TX-2026-10-007, TX-2026-10-012, TX-2026-10-3775, TX-2026-10-3776, TX-2026-10-3777, TX-2026-10-3778, TX-2026-10-3779, TX-2026-10-3833, TX-2026-10-3834, TX-2026-10-3835, TX-2026-10-3836, TX-2026-10-3837, TX-2026-10-3838, TX-2026-10-3842, TX-2026-10-3843, TX-2026-10-3844], containsMissing=false, containsNull=false, containsNotADate=false
+2026-10-06T12:14:48.673+05:30  WARN 4292 --- [           main] c.t.util.BatchLocalDateValueConverter    : Unparseable Batch LocalDate value 'not-a-date' encountered during MongoDB read; returning null
+A0-1 Filter [status=EXCEPTION]: count=3, codes=[TX-A01-MISSING, TX-A01-NULL, TX-A01-NOTADATE], containsAllCorrupted=true
+2026-10-06T12:14:48.692+05:30  WARN 4292 --- [           main] c.t.util.BatchLocalDateValueConverter    : Unparseable Batch LocalDate value 'not-a-date' encountered during MongoDB read; returning null
+A0-1 FEFO [GET /api/v1/dispatch/fefo]: queueCodes=[TX-2026-10-002, TX-2026-10-3839, TX-2026-10-3840, TX-2026-10-3841, TX-2026-10-003, TX-2026-10-004, TX-2026-10-005, TX-2026-10-006, TX-2026-10-3780, TX-2026-10-3781, TX-2026-10-011, TX-2026-10-3782, TX-2026-10-007, TX-2026-10-012, TX-2026-10-3775, TX-2026-10-3776, TX-2026-10-3777, TX-2026-10-3778, TX-2026-10-3779, TX-2026-10-3833, TX-2026-10-3834, TX-2026-10-3835, TX-2026-10-3836, TX-2026-10-3837, TX-2026-10-3838, TX-2026-10-3842, TX-2026-10-3843, TX-2026-10-3844], expiredCodes=[TX-2026-10-001], exceptionsCodes=[TX-A01-MISSING, TX-A01-NOTADATE, TX-A01-NULL]
+2026-10-06T12:14:48.768+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Executing idempotent database seed for demo users, access requests, products, batches, and inspections...
+2026-10-06T12:14:48.893+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Database seeding completed.
+[INFO] Tests run: 40, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.960 s -- in com.tracex.ProductAndBatchTests
+[INFO] Running com.tracex.AuthLoginTests
+2026-10-06T12:14:48.897+05:30  INFO 4292 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.tracex.AuthLoginTests]: AuthLoginTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-06T12:14:48.901+05:30  INFO 4292 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.tracex.TraceXApplication for test class com.tracex.AuthLoginTests
+2026-10-06T12:14:53.333+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Executing idempotent database seed for demo users, access requests, products, batches, and inspections...
+2026-10-06T12:14:53.456+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Database seeding completed.
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.561 s -- in com.tracex.AuthLoginTests
+[INFO] Running com.tracex.FefoServiceTest
+2026-10-06T12:14:53.460+05:30  INFO 4292 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.tracex.FefoServiceTest]: FefoServiceTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-06T12:14:53.462+05:30  INFO 4292 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.tracex.TraceXApplication for test class com.tracex.FefoServiceTest
+2026-10-06T12:14:54.878+05:30  WARN 4292 --- [           main] c.t.util.BatchLocalDateValueConverter    : Unparseable Batch LocalDate value 'NOT-A-VALID-ISO-DATE' encountered during MongoDB read; returning null
+2026-10-06T12:14:55.353+05:30  WARN 4292 --- [           main] c.t.util.BatchLocalDateValueConverter    : Unparseable Batch LocalDate value 'not-a-date' encountered during MongoDB read; returning null
+V2 FEFO exceptions JSON: [{"id":"6ac498e783bd4c054610b429","batchCode":"TX-CORR-MISSING","productName":"Kashmiri Garlic Cloves","sku":"KMGC","sourceLotCode":"LOT-MISS","farmerName":"Farmer Miss","village":"Village M","quantityProduced":80,"unit":"Kg","yieldPercent":80.0,"packDate":"2026-09-29","expiryDate":null,"dataSource":null,"shelfLifeSource":null,"lifecycleState":"ACTIVE","status":"EXCEPTION","daysUntilExpiry":null,"priorityScore":0.0,"qualityCheck":null,"exceptionReason":"Missing expiryDate","createdBy":null,"createdAt":"2026-10-06T03:44:55.347Z","updatedAt":null,"deleted":false},{"id":"6ac498e783bd4c054610b42a","batchCode":"TX-CORR-NULL","productName":"Kashmiri Garlic Cloves","sku":"KMGC","sourceLotCode":"LOT-NULL","farmerName":"Farmer Null","village":"Village N","quantityProduced":90,"unit":"Kg","yieldPercent":82.0,"packDate":"2026-09-29","expiryDate":null,"dataSource":null,"shelfLifeSource":null,"lifecycleState":"ACTIVE","status":"EXCEPTION","daysUntilExpiry":null,"priorityScore":0.0,"qualityCheck":null,"exceptionReason":"Null expiryDate","createdBy":null,"createdAt":"2026-10-06T04:44:55.347Z","updatedAt":null,"deleted":false},{"id":"6ac498e783bd4c054610b42b","batchCode":"TX-CORR-NOTADATE","productName":"Kashmiri Garlic Cloves","sku":"KMGC","sourceLotCode":"LOT-STR","farmerName":"Farmer Str","village":"Village S","quantityProduced":95,"unit":"Kg","yieldPercent":84.0,"packDate":"2026-09-29","expiryDate":null,"dataSource":null,"shelfLifeSource":null,"lifecycleState":"ACTIVE","status":"EXCEPTION","daysUntilExpiry":null,"priorityScore":0.0,"qualityCheck":null,"exceptionReason":"Unparseable expiryDate: not-a-date","createdBy":null,"createdAt":"2026-10-06T05:44:55.347Z","updatedAt":null,"deleted":false}]
+2026-10-06T12:14:55.383+05:30  WARN 4292 --- [           main] c.t.util.BatchLocalDateValueConverter    : Unparseable Batch LocalDate value 'not-a-date' encountered during MongoDB read; returning null
+V2 Batch List Corrupted Item: batchCode=TX-CORR-MISSING, status=EXCEPTION, expiryDate=null, daysUntilExpiry=null, exceptionReason=Missing, null, or unparseable expiryDate
+V2 Batch List Corrupted Item: batchCode=TX-CORR-NULL, status=EXCEPTION, expiryDate=null, daysUntilExpiry=null, exceptionReason=Missing, null, or unparseable expiryDate
+V2 Batch List Corrupted Item: batchCode=TX-CORR-NOTADATE, status=EXCEPTION, expiryDate=null, daysUntilExpiry=null, exceptionReason=Missing, null, or unparseable expiryDate
+V2 Batch Detail HTTP 200: id=6ac498e783bd4c054610b429, batchCode=TX-CORR-MISSING, status=EXCEPTION, daysUntilExpiry=null, expiryDate=null, exceptionReason=Missing, null, or unparseable expiryDate
+V2 Batch Detail HTTP 200: id=6ac498e783bd4c054610b42a, batchCode=TX-CORR-NULL, status=EXCEPTION, daysUntilExpiry=null, expiryDate=null, exceptionReason=Missing, null, or unparseable expiryDate
+2026-10-06T12:14:55.396+05:30  WARN 4292 --- [           main] c.t.util.BatchLocalDateValueConverter    : Unparseable Batch LocalDate value 'not-a-date' encountered during MongoDB read; returning null
+V2 Batch Detail HTTP 200: id=6ac498e783bd4c054610b42b, batchCode=TX-CORR-NOTADATE, status=EXCEPTION, daysUntilExpiry=null, expiryDate=null, exceptionReason=Missing, null, or unparseable expiryDate
+2026-10-06T12:14:56.134+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Executing idempotent database seed for demo users, access requests, products, batches, and inspections...
+2026-10-06T12:14:56.254+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Database seeding completed.
+[INFO] Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.796 s -- in com.tracex.FefoServiceTest
+[INFO] Running com.tracex.OpenApiExportTest
+2026-10-06T12:14:56.257+05:30  INFO 4292 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.tracex.OpenApiExportTest]: OpenApiExportTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-06T12:14:56.258+05:30  INFO 4292 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.tracex.TraceXApplication for test class com.tracex.OpenApiExportTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.5)
+
+2026-10-06T12:14:56.301+05:30  INFO 4292 --- [           main] com.tracex.OpenApiExportTest             : Starting OpenApiExportTest using Java 21.0.12.1 with PID 4292 (started by yashm in C:\Users\yashm\OneDrive\Desktop\TraceX\backend)
+2026-10-06T12:14:56.301+05:30  INFO 4292 --- [           main] com.tracex.OpenApiExportTest             : The following 1 profile is active: "test"
+2026-10-06T12:14:56.850+05:30  INFO 4292 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data MongoDB repositories in DEFAULT mode.
+2026-10-06T12:14:56.875+05:30  INFO 4292 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 24 ms. Found 8 MongoDB repository interfaces.
+2026-10-06T12:14:57.017+05:30  INFO 4292 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 0 (http)
+2026-10-06T12:14:57.018+05:30  INFO 4292 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-10-06T12:14:57.018+05:30  INFO 4292 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.20]
+2026-10-06T12:14:57.052+05:30  INFO 4292 --- [           main] o.a.c.c.C.[Tomcat-3].[localhost].[/]     : Initializing Spring embedded WebApplicationContext
+2026-10-06T12:14:57.052+05:30  INFO 4292 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 746 ms
+2026-10-06T12:14:57.148+05:30  INFO 4292 --- [           main] org.mongodb.driver.client                : MongoClient with metadata {"driver": {"name": "mongo-java-driver|sync|spring-boot", "version": "4.11.2"}, "os": {"type": "Windows", "name": "Windows 11", "architecture": "amd64", "version": "10.0"}, "platform": "Java/Eclipse Adoptium/21.0.12.1+1-LTS"} created with settings MongoClientSettings{readPreference=primary, writeConcern=WriteConcern{w=null, wTimeout=null ms, journal=null}, retryWrites=true, retryReads=true, readConcern=ReadConcern{level=null}, credential=null, transportSettings=null, streamFactoryFactory=null, commandListeners=[io.micrometer.core.instrument.binder.mongodb.MongoMetricsCommandListener@68311b85], codecRegistry=ProvidersCodecRegistry{codecProviders=[ValueCodecProvider{}, BsonValueCodecProvider{}, DBRefCodecProvider{}, DBObjectCodecProvider{}, DocumentCodecProvider{}, CollectionCodecProvider{}, IterableCodecProvider{}, MapCodecProvider{}, GeoJsonCodecProvider{}, GridFSFileCodecProvider{}, Jsr310CodecProvider{}, JsonObjectCodecProvider{}, BsonCodecProvider{}, EnumCodecProvider{}, com.mongodb.client.model.mql.ExpressionCodecProvider@5486ee92, com.mongodb.Jep395RecordCodecProvider@20820df0, com.mongodb.KotlinCodecProvider@9e62fb]}, loggerSettings=LoggerSettings{maxDocumentLength=1000}, clusterSettings={hosts=[localhost:27017], srvServiceName=mongodb, mode=SINGLE, requiredClusterType=UNKNOWN, requiredReplicaSetName='null', serverSelector='null', clusterListeners='[]', serverSelectionTimeout='30000 ms', localThreshold='15 ms'}, socketSettings=SocketSettings{connectTimeoutMS=10000, readTimeoutMS=0, receiveBufferSize=0, proxySettings=ProxySettings{host=null, port=null, username=null, password=null}}, heartbeatSocketSettings=SocketSettings{connectTimeoutMS=10000, readTimeoutMS=10000, receiveBufferSize=0, proxySettings=ProxySettings{host=null, port=null, username=null, password=null}}, connectionPoolSettings=ConnectionPoolSettings{maxSize=100, minSize=0, maxWaitTimeMS=120000, maxConnectionLifeTimeMS=0, maxConnectionIdleTimeMS=0, maintenanceInitialDelayMS=0, maintenanceFrequencyMS=60000, connectionPoolListeners=[io.micrometer.core.instrument.binder.mongodb.MongoMetricsConnectionPoolListener@635d1461], maxConnecting=2}, serverSettings=ServerSettings{heartbeatFrequencyMS=10000, minHeartbeatFrequencyMS=500, serverListeners='[]', serverMonitorListeners='[]'}, sslSettings=SslSettings{enabled=false, invalidHostNameAllowed=false, context=null}, applicationName='null', compressorList=[], uuidRepresentation=JAVA_LEGACY, serverApi=null, autoEncryptionSettings=null, dnsClient=null, inetAddressResolver=null, contextProvider=null}
+2026-10-06T12:14:57.149+05:30  INFO 4292 --- [localhost:27017] org.mongodb.driver.cluster               : Monitor thread successfully connected to server with description ServerDescription{address=localhost:27017, type=STANDALONE, state=CONNECTED, ok=true, minWireVersion=0, maxWireVersion=28, maxDocumentSize=16777216, logicalSessionTimeoutMinutes=30, roundTripTimeNanos=1149400}
+2026-10-06T12:14:57.443+05:30  WARN 4292 --- [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 3064d8a7-c433-454d-9a2a-5641960170a7
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-10-06T12:14:57.563+05:30  INFO 4292 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint(s) beneath base path '/actuator'
+2026-10-06T12:14:57.591+05:30  INFO 4292 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@38a0ccc4, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@50dd2e86, org.springframework.security.web.context.SecurityContextHolderFilter@7dc26ace, org.springframework.security.web.header.HeaderWriterFilter@6e2b663, org.springframework.web.filter.CorsFilter@62b0a58b, org.springframework.security.web.authentication.logout.LogoutFilter@6e10c0a6, com.tracex.security.RequestIdFilter@24a2bb25, com.tracex.security.JwtAuthFilter@230a9783, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@43defae6, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@509c1d50, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@57184af3, org.springframework.security.web.session.SessionManagementFilter@371ce753, org.springframework.security.web.access.ExceptionTranslationFilter@440f55ad, org.springframework.security.web.access.intercept.AuthorizationFilter@6a6beec0]
+2026-10-06T12:14:57.761+05:30  INFO 4292 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 50407 (http) with context path ''
+2026-10-06T12:14:57.781+05:30  INFO 4292 --- [           main] com.tracex.OpenApiExportTest             : Started OpenApiExportTest in 1.52 seconds (process running for 33.08)
+2026-10-06T12:14:57.787+05:30  INFO 4292 --- [           main] c.t.s.BatchTraceTokenBackfillRunner      : [traceToken backfill] No batches missing traceToken. 0 batches updated.
+2026-10-06T12:14:57.787+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Executing idempotent database seed for demo users, access requests, products, batches, and inspections...
+2026-10-06T12:14:57.998+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Database seeding completed.
+2026-10-06T12:14:58.063+05:30  INFO 4292 --- [o-auto-4-exec-1] o.a.c.c.C.[Tomcat-3].[localhost].[/]     : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-10-06T12:14:58.063+05:30  INFO 4292 --- [o-auto-4-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-10-06T12:14:58.064+05:30  INFO 4292 --- [o-auto-4-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2026-10-06T12:14:59.528+05:30  INFO 4292 --- [o-auto-4-exec-1] o.springdoc.api.AbstractOpenApiResource  : Init duration for springdoc-openapi is: 1446 ms
+Verified openapi.json length: 35651, operations: 45
+Verified tracex-api.yaml length: 48011
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.567 s -- in com.tracex.OpenApiExportTest
+[INFO] Running com.tracex.DashboardSummaryTests
+2026-10-06T12:14:59.828+05:30  INFO 4292 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.tracex.DashboardSummaryTests]: DashboardSummaryTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-06T12:14:59.832+05:30  INFO 4292 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.tracex.TraceXApplication for test class com.tracex.DashboardSummaryTests
+2026-10-06T12:14:59.837+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Executing idempotent database seed for demo users, access requests, products, batches, and inspections...
+2026-10-06T12:14:59.993+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Database seeding completed.
+2026-10-06T12:15:00.108+05:30  WARN 4292 --- [           main] c.t.util.BatchLocalDateValueConverter    : Unparseable Batch LocalDate value '2026-02-31' encountered during MongoDB read; returning null
+2026-10-06T12:15:00.108+05:30  WARN 4292 --- [           main] c.t.util.BatchLocalDateValueConverter    : Unparseable Batch LocalDate value 'not-a-date' encountered during MongoDB read; returning null
+2026-10-06T12:15:00.126+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Executing idempotent database seed for demo users, access requests, products, batches, and inspections...
+2026-10-06T12:15:00.271+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Database seeding completed.
+2026-10-06T12:15:00.279+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Executing idempotent database seed for demo users, access requests, products, batches, and inspections...
+2026-10-06T12:15:00.417+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Database seeding completed.
+2026-10-06T12:15:00.992+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Executing idempotent database seed for demo users, access requests, products, batches, and inspections...
+2026-10-06T12:15:01.119+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Database seeding completed.
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.403 s -- in com.tracex.DashboardSummaryTests
+[INFO] Running com.tracex.SmtpEmailServiceTest
+2026-10-06T12:15:01.239+05:30  INFO 4292 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.tracex.SmtpEmailServiceTest]: SmtpEmailServiceTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-06T12:15:01.242+05:30  INFO 4292 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.tracex.TraceXApplication for test class com.tracex.SmtpEmailServiceTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.5)
+
+2026-10-06T12:15:01.282+05:30  INFO 4292 --- [           main] com.tracex.SmtpEmailServiceTest          : Starting SmtpEmailServiceTest using Java 21.0.12.1 with PID 4292 (started by yashm in C:\Users\yashm\OneDrive\Desktop\TraceX\backend)
+2026-10-06T12:15:01.283+05:30  INFO 4292 --- [           main] com.tracex.SmtpEmailServiceTest          : The following 1 profile is active: "test"
+2026-10-06T12:15:01.584+05:30  INFO 4292 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data MongoDB repositories in DEFAULT mode.
+2026-10-06T12:15:01.603+05:30  INFO 4292 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 18 ms. Found 8 MongoDB repository interfaces.
+2026-10-06T12:15:01.678+05:30  INFO 4292 --- [           main] org.mongodb.driver.client                : MongoClient with metadata {"driver": {"name": "mongo-java-driver|sync|spring-boot", "version": "4.11.2"}, "os": {"type": "Windows", "name": "Windows 11", "architecture": "amd64", "version": "10.0"}, "platform": "Java/Eclipse Adoptium/21.0.12.1+1-LTS"} created with settings MongoClientSettings{readPreference=primary, writeConcern=WriteConcern{w=null, wTimeout=null ms, journal=null}, retryWrites=true, retryReads=true, readConcern=ReadConcern{level=null}, credential=null, transportSettings=null, streamFactoryFactory=null, commandListeners=[io.micrometer.core.instrument.binder.mongodb.MongoMetricsCommandListener@458e82d4], codecRegistry=ProvidersCodecRegistry{codecProviders=[ValueCodecProvider{}, BsonValueCodecProvider{}, DBRefCodecProvider{}, DBObjectCodecProvider{}, DocumentCodecProvider{}, CollectionCodecProvider{}, IterableCodecProvider{}, MapCodecProvider{}, GeoJsonCodecProvider{}, GridFSFileCodecProvider{}, Jsr310CodecProvider{}, JsonObjectCodecProvider{}, BsonCodecProvider{}, EnumCodecProvider{}, com.mongodb.client.model.mql.ExpressionCodecProvider@5486ee92, com.mongodb.Jep395RecordCodecProvider@20820df0, com.mongodb.KotlinCodecProvider@9e62fb]}, loggerSettings=LoggerSettings{maxDocumentLength=1000}, clusterSettings={hosts=[localhost:27017], srvServiceName=mongodb, mode=SINGLE, requiredClusterType=UNKNOWN, requiredReplicaSetName='null', serverSelector='null', clusterListeners='[]', serverSelectionTimeout='30000 ms', localThreshold='15 ms'}, socketSettings=SocketSettings{connectTimeoutMS=10000, readTimeoutMS=0, receiveBufferSize=0, proxySettings=ProxySettings{host=null, port=null, username=null, password=null}}, heartbeatSocketSettings=SocketSettings{connectTimeoutMS=10000, readTimeoutMS=10000, receiveBufferSize=0, proxySettings=ProxySettings{host=null, port=null, username=null, password=null}}, connectionPoolSettings=ConnectionPoolSettings{maxSize=100, minSize=0, maxWaitTimeMS=120000, maxConnectionLifeTimeMS=0, maxConnectionIdleTimeMS=0, maintenanceInitialDelayMS=0, maintenanceFrequencyMS=60000, connectionPoolListeners=[io.micrometer.core.instrument.binder.mongodb.MongoMetricsConnectionPoolListener@326c6ac1], maxConnecting=2}, serverSettings=ServerSettings{heartbeatFrequencyMS=10000, minHeartbeatFrequencyMS=500, serverListeners='[]', serverMonitorListeners='[]'}, sslSettings=SslSettings{enabled=false, invalidHostNameAllowed=false, context=null}, applicationName='null', compressorList=[], uuidRepresentation=JAVA_LEGACY, serverApi=null, autoEncryptionSettings=null, dnsClient=null, inetAddressResolver=null, contextProvider=null}
+2026-10-06T12:15:01.679+05:30  INFO 4292 --- [localhost:27017] org.mongodb.driver.cluster               : Monitor thread successfully connected to server with description ServerDescription{address=localhost:27017, type=STANDALONE, state=CONNECTED, ok=true, minWireVersion=0, maxWireVersion=28, maxDocumentSize=16777216, logicalSessionTimeoutMinutes=30, roundTripTimeNanos=973400}
+2026-10-06T12:15:01.931+05:30  WARN 4292 --- [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 6f660412-60fb-4299-b522-22ec8181df2a
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-10-06T12:15:02.025+05:30  INFO 4292 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint(s) beneath base path '/actuator'
+2026-10-06T12:15:02.041+05:30  INFO 4292 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@23b74c27, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@ca129b5, org.springframework.security.web.context.SecurityContextHolderFilter@33795ac7, org.springframework.security.web.header.HeaderWriterFilter@e6d4002, org.springframework.web.filter.CorsFilter@338bea5c, org.springframework.security.web.authentication.logout.LogoutFilter@6e78383c, com.tracex.security.RequestIdFilter@622969ff, com.tracex.security.JwtAuthFilter@7b66c7e9, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@745cb3aa, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@10d59073, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@7e0fb5b1, org.springframework.security.web.session.SessionManagementFilter@2034e91c, org.springframework.security.web.access.ExceptionTranslationFilter@144a750f, org.springframework.security.web.access.intercept.AuthorizationFilter@43424634]
+2026-10-06T12:15:02.140+05:30  INFO 4292 --- [           main] com.tracex.SmtpEmailServiceTest          : Started SmtpEmailServiceTest in 0.88 seconds (process running for 37.439)
+2026-10-06T12:15:02.144+05:30  INFO 4292 --- [           main] c.t.s.BatchTraceTokenBackfillRunner      : [traceToken backfill] No batches missing traceToken. 0 batches updated.
+2026-10-06T12:15:02.144+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Executing idempotent database seed for demo users, access requests, products, batches, and inspections...
+2026-10-06T12:15:02.330+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Database seeding completed.
+2026-10-06T12:15:02.480+05:30  INFO 4292 --- [127.0.0.1:50412] c.icegreen.greenmail.user.UserManager    : Created user login recipient@example.com for address recipient@example.com with password recipient@example.com because it didn't exist before.
+2026-10-06T12:15:02.494+05:30  INFO 4292 --- [           main] com.tracex.service.SmtpEmailService      : Sent SMTP email with subject 'TraceX Account Invitation' to recipient
+2026-10-06T12:15:02.512+05:30  INFO 4292 --- [           main] com.tracex.service.SmtpEmailService      : Sent SMTP email with subject 'TraceX Account Verification Code' to recipient
+2026-10-06T12:15:02.529+05:30  INFO 4292 --- [           main] com.tracex.service.SmtpEmailService      : Sent SMTP email with subject 'TraceX Password Reset Code' to recipient
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.332 s -- in com.tracex.SmtpEmailServiceTest
+[INFO] Running com.tracex.TraceTokenTests
+2026-10-06T12:15:02.573+05:30  INFO 4292 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.tracex.TraceTokenTests]: TraceTokenTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-06T12:15:02.575+05:30  INFO 4292 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.tracex.TraceXApplication for test class com.tracex.TraceTokenTests
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.036 s -- in com.tracex.TraceTokenTests
+[INFO] Running com.tracex.AdminVsAdminRulesTest
+2026-10-06T12:15:02.609+05:30  INFO 4292 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.tracex.AdminVsAdminRulesTest]: AdminVsAdminRulesTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-06T12:15:02.610+05:30  INFO 4292 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.tracex.TraceXApplication for test class com.tracex.AdminVsAdminRulesTest
+2026-10-06T12:15:06.838+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Executing idempotent database seed for demo users, access requests, products, batches, and inspections...
+2026-10-06T12:15:06.964+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Database seeding completed.
+[INFO] Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.356 s -- in com.tracex.AdminVsAdminRulesTest
+[INFO] Running com.tracex.BatchQrAndScansTests
+2026-10-06T12:15:06.968+05:30  INFO 4292 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.tracex.BatchQrAndScansTests]: BatchQrAndScansTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-06T12:15:06.970+05:30  INFO 4292 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.tracex.TraceXApplication for test class com.tracex.BatchQrAndScansTests
+2026-10-06T12:15:07.841+05:30  INFO 4292 --- [           main] c.t.s.BatchTraceTokenBackfillRunner      : [traceToken backfill] Completed backfill: 1 batch(es) assigned traceToken.
+2026-10-06T12:15:07.844+05:30  INFO 4292 --- [           main] c.t.s.BatchTraceTokenBackfillRunner      : [traceToken backfill] No batches missing traceToken. 0 batches updated.
+2026-10-06T12:15:07.984+05:30 ERROR 4292 --- [           main] com.tracex.config.AppConfig              : Missing or invalid TRACE_TOKEN_SECRET. In production profile, TRACE_TOKEN_SECRET must be at least 32 characters long.
+2026-10-06T12:15:07.984+05:30 ERROR 4292 --- [           main] com.tracex.config.AppConfig              : Missing or invalid TRACE_TOKEN_SECRET. In production profile, TRACE_TOKEN_SECRET must be at least 32 characters long.
+2026-10-06T12:15:08.029+05:30 ERROR 4292 --- [           main] com.tracex.config.AppConfig              : Invalid PUBLIC_TRACE_BASE_URL. In production profile, PUBLIC_TRACE_BASE_URL cannot point to localhost, loopback, or private address.
+2026-10-06T12:15:08.030+05:30 ERROR 4292 --- [           main] com.tracex.config.AppConfig              : Invalid PUBLIC_TRACE_BASE_URL. In production profile, PUBLIC_TRACE_BASE_URL cannot point to localhost, loopback, or private address.
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.082 s -- in com.tracex.BatchQrAndScansTests
+[INFO] Running com.tracex.PublicTraceAndScanTests
+2026-10-06T12:15:08.051+05:30  INFO 4292 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.tracex.PublicTraceAndScanTests]: PublicTraceAndScanTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-06T12:15:08.053+05:30  INFO 4292 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.tracex.TraceXApplication for test class com.tracex.PublicTraceAndScanTests
+[INFO] Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.804 s -- in com.tracex.PublicTraceAndScanTests
+[INFO] Running com.tracex.AccessRequestAndUserFlowTests
+2026-10-06T12:15:08.859+05:30  INFO 4292 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.tracex.AccessRequestAndUserFlowTests]: AccessRequestAndUserFlowTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-06T12:15:08.864+05:30  INFO 4292 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.tracex.TraceXApplication for test class com.tracex.AccessRequestAndUserFlowTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.5)
+
+2026-10-06T12:15:08.884+05:30  INFO 4292 --- [           main] c.tracex.AccessRequestAndUserFlowTests   : Starting AccessRequestAndUserFlowTests using Java 21.0.12.1 with PID 4292 (started by yashm in C:\Users\yashm\OneDrive\Desktop\TraceX\backend)
+2026-10-06T12:15:08.884+05:30  INFO 4292 --- [           main] c.tracex.AccessRequestAndUserFlowTests   : The following 1 profile is active: "test"
+2026-10-06T12:15:09.140+05:30  INFO 4292 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data MongoDB repositories in DEFAULT mode.
+2026-10-06T12:15:09.158+05:30  INFO 4292 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 18 ms. Found 8 MongoDB repository interfaces.
+2026-10-06T12:15:09.228+05:30  INFO 4292 --- [           main] org.mongodb.driver.client                : MongoClient with metadata {"driver": {"name": "mongo-java-driver|sync|spring-boot", "version": "4.11.2"}, "os": {"type": "Windows", "name": "Windows 11", "architecture": "amd64", "version": "10.0"}, "platform": "Java/Eclipse Adoptium/21.0.12.1+1-LTS"} created with settings MongoClientSettings{readPreference=primary, writeConcern=WriteConcern{w=null, wTimeout=null ms, journal=null}, retryWrites=true, retryReads=true, readConcern=ReadConcern{level=null}, credential=null, transportSettings=null, streamFactoryFactory=null, commandListeners=[io.micrometer.core.instrument.binder.mongodb.MongoMetricsCommandListener@3289e3a9], codecRegistry=ProvidersCodecRegistry{codecProviders=[ValueCodecProvider{}, BsonValueCodecProvider{}, DBRefCodecProvider{}, DBObjectCodecProvider{}, DocumentCodecProvider{}, CollectionCodecProvider{}, IterableCodecProvider{}, MapCodecProvider{}, GeoJsonCodecProvider{}, GridFSFileCodecProvider{}, Jsr310CodecProvider{}, JsonObjectCodecProvider{}, BsonCodecProvider{}, EnumCodecProvider{}, com.mongodb.client.model.mql.ExpressionCodecProvider@5486ee92, com.mongodb.Jep395RecordCodecProvider@20820df0, com.mongodb.KotlinCodecProvider@9e62fb]}, loggerSettings=LoggerSettings{maxDocumentLength=1000}, clusterSettings={hosts=[localhost:27017], srvServiceName=mongodb, mode=SINGLE, requiredClusterType=UNKNOWN, requiredReplicaSetName='null', serverSelector='null', clusterListeners='[]', serverSelectionTimeout='30000 ms', localThreshold='15 ms'}, socketSettings=SocketSettings{connectTimeoutMS=10000, readTimeoutMS=0, receiveBufferSize=0, proxySettings=ProxySettings{host=null, port=null, username=null, password=null}}, heartbeatSocketSettings=SocketSettings{connectTimeoutMS=10000, readTimeoutMS=10000, receiveBufferSize=0, proxySettings=ProxySettings{host=null, port=null, username=null, password=null}}, connectionPoolSettings=ConnectionPoolSettings{maxSize=100, minSize=0, maxWaitTimeMS=120000, maxConnectionLifeTimeMS=0, maxConnectionIdleTimeMS=0, maintenanceInitialDelayMS=0, maintenanceFrequencyMS=60000, connectionPoolListeners=[io.micrometer.core.instrument.binder.mongodb.MongoMetricsConnectionPoolListener@4883c638], maxConnecting=2}, serverSettings=ServerSettings{heartbeatFrequencyMS=10000, minHeartbeatFrequencyMS=500, serverListeners='[]', serverMonitorListeners='[]'}, sslSettings=SslSettings{enabled=false, invalidHostNameAllowed=false, context=null}, applicationName='null', compressorList=[], uuidRepresentation=JAVA_LEGACY, serverApi=null, autoEncryptionSettings=null, dnsClient=null, inetAddressResolver=null, contextProvider=null}
+2026-10-06T12:15:09.229+05:30  INFO 4292 --- [localhost:27017] org.mongodb.driver.cluster               : Monitor thread successfully connected to server with description ServerDescription{address=localhost:27017, type=STANDALONE, state=CONNECTED, ok=true, minWireVersion=0, maxWireVersion=28, maxDocumentSize=16777216, logicalSessionTimeoutMinutes=30, roundTripTimeNanos=985900}
+2026-10-06T12:15:09.473+05:30  WARN 4292 --- [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 3dbef3b6-bf15-44aa-ad3c-d39168b39b91
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-10-06T12:15:09.559+05:30  INFO 4292 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint(s) beneath base path '/actuator'
+2026-10-06T12:15:09.574+05:30  INFO 4292 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@2568d45a, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@7b1e8d37, org.springframework.security.web.context.SecurityContextHolderFilter@5cf44218, org.springframework.security.web.header.HeaderWriterFilter@dc0b733, org.springframework.web.filter.CorsFilter@6ae66f52, org.springframework.security.web.authentication.logout.LogoutFilter@54415d35, com.tracex.security.RequestIdFilter@35f7eb4, com.tracex.security.JwtAuthFilter@60f6a081, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@35730a4d, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@3d024aff, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@6f8efe9d, org.springframework.security.web.session.SessionManagementFilter@27a60d16, org.springframework.security.web.access.ExceptionTranslationFilter@41850d76, org.springframework.security.web.access.intercept.AuthorizationFilter@56b7fcf6]
+2026-10-06T12:15:09.660+05:30  INFO 4292 --- [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-10-06T12:15:09.661+05:30  INFO 4292 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-10-06T12:15:09.661+05:30  INFO 4292 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-10-06T12:15:09.672+05:30  INFO 4292 --- [           main] c.tracex.AccessRequestAndUserFlowTests   : Started AccessRequestAndUserFlowTests in 0.805 seconds (process running for 44.971)
+2026-10-06T12:15:09.675+05:30  INFO 4292 --- [           main] c.t.s.BatchTraceTokenBackfillRunner      : [traceToken backfill] No batches missing traceToken. 0 batches updated.
+2026-10-06T12:15:09.675+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Executing idempotent database seed for demo users, access requests, products, batches, and inspections...
+2026-10-06T12:15:09.838+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Database seeding completed.
+2026-10-06T12:15:10.179+05:30  INFO 4292 --- [           main] com.tracex.service.DevMailSink           : DevMailSink recorded password-reset-otp message to file: 1791269110178-00001-password-reset-otp.txt
+2026-10-06T12:15:11.077+05:30  WARN 4292 --- [           main] com.tracex.service.UserService           : Corrupted date field on AccessRequest encountered during invite lookup; failing closed: Failed to convert from type [java.lang.String] to type [java.time.Instant] for value [not-an-instant-invite]
+2026-10-06T12:15:11.085+05:30  WARN 4292 --- [           main] com.tracex.service.UserService           : Corrupted date field on User encountered during auth lookup; failing closed: Failed to convert from type [java.lang.String] to type [java.time.Instant] for value [not-an-instant-otp]
+2026-10-06T12:15:11.087+05:30  WARN 4292 --- [           main] com.tracex.service.UserService           : Corrupted date field on User encountered during auth lookup; failing closed: Failed to convert from type [java.lang.String] to type [java.time.Instant] for value [not-an-instant-otp]
+2026-10-06T12:15:11.094+05:30  WARN 4292 --- [           main] com.tracex.service.UserService           : Corrupted date field on User encountered during auth lookup; failing closed: Failed to convert from type [java.lang.String] to type [java.time.Instant] for value [not-an-instant-reset]
+2026-10-06T12:15:12.024+05:30  INFO 4292 --- [           main] com.tracex.service.DevMailSink           : DevMailSink recorded invite message to file: 1791269112024-00002-invite.txt
+2026-10-06T12:15:12.114+05:30  INFO 4292 --- [           main] com.tracex.service.DevMailSink           : DevMailSink recorded activation-otp message to file: 1791269112114-00003-activation-otp.txt
+2026-10-06T12:15:12.466+05:30 ERROR 4292 --- [           main] c.tracex.service.AccessRequestService    : Failed to send invitation email to david@example.com: Simulated SMTP Connection Refused
+2026-10-06T12:15:12.474+05:30  INFO 4292 --- [           main] com.tracex.service.DevMailSink           : DevMailSink recorded invite message to file: 1791269112474-00004-invite.txt
+2026-10-06T12:15:13.156+05:30  INFO 4292 --- [           main] com.tracex.service.DevMailSink           : DevMailSink recorded invite message to file: 1791269113155-00005-invite.txt
+2026-10-06T12:15:13.163+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Executing idempotent database seed for demo users, access requests, products, batches, and inspections...
+2026-10-06T12:15:13.289+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Database seeding completed.
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.434 s -- in com.tracex.AccessRequestAndUserFlowTests
+[INFO] Running com.tracex.InspectionAndDispatchTests
+2026-10-06T12:15:13.292+05:30  INFO 4292 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.tracex.InspectionAndDispatchTests]: InspectionAndDispatchTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-06T12:15:13.295+05:30  INFO 4292 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.tracex.TraceXApplication for test class com.tracex.InspectionAndDispatchTests
+V5 Inspection Index: {"v": 2, "key": {"_id": 1}, "name": "_id_"}
+V5 Inspection Index: {"v": 2, "key": {"batchId": 1}, "name": "batchId"}
+V5 Inspection Index: {"v": 2, "key": {"batchCode": 1}, "name": "batchCode"}
+V5 Inspection Index: {"v": 2, "key": {"batchId": 1}, "name": "batchId_isLatest_unique_idx", "unique": true, "partialFilterExpression": {"isLatest": true}}
+V5 Inspection Index: {"v": 2, "key": {"batchId": 1, "createdAt": -1}, "name": "batchId_createdAt_desc_idx"}
+V5 Inspection Index: {"v": 2, "key": {"inspectedBy.userId": 1, "createdAt": -1}, "name": "inspectedBy_userId_createdAt_desc_idx"}
+V5 Inspection Index: {"v": 2, "key": {"status": 1, "isLatest": 1, "createdAt": -1}, "name": "status_isLatest_createdAt_desc_idx"}
+A0-2 dispatchHistory[].dispatchDate [JVM TZ=UTC]: mongo.dispatchHistory[0].dispatchDate=2026-09-29 (java.lang.String), mongo.dispatchHistory[0].dispatchedAt=Tue Oct 06 06:45:15 UTC 2026 (java.util.Date), GET dispatchHistory[0] => {"dispatchedBy":"coord_p4","dispatchedAt":"2026-10-06T06:45:15.970Z","buyerName":"A02 History Buyer (UTC)","dispatchDate":"2026-09-29","overrideReason":null,"outOfOrder":false}
+A0-2 dispatchHistory[].dispatchDate [JVM TZ=Asia/Kolkata]: mongo.dispatchHistory[0].dispatchDate=2026-09-29 (java.lang.String), mongo.dispatchHistory[0].dispatchedAt=Tue Oct 06 12:15:15 IST 2026 (java.util.Date), GET dispatchHistory[0] => {"dispatchedBy":"coord_p4","dispatchedAt":"2026-10-06T06:45:15.985Z","buyerName":"A02 History Buyer (Asia/Kolkata)","dispatchDate":"2026-09-29","overrideReason":null,"outOfOrder":false}
+A0-2 dispatchHistory[].dispatchDate [JVM TZ=America/Los_Angeles]: mongo.dispatchHistory[0].dispatchDate=2026-09-29 (java.lang.String), mongo.dispatchHistory[0].dispatchedAt=Mon Oct 05 23:45:15 PDT 2026 (java.util.Date), GET dispatchHistory[0] => {"dispatchedBy":"coord_p4","dispatchedAt":"2026-10-06T06:45:15.999Z","buyerName":"A02 History Buyer (America/Los_Angeles)","dispatchDate":"2026-09-29","overrideReason":null,"outOfOrder":false}
+A0-2 Dispatch Round-Trip [JVM TZ=UTC]: mongo.dispatchDate=2026-10-01 (java.lang.String), mongo.dispatchHistory[0].dispatchDate=2026-10-01 (java.lang.String), PATCH => {"success":true,"requestId":"45c78c3e-bcdf-4fb4-a32f-dc0fe74f3006","data":{"id":"6ac498fe83bd4c054610b645","batchCode":"TX-A02-DISP-UTC","productName":"Wild Berry Juice Concentrate","sku":"WBJC","sourceLotCode":"LOT-A02-UTC","farmerName":"A02 Farmer","village":"A02 Village","quantityProduced":100,"unit":"Kg","yieldPercent":85.0,"packDate":"2026-09-25","expiryDate":"2026-11-05","dataSource":"manual","shelfLifeSource":"manual","lifecycleState":"DISPATCHED","status":"DISPATCHED","daysUntilExpiry":30,"priorityScore":0.0,"qualityCheck":null,"createdBy":null,"createdAt":"2026-10-06T06:45:18.177Z","updatedAt":"2026-10-06T06:45:18.182Z","traceabilityNote":null,"noteHistory":[],"dispatchHistory":[{"dispatchedBy":"coord_p4","dispatchedAt":"2026-10-06T06:45:18.182Z","buyerName":"A02 Buyer (UTC)","dispatchDate":"2026-10-01","overrideReason":null,"outOfOrder":false}],"deletedAt":null,"deletedBy":null,"deleteNote":null,"dispatchDate":"2026-10-01","buyerName":"A02 Buyer (UTC)","qrAbsoluteUrl":null,"deleted":false}}, GET => {"success":true,"requestId":"f74f1c9d-aae8-45de-972d-5748eda3f37a","data":{"id":"6ac498fe83bd4c054610b645","batchCode":"TX-A02-DISP-UTC","productName":"Wild Berry Juice Concentrate","sku":"WBJC","sourceLotCode":"LOT-A02-UTC","farmerName":"A02 Farmer","village":"A02 Village","quantityProduced":100,"unit":"Kg","yieldPercent":85.0,"packDate":"2026-09-25","expiryDate":"2026-11-05","dataSource":"manual","shelfLifeSource":"manual","lifecycleState":"DISPATCHED","status":"DISPATCHED","daysUntilExpiry":30,"priorityScore":0.0,"qualityCheck":null,"createdBy":null,"createdAt":"2026-10-06T06:45:18.177Z","updatedAt":"2026-10-06T06:45:18.182Z","traceabilityNote":null,"noteHistory":[],"dispatchHistory":[{"dispatchedBy":"coord_p4","dispatchedAt":"2026-10-06T06:45:18.182Z","buyerName":"A02 Buyer (UTC)","dispatchDate":"2026-10-01","overrideReason":null,"outOfOrder":false}],"deletedAt":null,"deletedBy":null,"deleteNote":null,"dispatchDate":"2026-10-01","buyerName":"A02 Buyer (UTC)","qrAbsoluteUrl":null,"deleted":false}}
+A0-2 Dispatch Round-Trip [JVM TZ=Asia/Kolkata]: mongo.dispatchDate=2026-10-01 (java.lang.String), mongo.dispatchHistory[0].dispatchDate=2026-10-01 (java.lang.String), PATCH => {"success":true,"requestId":"3c1429d3-d24d-4c5f-8cd1-8606b75cfcb6","data":{"id":"6ac498fe83bd4c054610b647","batchCode":"TX-A02-DISP-Asia-Kolkata","productName":"Wild Berry Juice Concentrate","sku":"WBJC","sourceLotCode":"LOT-A02-Asia-Kolkata","farmerName":"A02 Farmer","village":"A02 Village","quantityProduced":100,"unit":"Kg","yieldPercent":85.0,"packDate":"2026-09-25","expiryDate":"2026-11-05","dataSource":"manual","shelfLifeSource":"manual","lifecycleState":"DISPATCHED","status":"DISPATCHED","daysUntilExpiry":30,"priorityScore":0.0,"qualityCheck":null,"createdBy":null,"createdAt":"2026-10-06T06:45:18.193Z","updatedAt":"2026-10-06T06:45:18.195Z","traceabilityNote":null,"noteHistory":[],"dispatchHistory":[{"dispatchedBy":"coord_p4","dispatchedAt":"2026-10-06T06:45:18.195Z","buyerName":"A02 Buyer (Asia/Kolkata)","dispatchDate":"2026-10-01","overrideReason":null,"outOfOrder":false}],"deletedAt":null,"deletedBy":null,"deleteNote":null,"dispatchDate":"2026-10-01","buyerName":"A02 Buyer (Asia/Kolkata)","qrAbsoluteUrl":null,"deleted":false}}, GET => {"success":true,"requestId":"f7105eca-2d23-4833-8a17-0558201a1ce2","data":{"id":"6ac498fe83bd4c054610b647","batchCode":"TX-A02-DISP-Asia-Kolkata","productName":"Wild Berry Juice Concentrate","sku":"WBJC","sourceLotCode":"LOT-A02-Asia-Kolkata","farmerName":"A02 Farmer","village":"A02 Village","quantityProduced":100,"unit":"Kg","yieldPercent":85.0,"packDate":"2026-09-25","expiryDate":"2026-11-05","dataSource":"manual","shelfLifeSource":"manual","lifecycleState":"DISPATCHED","status":"DISPATCHED","daysUntilExpiry":30,"priorityScore":0.0,"qualityCheck":null,"createdBy":null,"createdAt":"2026-10-06T06:45:18.193Z","updatedAt":"2026-10-06T06:45:18.195Z","traceabilityNote":null,"noteHistory":[],"dispatchHistory":[{"dispatchedBy":"coord_p4","dispatchedAt":"2026-10-06T06:45:18.195Z","buyerName":"A02 Buyer (Asia/Kolkata)","dispatchDate":"2026-10-01","overrideReason":null,"outOfOrder":false}],"deletedAt":null,"deletedBy":null,"deleteNote":null,"dispatchDate":"2026-10-01","buyerName":"A02 Buyer (Asia/Kolkata)","qrAbsoluteUrl":null,"deleted":false}}
+A0-2 Dispatch Round-Trip [JVM TZ=America/Los_Angeles]: mongo.dispatchDate=2026-10-01 (java.lang.String), mongo.dispatchHistory[0].dispatchDate=2026-10-01 (java.lang.String), PATCH => {"success":true,"requestId":"617e2cb1-487f-4189-ada4-33e01131162a","data":{"id":"6ac498fe83bd4c054610b649","batchCode":"TX-A02-DISP-America-Los_Angeles","productName":"Wild Berry Juice Concentrate","sku":"WBJC","sourceLotCode":"LOT-A02-America-Los_Angeles","farmerName":"A02 Farmer","village":"A02 Village","quantityProduced":100,"unit":"Kg","yieldPercent":85.0,"packDate":"2026-09-25","expiryDate":"2026-11-04","dataSource":"manual","shelfLifeSource":"manual","lifecycleState":"DISPATCHED","status":"DISPATCHED","daysUntilExpiry":29,"priorityScore":0.0,"qualityCheck":null,"createdBy":null,"createdAt":"2026-10-06T06:45:18.203Z","updatedAt":"2026-10-06T06:45:18.207Z","traceabilityNote":null,"noteHistory":[],"dispatchHistory":[{"dispatchedBy":"coord_p4","dispatchedAt":"2026-10-06T06:45:18.207Z","buyerName":"A02 Buyer (America/Los_Angeles)","dispatchDate":"2026-10-01","overrideReason":null,"outOfOrder":false}],"deletedAt":null,"deletedBy":null,"deleteNote":null,"dispatchDate":"2026-10-01","buyerName":"A02 Buyer (America/Los_Angeles)","qrAbsoluteUrl":null,"deleted":false}}, GET => {"success":true,"requestId":"3ccd0e6c-90e8-473e-a5e2-9712749dd51a","data":{"id":"6ac498fe83bd4c054610b649","batchCode":"TX-A02-DISP-America-Los_Angeles","productName":"Wild Berry Juice Concentrate","sku":"WBJC","sourceLotCode":"LOT-A02-America-Los_Angeles","farmerName":"A02 Farmer","village":"A02 Village","quantityProduced":100,"unit":"Kg","yieldPercent":85.0,"packDate":"2026-09-25","expiryDate":"2026-11-04","dataSource":"manual","shelfLifeSource":"manual","lifecycleState":"DISPATCHED","status":"DISPATCHED","daysUntilExpiry":29,"priorityScore":0.0,"qualityCheck":null,"createdBy":null,"createdAt":"2026-10-06T06:45:18.203Z","updatedAt":"2026-10-06T06:45:18.207Z","traceabilityNote":null,"noteHistory":[],"dispatchHistory":[{"dispatchedBy":"coord_p4","dispatchedAt":"2026-10-06T06:45:18.207Z","buyerName":"A02 Buyer (America/Los_Angeles)","dispatchDate":"2026-10-01","overrideReason":null,"outOfOrder":false}],"deletedAt":null,"deletedBy":null,"deleteNote":null,"dispatchDate":"2026-10-01","buyerName":"A02 Buyer (America/Los_Angeles)","qrAbsoluteUrl":null,"deleted":false}}
+V4 Race Summary: runs=100, success200=100, conflict409=100
+V5 10-Thread Parallel Inspection Result: totalSaved=10, isLatestCount=1, newestInspection={id=6ac4990083bd4c054610b757, status=FLAGGED, rating=5, createdAt=2026-10-06T06:45:20.919Z}, batchQualityCheck={status=FLAGGED, rating=5, inspectedAt=2026-10-06T06:45:20.919Z, inspectorName=insp1_p4 FullName}
+2026-10-06T12:15:21.401+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Executing idempotent database seed for demo users, access requests, products, batches, and inspections...
+2026-10-06T12:15:21.510+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Database seeding completed.
+[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 8.220 s -- in com.tracex.InspectionAndDispatchTests
+[INFO] Running com.tracex.RouteCoverageTest
+2026-10-06T12:15:21.514+05:30  INFO 4292 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.tracex.RouteCoverageTest]: RouteCoverageTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-06T12:15:21.515+05:30  INFO 4292 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.tracex.TraceXApplication for test class com.tracex.RouteCoverageTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.5)
+
+2026-10-06T12:15:21.531+05:30  INFO 4292 --- [           main] com.tracex.RouteCoverageTest             : Starting RouteCoverageTest using Java 21.0.12.1 with PID 4292 (started by yashm in C:\Users\yashm\OneDrive\Desktop\TraceX\backend)
+2026-10-06T12:15:21.531+05:30  INFO 4292 --- [           main] com.tracex.RouteCoverageTest             : The following 1 profile is active: "test"
+2026-10-06T12:15:21.749+05:30  INFO 4292 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data MongoDB repositories in DEFAULT mode.
+2026-10-06T12:15:21.764+05:30  INFO 4292 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 15 ms. Found 8 MongoDB repository interfaces.
+2026-10-06T12:15:21.811+05:30  INFO 4292 --- [           main] org.mongodb.driver.client                : MongoClient with metadata {"driver": {"name": "mongo-java-driver|sync|spring-boot", "version": "4.11.2"}, "os": {"type": "Windows", "name": "Windows 11", "architecture": "amd64", "version": "10.0"}, "platform": "Java/Eclipse Adoptium/21.0.12.1+1-LTS"} created with settings MongoClientSettings{readPreference=primary, writeConcern=WriteConcern{w=null, wTimeout=null ms, journal=null}, retryWrites=true, retryReads=true, readConcern=ReadConcern{level=null}, credential=null, transportSettings=null, streamFactoryFactory=null, commandListeners=[io.micrometer.core.instrument.binder.mongodb.MongoMetricsCommandListener@7c08cb77], codecRegistry=ProvidersCodecRegistry{codecProviders=[ValueCodecProvider{}, BsonValueCodecProvider{}, DBRefCodecProvider{}, DBObjectCodecProvider{}, DocumentCodecProvider{}, CollectionCodecProvider{}, IterableCodecProvider{}, MapCodecProvider{}, GeoJsonCodecProvider{}, GridFSFileCodecProvider{}, Jsr310CodecProvider{}, JsonObjectCodecProvider{}, BsonCodecProvider{}, EnumCodecProvider{}, com.mongodb.client.model.mql.ExpressionCodecProvider@5486ee92, com.mongodb.Jep395RecordCodecProvider@20820df0, com.mongodb.KotlinCodecProvider@9e62fb]}, loggerSettings=LoggerSettings{maxDocumentLength=1000}, clusterSettings={hosts=[localhost:27017], srvServiceName=mongodb, mode=SINGLE, requiredClusterType=UNKNOWN, requiredReplicaSetName='null', serverSelector='null', clusterListeners='[]', serverSelectionTimeout='30000 ms', localThreshold='15 ms'}, socketSettings=SocketSettings{connectTimeoutMS=10000, readTimeoutMS=0, receiveBufferSize=0, proxySettings=ProxySettings{host=null, port=null, username=null, password=null}}, heartbeatSocketSettings=SocketSettings{connectTimeoutMS=10000, readTimeoutMS=10000, receiveBufferSize=0, proxySettings=ProxySettings{host=null, port=null, username=null, password=null}}, connectionPoolSettings=ConnectionPoolSettings{maxSize=100, minSize=0, maxWaitTimeMS=120000, maxConnectionLifeTimeMS=0, maxConnectionIdleTimeMS=0, maintenanceInitialDelayMS=0, maintenanceFrequencyMS=60000, connectionPoolListeners=[io.micrometer.core.instrument.binder.mongodb.MongoMetricsConnectionPoolListener@55f9f89c], maxConnecting=2}, serverSettings=ServerSettings{heartbeatFrequencyMS=10000, minHeartbeatFrequencyMS=500, serverListeners='[]', serverMonitorListeners='[]'}, sslSettings=SslSettings{enabled=false, invalidHostNameAllowed=false, context=null}, applicationName='null', compressorList=[], uuidRepresentation=JAVA_LEGACY, serverApi=null, autoEncryptionSettings=null, dnsClient=null, inetAddressResolver=null, contextProvider=null}
+2026-10-06T12:15:21.812+05:30  INFO 4292 --- [localhost:27017] org.mongodb.driver.cluster               : Monitor thread successfully connected to server with description ServerDescription{address=localhost:27017, type=STANDALONE, state=CONNECTED, ok=true, minWireVersion=0, maxWireVersion=28, maxDocumentSize=16777216, logicalSessionTimeoutMinutes=30, roundTripTimeNanos=978300}
+2026-10-06T12:15:21.930+05:30  WARN 4292 --- [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 4dac2276-8fa8-4564-817a-338e9a20c879
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-10-06T12:15:21.989+05:30  INFO 4292 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint(s) beneath base path '/actuator'
+2026-10-06T12:15:22.001+05:30  INFO 4292 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@484a7b4, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@5d336403, org.springframework.security.web.context.SecurityContextHolderFilter@37df48a4, org.springframework.security.web.header.HeaderWriterFilter@58098663, org.springframework.web.filter.CorsFilter@2e8022f8, org.springframework.security.web.authentication.logout.LogoutFilter@4e82fd8a, com.tracex.security.RequestIdFilter@1e3f61f6, com.tracex.security.JwtAuthFilter@3fa7cc82, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@69208ca6, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@7d0e257f, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@79f2b409, org.springframework.security.web.session.SessionManagementFilter@4a269062, org.springframework.security.web.access.ExceptionTranslationFilter@333db39a, org.springframework.security.web.access.intercept.AuthorizationFilter@2f83f197]
+2026-10-06T12:15:22.087+05:30  INFO 4292 --- [           main] com.tracex.RouteCoverageTest             : Started RouteCoverageTest in 0.569 seconds (process running for 57.387)
+2026-10-06T12:15:22.090+05:30  INFO 4292 --- [           main] c.t.s.BatchTraceTokenBackfillRunner      : [traceToken backfill] No batches missing traceToken. 0 batches updated.
+2026-10-06T12:15:22.091+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Executing idempotent database seed for demo users, access requests, products, batches, and inspections...
+2026-10-06T12:15:22.239+05:30  INFO 4292 --- [           main] com.tracex.service.SeedRunner            : Database seeding completed.
+2026-10-06T12:15:22.246+05:30  INFO 4292 --- [           main] com.tracex.RouteCoverageTest             : Two-way route coverage confirmed for Phase <= 7 (46 active endpoints). 16 endpoints pending for later phases.
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.735 s -- in com.tracex.RouteCoverageTest
+[INFO] Running com.tracex.GlobalSafetyGuardAutoDetectionTest
+2026-10-06T12:15:22.250+05:30  INFO 4292 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.tracex.GlobalSafetyGuardAutoDetectionTest]: GlobalSafetyGuardAutoDetectionTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-06T12:15:22.251+05:30  INFO 4292 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.tracex.TraceXApplication for test class com.tracex.GlobalSafetyGuardAutoDetectionTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.010 s -- in com.tracex.GlobalSafetyGuardAutoDetectionTest
+[INFO] Running com.tracex.BatchIndexTest
+2026-10-06T12:15:22.261+05:30  INFO 4292 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.tracex.BatchIndexTest]: BatchIndexTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-06T12:15:22.262+05:30  INFO 4292 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.tracex.TraceXApplication for test class com.tracex.BatchIndexTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 s -- in com.tracex.BatchIndexTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 477, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- jar:3.3.0:jar (default-jar) @ tracex-backend ---
+[INFO] Building jar: C:\Users\yashm\OneDrive\Desktop\TraceX\backend\target\tracex-backend-1.0.0-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:3.2.5:repackage (repackage) @ tracex-backend ---
+[INFO] Replacing main artifact C:\Users\yashm\OneDrive\Desktop\TraceX\backend\target\tracex-backend-1.0.0-SNAPSHOT.jar with repackaged archive, adding nested dependencies in BOOT-INF/.
+[INFO] The original artifact has been renamed to C:\Users\yashm\OneDrive\Desktop\TraceX\backend\target\tracex-backend-1.0.0-SNAPSHOT.jar.original
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  01:05 min
+[INFO] Finished at: 2026-10-06T12:15:23+05:30
+[INFO] ------------------------------------------------------------------------

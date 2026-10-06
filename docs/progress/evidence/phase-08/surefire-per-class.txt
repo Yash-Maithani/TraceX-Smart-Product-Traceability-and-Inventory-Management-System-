@@ -1,0 +1,24 @@
+com.tracex.AccessRequestAndUserFlowTests                tests=  9 failures=0 errors=0 skipped=0
+com.tracex.AdminVsAdminRulesTest                        tests= 11 failures=0 errors=0 skipped=0
+com.tracex.AuthLoginTests                               tests= 10 failures=0 errors=0 skipped=0
+com.tracex.BatchIndexTest                               tests=  1 failures=0 errors=0 skipped=0
+com.tracex.BatchQrAndScansTests                         tests= 10 failures=0 errors=0 skipped=0
+com.tracex.ConfigurationAndSeedTests                    tests= 13 failures=0 errors=0 skipped=0
+com.tracex.DashboardSummaryTests                        tests=  4 failures=0 errors=0 skipped=0
+com.tracex.ErrorCodeSpecSyncTest                        tests=  1 failures=0 errors=0 skipped=0
+com.tracex.FefoServiceTest                              tests= 11 failures=0 errors=0 skipped=0
+com.tracex.ForwardedHeadersEmpiricalTest$FrameworkStrategyTests tests=  1 failures=0 errors=0 skipped=0
+com.tracex.ForwardedHeadersEmpiricalTest$NativeStrategyTrustedProxyTests tests=  1 failures=0 errors=0 skipped=0
+com.tracex.ForwardedHeadersEmpiricalTest$NativeStrategyUntrustedDirectTests tests=  1 failures=0 errors=0 skipped=0
+com.tracex.ForwardedHeadersEmpiricalTest                tests=  0 failures=0 errors=0 skipped=0
+com.tracex.GlobalSafetyGuardAutoDetectionTest           tests=  2 failures=0 errors=0 skipped=0
+com.tracex.ImportTests                                  tests= 16 failures=0 errors=0 skipped=0
+com.tracex.InspectionAndDispatchTests                   tests= 14 failures=0 errors=0 skipped=0
+com.tracex.OpenApiExportTest                            tests=  1 failures=0 errors=0 skipped=0
+com.tracex.ProductAndBatchTests                         tests= 40 failures=0 errors=0 skipped=0
+com.tracex.PublicTraceAndScanTests                      tests= 11 failures=0 errors=0 skipped=0
+com.tracex.RbacMatrixTest                               tests=371 failures=0 errors=0 skipped=0
+com.tracex.RouteCoverageTest                            tests=  1 failures=0 errors=0 skipped=0
+com.tracex.SmtpEmailServiceTest                         tests=  1 failures=0 errors=0 skipped=0
+com.tracex.TokenAndSessionTests                         tests=  8 failures=0 errors=0 skipped=0
+com.tracex.TraceTokenTests                              tests=  4 failures=0 errors=0 skipped=0

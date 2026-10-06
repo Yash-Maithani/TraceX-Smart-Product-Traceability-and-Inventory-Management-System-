@@ -1,0 +1,11 @@
+
+> tracex-frontend@1.0.0 check:api-drift
+> node scripts/check-api-drift.mjs
+
+npm : OpenAPI copy drift detected: docs/openapi.json does not match backend/src/main/resources/openapi/tracex-api.yaml.
+At line:1 char:1
++ npm run check:api-drift 2>&1 | Tee-Object -FilePath ..\docs\progress\ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (OpenAPI copy dr...racex-api.yaml.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 

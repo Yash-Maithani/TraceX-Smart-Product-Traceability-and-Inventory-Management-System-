@@ -1,0 +1,9 @@
+Hello %NAME%,
+
+Thank you for registering your password. Use the following 6-digit verification code to complete your account activation:
+
+%OTP_CODE%
+
+This verification code is valid for 10 minutes. If you did not initiate this request, please disregard this message.
+
+TraceX Smart Product Traceability and Inventory Management System

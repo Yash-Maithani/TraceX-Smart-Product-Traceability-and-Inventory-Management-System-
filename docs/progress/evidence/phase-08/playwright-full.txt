@@ -1,0 +1,273 @@
+
+Running 39 tests using 1 worker
+
+[P51-E2E-01] mode=light verified=42 backdrop instances (14 keys x 3 variants), brokenImages=0, screenshot=styleguide-14-keys-light-1280.png
+[P51-E2E-01] mode=dark verified=42 backdrop instances (14 keys x 3 variants), brokenImages=0, screenshot=styleguide-14-keys-dark-1280.png
+  ok 1 [chromium] ΓÇ║ e2e\phase05-1.spec.ts:25:3 ΓÇ║ Phase 5.1 E2E Verification Suite (Checks 3ΓÇô9: Per-Page Photo Backdrops) ΓÇ║ P51-E2E-01 (Check 3): Styleguide renders all 14 backdrop keys in banner, side, and full variants in light and dark themes with zero broken images (7.7s)
+[P51-E2E-02 ON] route=/login vp=375 -> scrollWidth=375 clientWidth=375 media=375x96 screenshot=auth-login-images-on-375.png
+[P51-E2E-02 ON] route=/login vp=768 -> scrollWidth=768 clientWidth=768 media=768x160 screenshot=auth-login-images-on-768.png
+[P51-E2E-02 ON] route=/login vp=1280 -> scrollWidth=1280 clientWidth=1280 media=704x800 screenshot=auth-login-images-on-1280.png
+[P51-E2E-02 ON] route=/forgot-password vp=375 -> scrollWidth=375 clientWidth=375 media=375x96 screenshot=auth-forgot-password-images-on-375.png
+[P51-E2E-02 ON] route=/forgot-password vp=768 -> scrollWidth=768 clientWidth=768 media=768x160 screenshot=auth-forgot-password-images-on-768.png
+[P51-E2E-02 ON] route=/forgot-password vp=1280 -> scrollWidth=1280 clientWidth=1280 media=704x800 screenshot=auth-forgot-password-images-on-1280.png
+[P51-E2E-02 OFF] route=/login vp=375 -> scrollWidth=375 clientWidth=375 imgCount=0 screenshot=auth-login-images-off-375.png
+[P51-E2E-02 OFF] route=/login vp=768 -> scrollWidth=768 clientWidth=768 imgCount=0 screenshot=auth-login-images-off-768.png
+[P51-E2E-02 OFF] route=/login vp=1280 -> scrollWidth=1280 clientWidth=1280 imgCount=0 screenshot=auth-login-images-off-1280.png
+[P51-E2E-02 OFF] route=/forgot-password vp=375 -> scrollWidth=375 clientWidth=375 imgCount=0 screenshot=auth-forgot-password-images-off-375.png
+[P51-E2E-02 OFF] route=/forgot-password vp=768 -> scrollWidth=768 clientWidth=768 imgCount=0 screenshot=auth-forgot-password-images-off-768.png
+[P51-E2E-02 OFF] route=/forgot-password vp=1280 -> scrollWidth=1280 clientWidth=1280 imgCount=0 screenshot=auth-forgot-password-images-off-1280.png
+[P51-E2E-02 BLOCKED] route=/login vp=375 -> scrollWidth=375 clientWidth=375 screenshot=auth-login-images-blocked-375.png
+[P51-E2E-02 BLOCKED] route=/login vp=768 -> scrollWidth=768 clientWidth=768 screenshot=auth-login-images-blocked-768.png
+[P51-E2E-02 BLOCKED] route=/login vp=1280 -> scrollWidth=1280 clientWidth=1280 screenshot=auth-login-images-blocked-1280.png
+[P51-E2E-02 BLOCKED] route=/forgot-password vp=375 -> scrollWidth=375 clientWidth=375 screenshot=auth-forgot-password-images-blocked-375.png
+[P51-E2E-02 BLOCKED] route=/forgot-password vp=768 -> scrollWidth=768 clientWidth=768 screenshot=auth-forgot-password-images-blocked-768.png
+[P51-E2E-02 BLOCKED] route=/forgot-password vp=1280 -> scrollWidth=1280 clientWidth=1280 screenshot=auth-forgot-password-images-blocked-1280.png
+  ok 2 [chromium] ΓÇ║ e2e\phase05-1.spec.ts:71:3 ΓÇ║ Phase 5.1 E2E Verification Suite (Checks 3ΓÇô9: Per-Page Photo Backdrops) ΓÇ║ P51-E2E-02 (Check 4): Auth pages at 375px, 768px, and 1280px switch layout cleanly, have no horizontal scroll, and save screenshots with images on, images off, and images blocked (4.5s)
+[P51-E2E-03 AXE] route=/login mode=light imagesOn=true -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/login mode=dark imagesOn=true -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/login mode=light imagesOn=false -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/login mode=dark imagesOn=false -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/request-access mode=light imagesOn=true -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/request-access mode=dark imagesOn=true -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/request-access mode=light imagesOn=false -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/request-access mode=dark imagesOn=false -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/activate?token=sample-token mode=light imagesOn=true -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/activate?token=sample-token mode=dark imagesOn=true -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/activate?token=sample-token mode=light imagesOn=false -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/activate?token=sample-token mode=dark imagesOn=false -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/verify-otp?email=demo%40tracex.demo mode=light imagesOn=true -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/verify-otp?email=demo%40tracex.demo mode=dark imagesOn=true -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/verify-otp?email=demo%40tracex.demo mode=light imagesOn=false -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/verify-otp?email=demo%40tracex.demo mode=dark imagesOn=false -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/forgot-password mode=light imagesOn=true -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/forgot-password mode=dark imagesOn=true -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/forgot-password mode=light imagesOn=false -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/forgot-password mode=dark imagesOn=false -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/reset-password?email=demo%40tracex.demo mode=light imagesOn=true -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/reset-password?email=demo%40tracex.demo mode=dark imagesOn=true -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/reset-password?email=demo%40tracex.demo mode=light imagesOn=false -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/reset-password?email=demo%40tracex.demo mode=dark imagesOn=false -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/trace/sample-qr-token mode=light imagesOn=true -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/trace/sample-qr-token mode=dark imagesOn=true -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/trace/sample-qr-token mode=light imagesOn=false -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/trace/sample-qr-token mode=dark imagesOn=false -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/_styleguide mode=light imagesOn=true -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/_styleguide mode=dark imagesOn=true -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/_styleguide mode=light imagesOn=false -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/_styleguide mode=dark imagesOn=false -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/ mode=light imagesOn=true -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/ mode=dark imagesOn=true -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/ mode=light imagesOn=false -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/ mode=dark imagesOn=false -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/batches/archived mode=light imagesOn=true -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/batches/archived mode=dark imagesOn=true -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/batches/archived mode=light imagesOn=false -> critical=0 serious=0
+[P51-E2E-03 AXE] route=/batches/archived mode=dark imagesOn=false -> critical=0 serious=0
+  ok 3 [chromium] ΓÇ║ e2e\phase05-1.spec.ts:218:3 ΓÇ║ Phase 5.1 E2E Verification Suite (Checks 3ΓÇô9: Per-Page Photo Backdrops) ΓÇ║ P51-E2E-03 (Check 5): axe-core passes with zero serious or critical violations on auth pages, home page, public trace page, and styleguide in both themes with images on and off (28.7s)
+[P51-E2E-04 LOGIN vp=375] on={"backdrop":812,"media":96,"main":514} blocked={"backdrop":812,"media":96,"main":514}
+[P51-E2E-04 LOGIN vp=768] on={"backdrop":1024,"media":160,"main":745} blocked={"backdrop":1024,"media":160,"main":745}
+[P51-E2E-04 LOGIN vp=1280] on={"backdrop":800,"media":800,"main":642} blocked={"backdrop":800,"media":800,"main":642}
+[P51-E2E-04 HOME vp=375] on={"header":112,"banner":112,"main":2517} blocked={"header":112,"banner":112,"main":2517}
+[P51-E2E-04 HOME vp=768] on={"header":144,"banner":144,"main":1646} blocked={"header":144,"banner":144,"main":1646}
+[P51-E2E-04 HOME vp=1280] on={"header":176,"banner":176,"main":1620} blocked={"header":176,"banner":176,"main":1620}
+  ok 4 [chromium] ΓÇ║ e2e\phase05-1.spec.ts:290:3 ΓÇ║ Phase 5.1 E2E Verification Suite (Checks 3ΓÇô9: Per-Page Photo Backdrops) ΓÇ║ P51-E2E-04 (Check 6): With image requests blocked, auth pages and the home page render on the flat fallback with identical element heights (zero layout shift) (3.7s)
+[P51-E2E-05] showPageImages toggle verified in styleguide and user menu: imageRequestsWhenOff=0
+  ok 5 [chromium] ΓÇ║ e2e\phase05-1.spec.ts:420:3 ΓÇ║ Phase 5.1 E2E Verification Suite (Checks 3ΓÇô9: Per-Page Photo Backdrops) ΓÇ║ P51-E2E-05 (Check 7): Turning showPageImages off in user menu or styleguide removes all picture/img elements, makes zero image requests on navigation, and survives reload (1.9s)
+[P51-E2E-06] Save-Data: on verified across /login, /forgot-password, /trace/sample-qr-token, /_styleguide -> imageRequests=0
+  ok 6 [chromium] ΓÇ║ e2e\phase05-1.spec.ts:491:3 ΓÇ║ Phase 5.1 E2E Verification Suite (Checks 3ΓÇô9: Per-Page Photo Backdrops) ΓÇ║ P51-E2E-06 (Check 8): Sending Save-Data: on header makes zero backdrop image requests (656ms)
+[P51-E2E-07] /login fresh load image responses=[{"url":"http://localhost:5174/src/assets/backdrops/auth-1280.avif","status":200,"bytes":835}] totalBytes=835 (0.82 KB)
+  ok 7 [chromium] ΓÇ║ e2e\phase05-1.spec.ts:531:3 ΓÇ║ Phase 5.1 E2E Verification Suite (Checks 3ΓÇô9: Per-Page Photo Backdrops) ΓÇ║ P51-E2E-07 (Check 9): /login fresh load transfers <= 300 KB of backdrop image bytes (for auth only) and requests no other key (1.5s)
+[E2E-01 BEFORE_LOGOUT] user=superadmin sessionStorage={"tx_token":"eyJhbGciOiJI... (len=186)"} localStorage={"tx_ui_prefs":"{\"mode\":\"light\",\"modeSource\":\"system\",\"palette\":\"editorial\",\"accent\":\"auto\",\"sidebarCollapsed\":false,\"showPageImages\":true}"} cookie=""
+[E2E-01 AFTER_LOGOUT]  user=superadmin sessionStorage={} localStorage={"tx_ui_prefs":"{\"mode\":\"light\",\"modeSource\":\"system\",\"palette\":\"editorial\",\"accent\":\"auto\",\"sidebarCollapsed\":false,\"showPageImages\":true}"} cookie=""
+[E2E-01 BEFORE_LOGOUT] user=admin sessionStorage={"tx_token":"eyJhbGciOiJI... (len=186)"} localStorage={"tx_ui_prefs":"{\"mode\":\"light\",\"modeSource\":\"system\",\"palette\":\"editorial\",\"accent\":\"auto\",\"sidebarCollapsed\":false,\"showPageImages\":true}"} cookie=""
+[E2E-01 AFTER_LOGOUT]  user=admin sessionStorage={} localStorage={"tx_ui_prefs":"{\"mode\":\"light\",\"modeSource\":\"system\",\"palette\":\"editorial\",\"accent\":\"auto\",\"sidebarCollapsed\":false,\"showPageImages\":true}"} cookie=""
+[E2E-01 BEFORE_LOGOUT] user=manager sessionStorage={"tx_token":"eyJhbGciOiJI... (len=186)"} localStorage={"tx_ui_prefs":"{\"mode\":\"light\",\"modeSource\":\"system\",\"palette\":\"editorial\",\"accent\":\"auto\",\"sidebarCollapsed\":false,\"showPageImages\":true}"} cookie=""
+[E2E-01 AFTER_LOGOUT]  user=manager sessionStorage={} localStorage={"tx_ui_prefs":"{\"mode\":\"light\",\"modeSource\":\"system\",\"palette\":\"editorial\",\"accent\":\"auto\",\"sidebarCollapsed\":false,\"showPageImages\":true}"} cookie=""
+[E2E-01 BEFORE_LOGOUT] user=factory_mgr sessionStorage={"tx_token":"eyJhbGciOiJI... (len=186)"} localStorage={"tx_ui_prefs":"{\"mode\":\"light\",\"modeSource\":\"system\",\"palette\":\"editorial\",\"accent\":\"auto\",\"sidebarCollapsed\":false,\"showPageImages\":true}"} cookie=""
+[E2E-01 AFTER_LOGOUT]  user=factory_mgr sessionStorage={} localStorage={"tx_ui_prefs":"{\"mode\":\"light\",\"modeSource\":\"system\",\"palette\":\"editorial\",\"accent\":\"auto\",\"sidebarCollapsed\":false,\"showPageImages\":true}"} cookie=""
+[E2E-01 BEFORE_LOGOUT] user=inspector sessionStorage={"tx_token":"eyJhbGciOiJI... (len=186)"} localStorage={"tx_ui_prefs":"{\"mode\":\"light\",\"modeSource\":\"system\",\"palette\":\"editorial\",\"accent\":\"auto\",\"sidebarCollapsed\":false,\"showPageImages\":true}"} cookie=""
+[E2E-01 AFTER_LOGOUT]  user=inspector sessionStorage={} localStorage={"tx_ui_prefs":"{\"mode\":\"light\",\"modeSource\":\"system\",\"palette\":\"editorial\",\"accent\":\"auto\",\"sidebarCollapsed\":false,\"showPageImages\":true}"} cookie=""
+[E2E-01 BEFORE_LOGOUT] user=coordinator sessionStorage={"tx_token":"eyJhbGciOiJI... (len=186)"} localStorage={"tx_ui_prefs":"{\"mode\":\"light\",\"modeSource\":\"system\",\"palette\":\"editorial\",\"accent\":\"auto\",\"sidebarCollapsed\":false,\"showPageImages\":true}"} cookie=""
+[E2E-01 AFTER_LOGOUT]  user=coordinator sessionStorage={} localStorage={"tx_ui_prefs":"{\"mode\":\"light\",\"modeSource\":\"system\",\"palette\":\"editorial\",\"accent\":\"auto\",\"sidebarCollapsed\":false,\"showPageImages\":true}"} cookie=""
+  ok 8 [chromium] ΓÇ║ e2e\phase05.spec.ts:93:3 ΓÇ║ Phase 5 E2E Verification Suite (E1ΓÇôE6 / Checks 5ΓÇô14) ΓÇ║ E2E-01 (Check 5 & Check 13): Login for all six seeded accounts (five roles plus super-admin) and verify sessionStorage tx_token and console hygiene (2.9s)
+  ok 9 [chromium] ΓÇ║ e2e\phase05.spec.ts:156:3 ΓÇ║ Phase 5 E2E Verification Suite (E1ΓÇôE6 / Checks 5ΓÇô14) ΓÇ║ E2E-02 (Check 5): Login failure with wrong password displays the server error message (466ms)
+  ok 10 [chromium] ΓÇ║ e2e\phase05.spec.ts:166:3 ΓÇ║ Phase 5 E2E Verification Suite (E1ΓÇôE6 / Checks 5ΓÇô14) ΓÇ║ E2E-03 (Check 6): Full invite onboarding flow (request access, approve via API, read invite from dev mail sink, activate, read OTP, verify, land signed in) (1.5s)
+  ok 11 [chromium] ΓÇ║ e2e\phase05.spec.ts:230:3 ΓÇ║ Phase 5 E2E Verification Suite (E1ΓÇôE6 / Checks 5ΓÇô14) ΓÇ║ E2E-04 (Check 6): Forgot and reset password flow end-to-end in browser (2.1s)
+[E2E-05 BEFORE_401] sessionStorage={"tx_token":"eyJhbGciOiJI... (len=186)"} localStorage={"tx_ui_prefs":"{\"mode\":\"light\",\"modeSource\":\"system\",\"palette\":\"editorial\",\"accent\":\"auto\",\"sidebarCollapsed\":false,\"showPageImages\":true}"} cookie=""
+[E2E-05 AFTER_401]  sessionStorage={} localStorage={"tx_ui_prefs":"{\"mode\":\"light\",\"modeSource\":\"system\",\"palette\":\"editorial\",\"accent\":\"auto\",\"sidebarCollapsed\":false,\"showPageImages\":true}"} cookie=""
+  ok 12 [chromium] ΓÇ║ e2e\phase05.spec.ts:305:3 ΓÇ║ Phase 5 E2E Verification Suite (E1ΓÇôE6 / Checks 5ΓÇô14) ΓÇ║ E2E-05 (Check 7 & Check 13): 401 mid-session through logout-all in another context clears tx_token, redirects to /login?next=..., returns on sign-in, and blocks external ?next= open redirects (1.4s)
+  ok 13 [chromium] ΓÇ║ e2e\phase05.spec.ts:372:3 ΓÇ║ Phase 5 E2E Verification Suite (E1ΓÇôE6 / Checks 5ΓÇô14) ΓÇ║ E2E-06 (Check 7): Deactivated user login displays the deactivated account message (527ms)
+  ok 14 [chromium] ΓÇ║ e2e\phase05.spec.ts:404:3 ΓÇ║ Phase 5 E2E Verification Suite (E1ΓÇôE6 / Checks 5ΓÇô14) ΓÇ║ E2E-07 (Check 7): Lower role on restricted route (/batches/archived) sees the 403 forbidden state (641ms)
+  ok 15 [chromium] ΓÇ║ e2e\phase05.spec.ts:419:3 ΓÇ║ Phase 5 E2E Verification Suite (E1ΓÇôE6 / Checks 5ΓÇô14) ΓÇ║ E2E-08 (Check 7): Offline banner appears when the real backend is stopped and recovers when restarted (11.7s)
+[E2E-09] Reduced motion computed durations -> {"btnTransition":"0s","btnAnimation":"0s","navTransition":"0s","navAnimation":"0s"}
+  ok 16 [chromium] ΓÇ║ e2e\phase05.spec.ts:441:3 ΓÇ║ Phase 5 E2E Verification Suite (E1ΓÇôE6 / Checks 5ΓÇô14) ΓÇ║ E2E-09 (Check 8 & Check 9): Keyboard-only login, skip link, dialog focus trap/Escape/restore, theme toggle, and reduced-motion 0s durations (969ms)
+[E2E-10 AXE] route=/login palette=editorial mode=light -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/login palette=editorial mode=dark -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/login palette=obsidian mode=light -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/login palette=obsidian mode=dark -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/login palette=emerald mode=light -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/login palette=emerald mode=dark -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/request-access palette=editorial mode=light -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/request-access palette=editorial mode=dark -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/request-access palette=obsidian mode=light -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/request-access palette=obsidian mode=dark -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/request-access palette=emerald mode=light -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/request-access palette=emerald mode=dark -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/activate?token=sample-token palette=editorial mode=light -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/activate?token=sample-token palette=editorial mode=dark -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/activate?token=sample-token palette=obsidian mode=light -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/activate?token=sample-token palette=obsidian mode=dark -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/activate?token=sample-token palette=emerald mode=light -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/activate?token=sample-token palette=emerald mode=dark -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/verify-otp?email=demo%40tracex.demo palette=editorial mode=light -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/verify-otp?email=demo%40tracex.demo palette=editorial mode=dark -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/verify-otp?email=demo%40tracex.demo palette=obsidian mode=light -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/verify-otp?email=demo%40tracex.demo palette=obsidian mode=dark -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/verify-otp?email=demo%40tracex.demo palette=emerald mode=light -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/verify-otp?email=demo%40tracex.demo palette=emerald mode=dark -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/forgot-password palette=editorial mode=light -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/forgot-password palette=editorial mode=dark -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/forgot-password palette=obsidian mode=light -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/forgot-password palette=obsidian mode=dark -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/forgot-password palette=emerald mode=light -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/forgot-password palette=emerald mode=dark -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/reset-password?email=demo%40tracex.demo palette=editorial mode=light -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/reset-password?email=demo%40tracex.demo palette=editorial mode=dark -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/reset-password?email=demo%40tracex.demo palette=obsidian mode=light -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/reset-password?email=demo%40tracex.demo palette=obsidian mode=dark -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/reset-password?email=demo%40tracex.demo palette=emerald mode=light -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/reset-password?email=demo%40tracex.demo palette=emerald mode=dark -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/trace/sample-qr-token palette=editorial mode=light -> critical=0 serious=0 moderate=1 minor=0
+[E2E-10 AXE] route=/trace/sample-qr-token palette=editorial mode=dark -> critical=0 serious=0 moderate=1 minor=0
+[E2E-10 AXE] route=/trace/sample-qr-token palette=obsidian mode=light -> critical=0 serious=0 moderate=1 minor=0
+[E2E-10 AXE] route=/trace/sample-qr-token palette=obsidian mode=dark -> critical=0 serious=0 moderate=1 minor=0
+[E2E-10 AXE] route=/trace/sample-qr-token palette=emerald mode=light -> critical=0 serious=0 moderate=1 minor=0
+[E2E-10 AXE] route=/trace/sample-qr-token palette=emerald mode=dark -> critical=0 serious=0 moderate=1 minor=0
+[E2E-10 AXE] route=/privacy palette=editorial mode=light -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/privacy palette=editorial mode=dark -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/privacy palette=obsidian mode=light -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/privacy palette=obsidian mode=dark -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/privacy palette=emerald mode=light -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/privacy palette=emerald mode=dark -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/terms palette=editorial mode=light -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/terms palette=editorial mode=dark -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/terms palette=obsidian mode=light -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/terms palette=obsidian mode=dark -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/terms palette=emerald mode=light -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/terms palette=emerald mode=dark -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/_styleguide palette=editorial mode=light -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/_styleguide palette=editorial mode=dark -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/_styleguide palette=obsidian mode=light -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/_styleguide palette=obsidian mode=dark -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/_styleguide palette=emerald mode=light -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/_styleguide palette=emerald mode=dark -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/ palette=editorial mode=light -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/ palette=editorial mode=dark -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/ palette=obsidian mode=light -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/ palette=obsidian mode=dark -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/ palette=emerald mode=light -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/ palette=emerald mode=dark -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/batches/archived palette=editorial mode=light -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/batches/archived palette=editorial mode=dark -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/batches/archived palette=obsidian mode=light -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/batches/archived palette=obsidian mode=dark -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/batches/archived palette=emerald mode=light -> critical=0 serious=0 moderate=0 minor=0
+[E2E-10 AXE] route=/batches/archived palette=emerald mode=dark -> critical=0 serious=0 moderate=0 minor=0
+  ok 17 [chromium] ΓÇ║ e2e\phase05.spec.ts:522:3 ΓÇ║ Phase 5 E2E Verification Suite (E1ΓÇôE6 / Checks 5ΓÇô14) ΓÇ║ E2E-10 (Check 10 & Check 14): axe-core accessibility scan on every route in light and dark for all three palettes, plus runtime switching and reload persistence (35.5s)
+[E2E-11 VIEWPORT] route=/login viewport=375x812 -> scrollWidth=375 clientWidth=375 screenshot=route-01-login-375.png
+[E2E-11 VIEWPORT] route=/login viewport=768x1024 -> scrollWidth=768 clientWidth=768 screenshot=route-01-login-768.png
+[E2E-11 VIEWPORT] route=/login viewport=1280x800 -> scrollWidth=1280 clientWidth=1280 screenshot=route-01-login-1280.png
+[E2E-11 VIEWPORT] route=/request-access viewport=375x812 -> scrollWidth=375 clientWidth=375 screenshot=route-02-request-access-375.png
+[E2E-11 VIEWPORT] route=/request-access viewport=768x1024 -> scrollWidth=768 clientWidth=768 screenshot=route-02-request-access-768.png
+[E2E-11 VIEWPORT] route=/request-access viewport=1280x800 -> scrollWidth=1280 clientWidth=1280 screenshot=route-02-request-access-1280.png
+[E2E-11 VIEWPORT] route=/activate?token=sample-token viewport=375x812 -> scrollWidth=375 clientWidth=375 screenshot=route-03-activate-375.png
+[E2E-11 VIEWPORT] route=/activate?token=sample-token viewport=768x1024 -> scrollWidth=768 clientWidth=768 screenshot=route-03-activate-768.png
+[E2E-11 VIEWPORT] route=/activate?token=sample-token viewport=1280x800 -> scrollWidth=1280 clientWidth=1280 screenshot=route-03-activate-1280.png
+[E2E-11 VIEWPORT] route=/verify-otp?email=demo%40tracex.demo viewport=375x812 -> scrollWidth=375 clientWidth=375 screenshot=route-04-verify-otp-375.png
+[E2E-11 VIEWPORT] route=/verify-otp?email=demo%40tracex.demo viewport=768x1024 -> scrollWidth=768 clientWidth=768 screenshot=route-04-verify-otp-768.png
+[E2E-11 VIEWPORT] route=/verify-otp?email=demo%40tracex.demo viewport=1280x800 -> scrollWidth=1280 clientWidth=1280 screenshot=route-04-verify-otp-1280.png
+[E2E-11 VIEWPORT] route=/forgot-password viewport=375x812 -> scrollWidth=375 clientWidth=375 screenshot=route-05-forgot-password-375.png
+[E2E-11 VIEWPORT] route=/forgot-password viewport=768x1024 -> scrollWidth=768 clientWidth=768 screenshot=route-05-forgot-password-768.png
+[E2E-11 VIEWPORT] route=/forgot-password viewport=1280x800 -> scrollWidth=1280 clientWidth=1280 screenshot=route-05-forgot-password-1280.png
+[E2E-11 VIEWPORT] route=/reset-password?email=demo%40tracex.demo viewport=375x812 -> scrollWidth=375 clientWidth=375 screenshot=route-06-reset-password-375.png
+[E2E-11 VIEWPORT] route=/reset-password?email=demo%40tracex.demo viewport=768x1024 -> scrollWidth=768 clientWidth=768 screenshot=route-06-reset-password-768.png
+[E2E-11 VIEWPORT] route=/reset-password?email=demo%40tracex.demo viewport=1280x800 -> scrollWidth=1280 clientWidth=1280 screenshot=route-06-reset-password-1280.png
+[E2E-11 VIEWPORT] route=/trace/sample-qr-token viewport=375x812 -> scrollWidth=375 clientWidth=375 screenshot=route-07-trace-375.png
+[E2E-11 VIEWPORT] route=/trace/sample-qr-token viewport=768x1024 -> scrollWidth=768 clientWidth=768 screenshot=route-07-trace-768.png
+[E2E-11 VIEWPORT] route=/trace/sample-qr-token viewport=1280x800 -> scrollWidth=1280 clientWidth=1280 screenshot=route-07-trace-1280.png
+[E2E-11 VIEWPORT] route=/privacy viewport=375x812 -> scrollWidth=375 clientWidth=375 screenshot=route-08-privacy-375.png
+[E2E-11 VIEWPORT] route=/privacy viewport=768x1024 -> scrollWidth=768 clientWidth=768 screenshot=route-08-privacy-768.png
+[E2E-11 VIEWPORT] route=/privacy viewport=1280x800 -> scrollWidth=1280 clientWidth=1280 screenshot=route-08-privacy-1280.png
+[E2E-11 VIEWPORT] route=/terms viewport=375x812 -> scrollWidth=375 clientWidth=375 screenshot=route-09-terms-375.png
+[E2E-11 VIEWPORT] route=/terms viewport=768x1024 -> scrollWidth=768 clientWidth=768 screenshot=route-09-terms-768.png
+[E2E-11 VIEWPORT] route=/terms viewport=1280x800 -> scrollWidth=1280 clientWidth=1280 screenshot=route-09-terms-1280.png
+[E2E-11 VIEWPORT] route=/_styleguide viewport=375x812 -> scrollWidth=375 clientWidth=375 screenshot=route-10-styleguide-375.png
+[E2E-11 VIEWPORT] route=/_styleguide viewport=768x1024 -> scrollWidth=768 clientWidth=768 screenshot=route-10-styleguide-768.png
+[E2E-11 VIEWPORT] route=/_styleguide viewport=1280x800 -> scrollWidth=1280 clientWidth=1280 screenshot=route-10-styleguide-1280.png
+[E2E-11 VIEWPORT] route=/ viewport=375x812 -> scrollWidth=375 clientWidth=375 screenshot=route-11-home-375.png
+[E2E-11 VIEWPORT] route=/ viewport=768x1024 -> scrollWidth=768 clientWidth=768 screenshot=route-11-home-768.png
+[E2E-11 VIEWPORT] route=/ viewport=1280x800 -> scrollWidth=1280 clientWidth=1280 screenshot=route-11-home-1280.png
+[E2E-11 VIEWPORT] route=/batches/archived viewport=375x812 -> scrollWidth=375 clientWidth=375 screenshot=route-12-admin-check-375.png
+[E2E-11 VIEWPORT] route=/batches/archived viewport=768x1024 -> scrollWidth=768 clientWidth=768 screenshot=route-12-admin-check-768.png
+[E2E-11 VIEWPORT] route=/batches/archived viewport=1280x800 -> scrollWidth=1280 clientWidth=1280 screenshot=route-12-admin-check-1280.png
+  ok 18 [chromium] ΓÇ║ e2e\phase05.spec.ts:612:3 ΓÇ║ Phase 5 E2E Verification Suite (E1ΓÇôE6 / Checks 5ΓÇô14) ΓÇ║ E2E-11 (Check 11): Responsive viewports (375px, 768px, 1280px) scrollWidth and clientWidth measurements on every route, adaptive navigation, and all 36 route screenshots (8.9s)
+  ok 19 [chromium] ΓÇ║ e2e\phase06.spec.ts:132:3 ΓÇ║ Phase 6 E2E Verification Suite (Core Feature UI & Checks 6, 8, 9) ΓÇ║ P6-E2E-01: Dashboard metrics match server summary and clicking a tier card filters the batch list (1.2s)
+  ok 20 [chromium] ΓÇ║ e2e\phase06.spec.ts:206:3 ΓÇ║ Phase 6 E2E Verification Suite (Core Feature UI & Checks 6, 8, 9) ΓÇ║ P6-E2E-02: Create a batch as factory-manager, see generated batchCode, add a note, and edit raw material (2.0s)
+  ok 21 [chromium] ΓÇ║ e2e\phase06.spec.ts:267:3 ΓÇ║ Phase 6 E2E Verification Suite (Core Feature UI & Checks 6, 8, 9) ΓÇ║ P6-E2E-03: Quality inspector 422 PASSED-with-fail check, PASSED badge, FAILED quality hold block, and FLAGGED dispatch warning (3.4s)
+  ok 22 [chromium] ΓÇ║ e2e\phase06.spec.ts:359:3 ΓÇ║ Phase 6 E2E Verification Suite (Core Feature UI & Checks 6, 8, 9) ΓÇ║ P6-E2E-04: FEFO dispatch in order succeeds; out-of-order without overrideReason is blocked and shows earlier batchCode; out-of-order with overrideReason succeeds; expired batch is blocked with BATCH_EXPIRED (1.8s)
+  ok 23 [chromium] ΓÇ║ e2e\phase06.spec.ts:425:3 ΓÇ║ Phase 6 E2E Verification Suite (Core Feature UI & Checks 6, 8, 9) ΓÇ║ P6-E2E-05: Archive and restore as admin; non-admin sees no archive button and gets 403 on archived route; dispatch-coordinator sees no create-batch or inspect controls (2.7s)
+  ok 24 [chromium] ΓÇ║ e2e\phase06.spec.ts:480:3 ΓÇ║ Phase 6 E2E Verification Suite (Core Feature UI & Checks 6, 8, 9) ΓÇ║ P6-E2E-06: Edit profile and change password, keeping the session signed in via rotated token (2.0s)
+[P6-E2E-07 TZ] batch=TX-2026-10-001 Asia/Kolkata={listExpiry:Oct 1, 2026, detailExpiry:Oct 1, 2026, detailPack:Mar 20, 2026} America/Los_Angeles={listExpiry:Oct 1, 2026, detailExpiry:Oct 1, 2026, detailPack:Mar 20, 2026}
+  ok 25 [chromium] ΓÇ║ e2e\phase06.spec.ts:518:3 ΓÇ║ Phase 6 E2E Verification Suite (Core Feature UI & Checks 6, 8, 9) ΓÇ║ P6-E2E-07 (Check 8): Two Playwright contexts with Asia/Kolkata and America/Los_Angeles show the exact same expiry date string for the same batch (1.6s)
+[P6-E2E-08 IN_FLIGHT_BEFORE_FAIL] submitDisabled=true, successToastCount=0, createdBannerCount=0
+[P6-E2E-08 AFTER_500_FAIL] errorBannerVisible=true, successToastCount=0
+[P6-E2E-08 IN_FLIGHT_BEFORE_SUCCESS] submitDisabled=true, successToastCount=0, createdBannerCount=0
+[P6-E2E-08 AFTER_201_SUCCESS] createdBannerVisible=true, successToastVisible=true
+  ok 26 [chromium] ΓÇ║ e2e\phase06.spec.ts:573:3 ΓÇ║ Phase 6 E2E Verification Suite (Core Feature UI & Checks 6, 8, 9) ΓÇ║ P6-E2E-08 (Check 9): Delayed and failed response test proves no success toast appears before server confirmation (1.2s)
+[P6-E2E-09 AXE] route=/ mode=light -> violations=0 seriousOrCritical=0
+[P6-E2E-09 AXE] route=/ mode=dark -> violations=0 seriousOrCritical=0
+[P6-E2E-09 AXE] route=/dashboard mode=light -> violations=0 seriousOrCritical=0
+[P6-E2E-09 AXE] route=/dashboard mode=dark -> violations=0 seriousOrCritical=0
+[P6-E2E-09 AXE] route=/batches mode=light -> violations=0 seriousOrCritical=0
+[P6-E2E-09 AXE] route=/batches mode=dark -> violations=0 seriousOrCritical=0
+[P6-E2E-09 AXE] route=/batches/new mode=light -> violations=0 seriousOrCritical=0
+[P6-E2E-09 AXE] route=/batches/new mode=dark -> violations=0 seriousOrCritical=0
+[P6-E2E-09 AXE] route=/batches/6ac49ef22f69222fac65a40b mode=light -> violations=0 seriousOrCritical=0
+[P6-E2E-09 AXE] route=/batches/6ac49ef22f69222fac65a40b mode=dark -> violations=0 seriousOrCritical=0
+[P6-E2E-09 AXE] route=/batches/archived mode=light -> violations=0 seriousOrCritical=0
+[P6-E2E-09 AXE] route=/batches/archived mode=dark -> violations=0 seriousOrCritical=0
+[P6-E2E-09 AXE] route=/fefo mode=light -> violations=0 seriousOrCritical=0
+[P6-E2E-09 AXE] route=/fefo mode=dark -> violations=0 seriousOrCritical=0
+[P6-E2E-09 AXE] route=/inspections mode=light -> violations=0 seriousOrCritical=0
+[P6-E2E-09 AXE] route=/inspections mode=dark -> violations=0 seriousOrCritical=0
+[P6-E2E-09 AXE] route=/profile mode=light -> violations=0 seriousOrCritical=0
+[P6-E2E-09 AXE] route=/profile mode=dark -> violations=0 seriousOrCritical=0
+[P6-E2E-09 AXE] route=/settings mode=light -> violations=0 seriousOrCritical=0
+[P6-E2E-09 AXE] route=/settings mode=dark -> violations=0 seriousOrCritical=0
+  ok 27 [chromium] ΓÇ║ e2e\phase06.spec.ts:666:3 ΓÇ║ Phase 6 E2E Verification Suite (Core Feature UI & Checks 6, 8, 9) ΓÇ║ P6-E2E-09: axe-core accessibility scan on every Phase 6 route in light and dark modes (20.2s)
+[P6-E2E-10 375px] route=/dashboard -> scrollWidth=375 clientWidth=375 file=01-dashboard-375.png
+[P6-E2E-10 375px] route=/batches -> scrollWidth=375 clientWidth=375 file=02-batches-list-375.png
+[P6-E2E-10 375px] route=/batches/new -> scrollWidth=375 clientWidth=375 file=03-batches-create-375.png
+[P6-E2E-10 375px] route=/batches/6ac49ef22f69222fac65a40b -> scrollWidth=375 clientWidth=375 file=04-batch-detail-375.png
+[P6-E2E-10 375px] route=/batches/archived -> scrollWidth=375 clientWidth=375 file=05-batches-archived-375.png
+[P6-E2E-10 375px] route=/fefo -> scrollWidth=375 clientWidth=375 file=06-fefo-queue-375.png
+[P6-E2E-10 375px] route=/inspections -> scrollWidth=375 clientWidth=375 file=07-inspections-375.png
+[P6-E2E-10 375px] route=/profile -> scrollWidth=375 clientWidth=375 file=08-profile-375.png
+  ok 28 [chromium] ΓÇ║ e2e\phase06.spec.ts:718:3 ΓÇ║ Phase 6 E2E Verification Suite (Core Feature UI & Checks 6, 8, 9) ΓÇ║ P6-E2E-10: 375px mobile viewport measurements and screenshots in docs/screenshots/phase-06/ (2.6s)
+  ok 29 [chromium] ΓÇ║ e2e\phase07.spec.ts:178:3 ΓÇ║ Phase 7 E2E Verification Suite (QR & Public Trace) ΓÇ║ P7-E2E-01: factory-manager creates a batch, reads qrAbsoluteUrl, opens in logged-out context (no farmer name), scan count increases after reload (1.3s)
+  ok 30 [chromium] ΓÇ║ e2e\phase07.spec.ts:211:3 ΓÇ║ Phase 7 E2E Verification Suite (QR & Public Trace) ΓÇ║ P7-E2E-02: QR section renders image, Download PNG saves <batchCode>-qr.png, matches API data URL bytes (941ms)
+  ok 31 [chromium] ΓÇ║ e2e\phase07.spec.ts:242:3 ΓÇ║ Phase 7 E2E Verification Suite (QR & Public Trace) ΓÇ║ P7-E2E-03: archive batch as admin makes public link return 404, restore makes same link work again (461ms)
+  ok 32 [chromium] ΓÇ║ e2e\phase07.spec.ts:283:3 ΓÇ║ Phase 7 E2E Verification Suite (QR & Public Trace) ΓÇ║ P7-E2E-04: dispatch the batch, public page shows status DISPATCHED (361ms)
+  ok 33 [chromium] ΓÇ║ e2e\phase07.spec.ts:319:3 ΓÇ║ Phase 7 E2E Verification Suite (QR & Public Trace) ΓÇ║ P7-E2E-05: forged and malformed tokens and old /trace/:code show right states with no console errors (462ms)
+[P7-E2E-06 TZ] Asia/Kolkata=Nov 20, 2026 America/Los_Angeles=Nov 20, 2026 identical=true
+  ok 34 [chromium] ΓÇ║ e2e\phase07.spec.ts:351:3 ΓÇ║ Phase 7 E2E Verification Suite (QR & Public Trace) ΓÇ║ P7-E2E-06: public trace page expiry date is identical in Asia/Kolkata and America/Los_Angeles contexts (589ms)
+[P7-E2E-07 AXE] checked /trace/t/:token in 12 permutations (3 palettes x 2 modes x 2 image settings) + batch detail: zero violations
+  ok 35 [chromium] ΓÇ║ e2e\phase07.spec.ts:376:3 ΓÇ║ Phase 7 E2E Verification Suite (QR & Public Trace) ΓÇ║ P7-E2E-07: axe-core zero serious or critical violations on /trace/t/:token in light and dark across 3 palettes and images on/off, and batch detail with QR (7.4s)
+[P7-E2E-08 VIEWPORTS] trace and batch detail at 375px, 768px, 1280px: all scrollWidth === clientWidth
+  ok 36 [chromium] ΓÇ║ e2e\phase07.spec.ts:429:3 ΓÇ║ Phase 7 E2E Verification Suite (QR & Public Trace) ΓÇ║ P7-E2E-08: 375px, 768px, and 1280px: scrollWidth equals clientWidth on trace page and batch detail; screenshots saved (1.4s)
+[P7-E2E-09 NETWORK] traceRequests=1 scanRequests=1 authHeaderSent=false sessionStorageRead=false
+  ok 37 [chromium] ΓÇ║ e2e\phase07.spec.ts:476:3 ΓÇ║ Phase 7 E2E Verification Suite (QR & Public Trace) ΓÇ║ P7-E2E-09: network log shows exactly one trace GET and one scan POST; sessionStorage tx_token not read or sent (892ms)
+  ok 38 [chromium] ΓÇ║ e2e\phase08.spec.ts:90:3 ΓÇ║ Phase 8 Bulk CSV Import E2E Suite ΓÇ║ P8-E2E-01: owner imports fixture CSV (valid + duplicate + error), views result, rolls back, and re-imports successfully (4.0s)
+  ok 39 [chromium] ΓÇ║ e2e\phase08.spec.ts:182:3 ΓÇ║ Phase 8 Bulk CSV Import E2E Suite ΓÇ║ P8-E2E-02: quality-inspector has no Bulk Import nav link and direct /import URL is denied (403) (635ms)
+
+  39 passed (3.7m)

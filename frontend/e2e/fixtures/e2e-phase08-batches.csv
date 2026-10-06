@@ -1,0 +1,5 @@
+sourceLotCode,productSku,packDate,quantityProduced,unit,yieldPercent,farmerName,village
+E2E-P8-LOT-01,WBJC,2026-10-01,140,Kg,88,HiddenPIIFarmerOne,Sopore
+E2E-P8-LOT-02,WBJC,2026-10-01,165,Kg,90,HiddenPIIFarmerTwo,Anantnag
+E2E-P8-LOT-01,WBJC,2026-10-01,140,Kg,88,HiddenPIIFarmerOne,Sopore
+E2E-P8-LOT-BAD,WBJC,2026-10-01,-25,Kg,85,HiddenPIIFarmerBad,Baramulla

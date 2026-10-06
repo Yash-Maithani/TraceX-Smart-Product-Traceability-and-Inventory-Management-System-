@@ -1,0 +1,45 @@
+=== TraceX MongoDB Evidence Verification ===
+
+--- 1. tracex_fresh_dev: db.scanevents.findOne() ---
+{
+  "batchId": "6ac48e0e0d95cf584dad0d2d",
+  "batchCode": "TX-2026-10-013",
+  "scannedAt": "2026-10-06T05:59:01.288Z",
+  "source": "buyer",
+  "deviceType": "Desktop",
+  "ipHash": "d0f3d6f39129439fc8affc586f68f6283bda3b2cc181aed7f791a31414799f88",
+  "_class": "com.tracex.model.ScanEvent"
+}
+
+--- 2. tracex_fresh_dev: Count loopback (127.0.0.1, ::1) or raw IP in scanevents ---
+Violations count: 0
+
+--- 3. Before 2nd Backend Start: Batch Counts and Missing traceToken ---
+tracex_fresh_dev:
+  Total batches: 14
+  Batches missing traceToken: 0
+tracex_fresh_e2e:
+  Total batches: 12
+  Batches missing traceToken: 0
+
+--- 4. Performing 2nd Backend Start for tracex_fresh_dev and tracex_fresh_e2e ---
+Restarting dev backend (port 8081, tracex_fresh_dev)...
+Dev backend 2nd start health: UP (pid: 18604)
+Running e2e backend 2nd start (port 8083, tracex_fresh_e2e)...
+E2E backend 2nd start health: UP (pid: 11448)
+
+--- 5. After 2nd Backend Start: Batch Counts and Missing traceToken ---
+tracex_fresh_dev:
+  Total batches: 14
+  Batches missing traceToken: 0
+tracex_fresh_e2e:
+  Total batches: 12
+  Batches missing traceToken: 0
+
+--- 6. DEMO-LOT-001 through 012 Existence Check ---
+tracex_fresh_dev demo lots:
+  Count: 12
+  Lots: DEMO-LOT-001, DEMO-LOT-002, DEMO-LOT-003, DEMO-LOT-004, DEMO-LOT-005, DEMO-LOT-006, DEMO-LOT-007, DEMO-LOT-008, DEMO-LOT-009, DEMO-LOT-010, DEMO-LOT-011, DEMO-LOT-012
+tracex_fresh_e2e demo lots:
+  Count: 12
+  Lots: DEMO-LOT-001, DEMO-LOT-002, DEMO-LOT-003, DEMO-LOT-004, DEMO-LOT-005, DEMO-LOT-006, DEMO-LOT-007, DEMO-LOT-008, DEMO-LOT-009, DEMO-LOT-010, DEMO-LOT-011, DEMO-LOT-012

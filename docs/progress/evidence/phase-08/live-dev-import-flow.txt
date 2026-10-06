@@ -1,0 +1,29 @@
+=== 1. Dev Backend Health on 8081 ===
+{"status":"UP"}
+
+=== 2. Initial mongosh counts (tracex_fresh_dev) ===
+{"activeBatches":13,"deletedBatches":1,"importJobs":0}
+
+=== 3. POST /api/v1/import/map-headers ===
+{"mapping":{"productSku":"Product SKU","sourceLotCode":"Source Lot Code","farmerName":"Farmer Name","village":"Village","quantityProduced":"Quantity","unit":"Unit","yieldPercent":"Yield %","packDate":"Pack Date"},"unmappedRequired":[]}
+
+=== 4. POST /api/v1/import/validate (2 CSV rows) ===
+{"summary":{"total":2,"insert":2,"skip":0,"error":0},"preview":[{"rowNumber":2,"verdict":"insert","reason":null,"product":{"sku":"WBJC","productName":"Wild Berry Juice Concentrate"},"sourceLotCode":"LIVE-DEV-LOT-001","village":"Almora","quantityProduced":185,"unit":"Kg","yieldPercent":91.5,"packDate":"2026-03-10","insertKey":"WBJC|LIVE-DEV-LOT-001|2026-03-10","errors":[]},{"rowNumber":3,"verdict":"insert","reason":null,"product":{"sku":"KMGC","productName":"Kumaon Royal Multigrain Crackers"},"sourceLotCode":"LIVE-DEV-LOT-002","village":"Bageshwar","quantityProduced":240,"unit":"Kg","yieldPercent":88.0,"packDate":"2026-03-12","insertKey":"KMGC|LIVE-DEV-LOT-002|2026-03-12","errors":[]}]}
+
+=== 5. POST /api/v1/import/commit (Chunk 0, isFinal=false) ===
+{"jobId":"6ac4c3b7addfc547b642b324","status":"running","chunkInserted":1,"chunkSkipped":0,"chunkErrored":0,"totals":{"processedRows":1,"totalRows":2,"inserted":1,"skipped":0,"errored":0},"batches":[{"id":"6ac4c3b7addfc547b642b325","batchCode":"TX-2026-10-016","productName":"Wild Berry Juice Concentrate","sku":"WBJC","sourceLotCode":"LIVE-DEV-LOT-001","packDate":"2026-03-10","expiryDate":"2026-09-06","status":"EXPIRED"}],"errors":[],"rowErrorsTruncated":false}
+
+=== 6. POST /api/v1/import/commit (Chunk 1, isFinal=true, same jobId) ===
+{"jobId":"6ac4c3b7addfc547b642b324","status":"done","chunkInserted":1,"chunkSkipped":0,"chunkErrored":0,"totals":{"processedRows":2,"totalRows":2,"inserted":2,"skipped":0,"errored":0},"batches":[{"id":"6ac4c3b7addfc547b642b327","batchCode":"TX-2026-10-017","productName":"Kumaon Royal Multigrain Crackers","sku":"KMGC","sourceLotCode":"LIVE-DEV-LOT-002","packDate":"2026-03-12","expiryDate":"2026-06-10","status":"EXPIRED"}],"errors":[],"rowErrorsTruncated":false}
+
+=== 7. GET /api/v1/import/6ac4c3b7addfc547b642b324 ===
+{"id":"6ac4c3b7addfc547b642b324","fileName":"live-dev-phase08.csv","entity":"batch","status":"done","totalRows":2,"processedRows":2,"inserted":2,"updated":0,"skipped":0,"errored":0,"rowErrorsTruncated":false,"createdBy":"superadmin","createdByRole":"super-admin","createdAt":"2026-10-06T09:47:35.642Z","updatedAt":"2026-10-06T09:47:35.712Z","finishedAt":"2026-10-06T09:47:35.712Z","rolledBackAt":null,"rolledBackBy":null,"insertedBatchIds":["6ac4c3b7addfc547b642b325","6ac4c3b7addfc547b642b327"],"rowErrors":[]}
+
+=== 8. Post-Commit mongosh counts (tracex_fresh_dev) ===
+{"activeBatches":15,"deletedBatches":1,"importJobs":1}
+
+=== 9. POST /api/v1/import/6ac4c3b7addfc547b642b324/rollback ===
+{"jobId":"6ac4c3b7addfc547b642b324","status":"rolled_back","archived":2,"alreadyArchived":0,"rolledBackAt":"2026-10-06T09:47:36.722725500Z","rolledBackBy":"superadmin"}
+
+=== 10. Post-Rollback mongosh counts and rolled-back batch records (tracex_fresh_dev) ===
+{"activeBatches":13,"deletedBatches":3,"importJobs":1,"rolledBackBatches":[{"sku":"WBJC","batchCode":"TX-2026-10-016","isDeleted":true,"deletedBy":"superadmin","deleteNote":"Import rollback 6ac4c3b7addfc547b642b324"},{"sku":"KMGC","batchCode":"TX-2026-10-017","isDeleted":true,"deletedBy":"superadmin","deleteNote":"Import rollback 6ac4c3b7addfc547b642b324"}]}

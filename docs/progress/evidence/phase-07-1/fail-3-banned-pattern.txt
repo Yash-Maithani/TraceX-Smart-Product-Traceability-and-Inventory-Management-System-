@@ -1,0 +1,14 @@
+
+> tracex-frontend@1.0.0 check:banned
+> node scripts/check-banned-patterns.mjs
+
+npm : Banned pattern check FAILED with 2 violation(s):
+At line:1 char:1
++ npm run check:banned 2>&1 | Tee-Object -FilePath ..\docs\progress\evi ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Banned pattern ...2 violation(s)::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  [VIOLATION] src/features/public/PublicTracePage.tsx:25 - Banned client-side comparison on 'daysUntilExpiry' 
+(freshness and FEFO logic must come from the server)
+  [VIOLATION] src/features/public/PublicTracePage.tsx:25 - Banned hardcoded 7 or 30 day freshness threshold comparison

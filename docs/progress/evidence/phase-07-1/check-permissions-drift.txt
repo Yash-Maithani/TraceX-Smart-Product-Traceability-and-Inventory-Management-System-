@@ -1,0 +1,5 @@
+
+> tracex-frontend@1.0.0 check:permissions-drift
+> node scripts/check-permissions-drift.mjs
+
+Permissions drift check PASSED (compare-only, zero file writes): src/auth/permissions.generated.ts matches docs/permission-matrix.csv.

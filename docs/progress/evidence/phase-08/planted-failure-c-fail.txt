@@ -1,0 +1,157 @@
+
+C:\Users\yashm\OneDrive\Desktop\TraceX\backend>"C:\Program Files\Eclipse Adoptium\jdk-21.0.12.101-hotspot\\bin\java.exe"  "-Dmaven.multiModuleProjectDirectory=C:\Users\yashm\OneDrive\Desktop\TraceX\backend\." -classpath "C:\Users\yashm\OneDrive\Desktop\TraceX\backend\.mvn\wrapper\maven-wrapper.jar" org.apache.maven.wrapper.MavenWrapperMain test -Dtest=ImportTests#testNoFarmerNameInPreviewRowErrorsAuditOrCapturedLogs 
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------------< com.tracex:tracex-backend >----------------------
+[INFO] Building tracex-backend 1.0.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ tracex-backend ---
+[INFO] Copying 5 resources from src\main\resources to target\classes
+[INFO] Copying 7 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ tracex-backend ---
+[INFO] Changes detected - recompiling the module! :source
+[INFO] Compiling 100 source files with javac [debug release 21] to target\classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ tracex-backend ---
+[INFO] Copying 4 resources from src\test\resources to target\test-classes
+[INFO] 
+[INFO] --- compiler:3.11.0:testCompile (default-testCompile) @ tracex-backend ---
+[INFO] Changes detected - recompiling the module! :dependency
+[INFO] Compiling 26 source files with javac [debug release 21] to target\test-classes
+[INFO] 
+[INFO] --- surefire:3.2.5:test (default-test) @ tracex-backend ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.tracex.ImportTests
+15:04:59.700 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.tracex.ImportTests]: ImportTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+15:04:59.808 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.tracex.TraceXApplication for test class com.tracex.ImportTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.5)
+
+2026-10-06T15:05:00.184+05:30  INFO 24216 --- [           main] com.tracex.ImportTests                   : Starting ImportTests using Java 21.0.12.1 with PID 24216 (started by yashm in C:\Users\yashm\OneDrive\Desktop\TraceX\backend)
+2026-10-06T15:05:00.185+05:30  INFO 24216 --- [           main] com.tracex.ImportTests                   : The following 1 profile is active: "test"
+2026-10-06T15:05:01.114+05:30  INFO 24216 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data MongoDB repositories in DEFAULT mode.
+2026-10-06T15:05:01.187+05:30  INFO 24216 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 69 ms. Found 9 MongoDB repository interfaces.
+2026-10-06T15:05:01.921+05:30  INFO 24216 --- [           main] org.mongodb.driver.client                : MongoClient with metadata {"driver": {"name": "mongo-java-driver|sync|spring-boot", "version": "4.11.2"}, "os": {"type": "Windows", "name": "Windows 11", "architecture": "amd64", "version": "10.0"}, "platform": "Java/Eclipse Adoptium/21.0.12.1+1-LTS"} created with settings MongoClientSettings{readPreference=primary, writeConcern=WriteConcern{w=null, wTimeout=null ms, journal=null}, retryWrites=true, retryReads=true, readConcern=ReadConcern{level=null}, credential=null, transportSettings=null, streamFactoryFactory=null, commandListeners=[io.micrometer.core.instrument.binder.mongodb.MongoMetricsCommandListener@76828577], codecRegistry=ProvidersCodecRegistry{codecProviders=[ValueCodecProvider{}, BsonValueCodecProvider{}, DBRefCodecProvider{}, DBObjectCodecProvider{}, DocumentCodecProvider{}, CollectionCodecProvider{}, IterableCodecProvider{}, MapCodecProvider{}, GeoJsonCodecProvider{}, GridFSFileCodecProvider{}, Jsr310CodecProvider{}, JsonObjectCodecProvider{}, BsonCodecProvider{}, EnumCodecProvider{}, com.mongodb.client.model.mql.ExpressionCodecProvider@38732372, com.mongodb.Jep395RecordCodecProvider@639cb788, com.mongodb.KotlinCodecProvider@2fee69a1]}, loggerSettings=LoggerSettings{maxDocumentLength=1000}, clusterSettings={hosts=[localhost:27017], srvServiceName=mongodb, mode=SINGLE, requiredClusterType=UNKNOWN, requiredReplicaSetName='null', serverSelector='null', clusterListeners='[]', serverSelectionTimeout='30000 ms', localThreshold='15 ms'}, socketSettings=SocketSettings{connectTimeoutMS=10000, readTimeoutMS=0, receiveBufferSize=0, proxySettings=ProxySettings{host=null, port=null, username=null, password=null}}, heartbeatSocketSettings=SocketSettings{connectTimeoutMS=10000, readTimeoutMS=10000, receiveBufferSize=0, proxySettings=ProxySettings{host=null, port=null, username=null, password=null}}, connectionPoolSettings=ConnectionPoolSettings{maxSize=100, minSize=0, maxWaitTimeMS=120000, maxConnectionLifeTimeMS=0, maxConnectionIdleTimeMS=0, maintenanceInitialDelayMS=0, maintenanceFrequencyMS=60000, connectionPoolListeners=[io.micrometer.core.instrument.binder.mongodb.MongoMetricsConnectionPoolListener@4d25f816], maxConnecting=2}, serverSettings=ServerSettings{heartbeatFrequencyMS=10000, minHeartbeatFrequencyMS=500, serverListeners='[]', serverMonitorListeners='[]'}, sslSettings=SslSettings{enabled=false, invalidHostNameAllowed=false, context=null}, applicationName='null', compressorList=[], uuidRepresentation=JAVA_LEGACY, serverApi=null, autoEncryptionSettings=null, dnsClient=null, inetAddressResolver=null, contextProvider=null}
+2026-10-06T15:05:01.962+05:30  INFO 24216 --- [localhost:27017] org.mongodb.driver.cluster               : Monitor thread successfully connected to server with description ServerDescription{address=localhost:27017, type=STANDALONE, state=CONNECTED, ok=true, minWireVersion=0, maxWireVersion=28, maxDocumentSize=16777216, logicalSessionTimeoutMinutes=30, roundTripTimeNanos=32442400}
+2026-10-06T15:05:03.609+05:30  WARN 24216 --- [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 2369eff1-f0ef-4586-8181-f93636b459f0
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-10-06T15:05:04.314+05:30  INFO 24216 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint(s) beneath base path '/actuator'
+2026-10-06T15:05:04.380+05:30  INFO 24216 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@4cb58e8b, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@6f4f2cc0, org.springframework.security.web.context.SecurityContextHolderFilter@8c18bde, org.springframework.security.web.header.HeaderWriterFilter@2e7517aa, org.springframework.web.filter.CorsFilter@5308e79d, org.springframework.security.web.authentication.logout.LogoutFilter@77db231c, com.tracex.security.RequestIdFilter@2431050d, com.tracex.security.JwtAuthFilter@441016d6, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@5ae16aa, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@344a065a, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@522f0bb8, org.springframework.security.web.session.SessionManagementFilter@320ba79f, org.springframework.security.web.access.ExceptionTranslationFilter@76e2a621, org.springframework.security.web.access.intercept.AuthorizationFilter@438c0aaf]
+2026-10-06T15:05:04.828+05:30  INFO 24216 --- [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-10-06T15:05:04.828+05:30  INFO 24216 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-10-06T15:05:04.829+05:30  INFO 24216 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-10-06T15:05:04.876+05:30  INFO 24216 --- [           main] com.tracex.ImportTests                   : Started ImportTests in 4.952 seconds (process running for 5.776)
+2026-10-06T15:05:04.981+05:30  INFO 24216 --- [           main] c.t.s.BatchTraceTokenBackfillRunner      : [traceToken backfill] No batches missing traceToken. 0 batches updated.
+2026-10-06T15:05:04.982+05:30  INFO 24216 --- [           main] com.tracex.service.SeedRunner            : Executing idempotent database seed for demo users, access requests, products, batches, and inspections...
+2026-10-06T15:05:05.404+05:30  INFO 24216 --- [           main] com.tracex.service.SeedRunner            : Database seeding completed.
+.\mvnw.cmd : OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap 
+classpath has been appended
+At line:1 char:1
++ .\mvnw.cmd test "-Dtest=ImportTests#testNoFarmerNameInPreviewRowError ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (OpenJDK 64-Bit ...s been appended:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+WARNING: A Java agent has been loaded dynamically 
+(C:\Users\yashm\.m2\repository\net\bytebuddy\byte-buddy-agent\1.14.13\byte-buddy-agent-1.14.13.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+
+MockHttpServletRequest:
+      HTTP Method = POST
+      Request URI = /api/v1/import/validate
+       Parameters = {}
+          Headers = [Content-Type:"application/json;charset=UTF-8", Authorization:"Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2YWM0YjlkODgwZGI3OTBlMDc5ODZjMTciLCJ0diI6MCwiaWF0IjoxNzkxMjc5MzA2LCJleHAiOjE3OTEzMDgxMDZ9.mI7eyClP1G6DomreR_Cnn4vNXhFFgwW1TlvGyn0Zf0s", Content-Length:"686"]
+             Body = {"rows":[{"productSku":"TEST-IMP-SKU","productName":"","sourceLotCode":"LOT-PII-GOOD","farmerName":"PII_SECRET_FARMER_KUNDAN_998877","village":"Mukteshwar","quantityProduced":"150","unit":"Kg","yieldPercent":"88.5","packDate":"2026-10-06"},{"productSku":"TEST-IMP-SKU","productName":"","sourceLotCode":"LOT-PII-BAD","farmerName":"PII_SECRET_FARMER_KUNDAN_998877_OVERLONG_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX","village":"Mukteshwar","quantityProduced":"150","unit":"Kg","yieldPercent":"88.5","packDate":"31/02/2026"}]}
+    Session Attrs = {}
+
+Handler:
+             Type = com.tracex.controller.ImportController
+           Method = com.tracex.controller.ImportController#validateImport(ImportValidateRequestDto, UserPrincipal)
+
+Async:
+    Async started = false
+     Async result = null
+
+Resolved Exception:
+             Type = null
+
+ModelAndView:
+        View name = null
+             View = null
+            Model = null
+
+FlashMap:
+       Attributes = null
+
+MockHttpServletResponse:
+           Status = 200
+    Error message = null
+          Headers = [X-Request-Id:"0eb6a99c-9b59-48a2-91ee-0bfb3717d350", Vary:"Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers", Content-Type:"application/json", X-Content-Type-Options:"nosniff", X-XSS-Protection:"0", Cache-Control:"no-cache, no-store, max-age=0, must-revalidate", Pragma:"no-cache", Expires:"0", X-Frame-Options:"DENY"]
+     Content type = application/json
+             Body = {"success":true,"requestId":"0eb6a99c-9b59-48a2-91ee-0bfb3717d350","data":{"summary":{"total":2,"insert":1,"skip":0,"error":1},"preview":[{"rowNumber":2,"verdict":"insert","reason":null,"product":{"sku":"TEST-IMP-SKU","productName":"Test Import Himalayan Honey"},"sourceLotCode":"LOT-PII-GOOD","village":"Mukteshwar","quantityProduced":150,"unit":"Kg","yieldPercent":88.5,"packDate":"2026-10-06","insertKey":"TEST-IMP-SKU|LOT-PII-GOOD|2026-10-06","farmerName":"PII_SECRET_FARMER_KUNDAN_998877","errors":[]},{"rowNumber":3,"verdict":"error","reason":null,"product":{"sku":"TEST-IMP-SKU","productName":"Test Import Himalayan Honey"},"sourceLotCode":"LOT-PII-BAD","village":"Mukteshwar","quantityProduced":150,"unit":"Kg","yieldPercent":88.5,"packDate":null,"insertKey":null,"farmerName":null,"errors":[{"field":"farmerName","message":"Farmer name must be at most 200 characters"},{"field":"packDate","message":"Pack date must be DD/MM/YYYY or YYYY-MM-DD"}]}]}}
+    Forwarded URL = null
+   Redirected URL = null
+          Cookies = []
+[ERROR] Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 7.027 s <<< FAILURE! -- in com.tracex.ImportTests
+[ERROR] com.tracex.ImportTests.testNoFarmerNameInPreviewRowErrorsAuditOrCapturedLogs -- Time elapsed: 1.169 s <<< FAILURE!
+java.lang.AssertionError: 
+
+Expecting actual:
+  "{"success":true,"requestId":"0eb6a99c-9b59-48a2-91ee-0bfb3717d350","data":{"summary":{"total":2,"insert":1,"skip":0,"error":1},"preview":[{"rowNumber":2,"verdict":"insert","reason":null,"product":{"sku":"TEST-IMP-SKU","productName":"Test Import Himalayan Honey"},"sourceLotCode":"LOT-PII-GOOD","village":"Mukteshwar","quantityProduced":150,"unit":"Kg","yieldPercent":88.5,"packDate":"2026-10-06","insertKey":"TEST-IMP-SKU|LOT-PII-GOOD|2026-10-06","farmerName":"PII_SECRET_FARMER_KUNDAN_998877","errors":[]},{"rowNumber":3,"verdict":"error","reason":null,"product":{"sku":"TEST-IMP-SKU","productName":"Test Import Himalayan Honey"},"sourceLotCode":"LOT-PII-BAD","village":"Mukteshwar","quantityProduced":150,"unit":"Kg","yieldPercent":88.5,"packDate":null,"insertKey":null,"farmerName":null,"errors":[{"field":"farmerName","message":"Farmer name must be at most 200 characters"},{"field":"packDate","message":"Pack date must be DD/MM/YYYY or YYYY-MM-DD"}]}]}}"
+not to contain:
+  "PII_SECRET_FARMER_KUNDAN_998877"
+
+	at com.tracex.ImportTests.testNoFarmerNameInPreviewRowErrorsAuditOrCapturedLogs(ImportTests.java:927)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+[INFO] 
+[INFO] Results:
+[INFO] 
+[ERROR] Failures: 
+[ERROR]   ImportTests.testNoFarmerNameInPreviewRowErrorsAuditOrCapturedLogs:927 
+Expecting actual:
+  "{"success":true,"requestId":"0eb6a99c-9b59-48a2-91ee-0bfb3717d350","data":{"summary":{"total":2,"insert":1,"skip":0,"error":1},"preview":[{"rowNumber":2,"verdict":"insert","reason":null,"product":{"sku":"TEST-IMP-SKU","productName":"Test Import Himalayan Honey"},"sourceLotCode":"LOT-PII-GOOD","village":"Mukteshwar","quantityProduced":150,"unit":"Kg","yieldPercent":88.5,"packDate":"2026-10-06","insertKey":"TEST-IMP-SKU|LOT-PII-GOOD|2026-10-06","farmerName":"PII_SECRET_FARMER_KUNDAN_998877","errors":[]},{"rowNumber":3,"verdict":"error","reason":null,"product":{"sku":"TEST-IMP-SKU","productName":"Test Import Himalayan Honey"},"sourceLotCode":"LOT-PII-BAD","village":"Mukteshwar","quantityProduced":150,"unit":"Kg","yieldPercent":88.5,"packDate":null,"insertKey":null,"farmerName":null,"errors":[{"field":"farmerName","message":"Farmer name must be at most 200 characters"},{"field":"packDate","message":"Pack date must be DD/MM/YYYY or YYYY-MM-DD"}]}]}}"
+not to contain:
+  "PII_SECRET_FARMER_KUNDAN_998877"
+
+[INFO] 
+[ERROR] Tests run: 1, Failures: 1, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  14.404 s
+[INFO] Finished at: 2026-10-06T15:05:06+05:30
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.2.5:test (default-test) on project tracex-backend: There are test failures.
+[ERROR] 
+[ERROR] Please refer to C:\Users\yashm\OneDrive\Desktop\TraceX\backend\target\surefire-reports for the individual test results.
+[ERROR] Please refer to dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

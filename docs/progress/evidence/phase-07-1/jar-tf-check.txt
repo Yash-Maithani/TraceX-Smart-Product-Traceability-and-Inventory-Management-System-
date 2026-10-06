@@ -1,0 +1,11 @@
+=== TraceX Packaged Jar TF Inspection ===
+Jar: backend/target/tracex-backend-1.0.0-SNAPSHOT.jar
+Total entries in jar: 332
+
+--- ZXing Dependencies (core-3.5.3.jar and javase-3.5.3.jar) in BOOT-INF/lib/ ---
+  BOOT-INF/lib/core-3.5.3.jar
+  BOOT-INF/lib/javase-3.5.3.jar
+
+--- Leak Check: MutableClock, TestClockConfig, or Test Classes in Production Jar ---
+Leak matches count: 0
+VERIFIED: Zero test classes or MutableClock/TestClockConfig found in production jar.

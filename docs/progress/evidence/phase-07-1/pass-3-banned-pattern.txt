@@ -1,0 +1,5 @@
+
+> tracex-frontend@1.0.0 check:banned
+> node scripts/check-banned-patterns.mjs
+
+Banned pattern check PASSED: 0 violations found across src/, index.html, and design-assets/backdrops.json.

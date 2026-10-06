@@ -1,0 +1,42 @@
+
+> tracex-frontend@1.0.0 check:backdrops
+> node scripts/check-backdrops.mjs
+
+=== TraceX Backdrop Manifest Verification (14 keys) ===
+Placeholder warnings (14):
+npm :   [PLACEHOLDER WARNING] Key 'auth' (routes: /login, /request-access, /activate, /verify-otp) uses a generated 
+token placeholder (placeholder: true). Replace with an owner-approved licensed photo before launch (OI-11).
+At line:1 char:1
++ npm run check:backdrops 2>&1 | Tee-Object -FilePath ..\docs\progress\ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (  [PLACEHOLDER ...launch (OI-11).:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  [PLACEHOLDER WARNING] Key 'auth-recovery' (routes: /forgot-password, /reset-password) uses a generated token 
+placeholder (placeholder: true). Replace with an owner-approved licensed photo before launch (OI-11).
+  [PLACEHOLDER WARNING] Key 'dashboard' (routes: /, /dashboard) uses a generated token placeholder (placeholder: 
+true). Replace with an owner-approved licensed photo before launch (OI-11).
+  [PLACEHOLDER WARNING] Key 'batches' (routes: /batches, /batches/new, /batches/archived, /batches/:id) uses a 
+generated token placeholder (placeholder: true). Replace with an owner-approved licensed photo before launch (OI-11).
+  [PLACEHOLDER WARNING] Key 'fefo' (routes: /fefo, /dispatch/fefo) uses a generated token placeholder (placeholder: 
+true). Replace with an owner-approved licensed photo before launch (OI-11).
+  [PLACEHOLDER WARNING] Key 'inspections' (routes: /inspections) uses a generated token placeholder (placeholder: 
+true). Replace with an owner-approved licensed photo before launch (OI-11).
+  [PLACEHOLDER WARNING] Key 'dispatch' (routes: /dispatch) uses a generated token placeholder (placeholder: true). 
+Replace with an owner-approved licensed photo before launch (OI-11).
+  [PLACEHOLDER WARNING] Key 'qr' (routes: /qr) uses a generated token placeholder (placeholder: true). Replace with an 
+owner-approved licensed photo before launch (OI-11).
+  [PLACEHOLDER WARNING] Key 'trace-public' (routes: /trace/:token, /trace/t/:token) uses a generated token placeholder 
+(placeholder: true). Replace with an owner-approved licensed photo before launch (OI-11).
+  [PLACEHOLDER WARNING] Key 'team' (routes: /team, /users) uses a generated token placeholder (placeholder: true). 
+Replace with an owner-approved licensed photo before launch (OI-11).
+  [PLACEHOLDER WARNING] Key 'import' (routes: /import) uses a generated token placeholder (placeholder: true). Replace 
+with an owner-approved licensed photo before launch (OI-11).
+  [PLACEHOLDER WARNING] Key 'notifications' (routes: /notifications, /messages) uses a generated token placeholder 
+(placeholder: true). Replace with an owner-approved licensed photo before launch (OI-11).
+  [PLACEHOLDER WARNING] Key 'settings' (routes: /profile, /settings) uses a generated token placeholder (placeholder: 
+true). Replace with an owner-approved licensed photo before launch (OI-11).
+  [PLACEHOLDER WARNING] Key 'default' (routes: /privacy, /terms, /_styleguide, *) uses a generated token placeholder 
+(placeholder: true). Replace with an owner-approved licensed photo before launch (OI-11).
+
+Backdrop check PASSED: all 14 keys have valid route mappings and metadata (14 placeholder warning(s) recorded under OI-11).

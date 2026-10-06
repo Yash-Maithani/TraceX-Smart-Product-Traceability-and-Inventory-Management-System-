@@ -1,0 +1,63 @@
+phase,method,path,super-admin,admin,manager,factory-manager,quality-inspector,dispatch-coordinator,anonymous,notes
+1,POST,/api/v1/auth/login,allow,allow,allow,allow,allow,allow,allow,public
+2,POST,/api/v1/auth/request-access,allow,allow,allow,allow,allow,allow,allow,public
+2,POST,/api/v1/auth/activate,allow,allow,allow,allow,allow,allow,allow,public
+2,POST,/api/v1/auth/verify-otp,allow,allow,allow,allow,allow,allow,allow,public
+2,POST,/api/v1/auth/verify-otp/resend,allow,allow,allow,allow,allow,allow,allow,public
+2,POST,/api/v1/auth/forgot-password,allow,allow,allow,allow,allow,allow,allow,public — generic 200 always
+2,POST,/api/v1/auth/verify-reset-otp,allow,allow,allow,allow,allow,allow,allow,public
+2,POST,/api/v1/auth/reset-password,allow,allow,allow,allow,allow,allow,allow,public
+1,GET,/actuator/health,allow,allow,allow,allow,allow,allow,allow,public — Spring Actuator endpoint
+1,GET,/api/v1/auth/me,allow,allow,allow,allow,allow,allow,deny,
+2,PATCH,/api/v1/auth/me,allow,allow,allow,allow,allow,allow,deny,
+9,PATCH,/api/v1/auth/me/settings,allow,allow,allow,allow,allow,allow,deny,
+2,POST,/api/v1/auth/me/change-password,allow,allow,allow,allow,allow,allow,deny,revokes sessions
+1,POST,/api/v1/auth/me/logout-all,allow,allow,allow,allow,allow,allow,deny,revokes sessions
+9,GET,/api/v1/auth/me/login-history,allow,allow,allow,allow,allow,allow,deny,
+11,POST,/api/v1/auth/me/google-link,allow,allow,allow,allow,allow,allow,deny,pending D-3
+11,DELETE,/api/v1/auth/me/google-link,allow,allow,allow,allow,allow,allow,deny,pending D-3
+2,GET,/api/v1/auth/requests,allow,allow,allow,deny,deny,deny,deny,read-only for manager
+2,POST,/api/v1/auth/requests/:id/approve,allow,allow,deny,deny,deny,deny,deny,
+2,POST,/api/v1/auth/requests/:id/reject,allow,allow,deny,deny,deny,deny,deny,
+2,POST,/api/v1/auth/requests/:id/resend,allow,allow,deny,deny,deny,deny,deny,
+2,DELETE,/api/v1/auth/requests/:id,allow,allow,deny,deny,deny,deny,deny,
+2,GET,/api/v1/auth/directory,allow,allow,allow,deny,deny,deny,deny,
+2,GET,/api/v1/auth/users,allow,allow,allow,deny,deny,deny,deny,read-only for manager
+2,GET,/api/v1/auth/users/deleted,allow,deny,deny,deny,deny,deny,deny,super-admin only
+2,PATCH,/api/v1/auth/users/:id/toggle,allow,allow,deny,deny,deny,deny,deny,last-superadmin guard
+2,PATCH,/api/v1/auth/users/:id/role,allow,allow,deny,deny,deny,deny,deny,
+2,DELETE,/api/v1/auth/users/:id,allow,allow,deny,deny,deny,deny,deny,soft-delete; last-superadmin guard
+2,PATCH,/api/v1/auth/users/:id/restore,allow,deny,deny,deny,deny,deny,deny,super-admin only
+3,GET,/api/v1/batches,allow,allow,allow,allow,allow,allow,deny,requires auth (D-6)
+3,POST,/api/v1/batches,allow,allow,allow,allow,deny,deny,deny,D-10: dispatch-coordinator cannot create
+3,GET,/api/v1/batches/archived,allow,allow,deny,deny,deny,deny,deny,
+3,GET,/api/v1/batches/:id,allow,allow,allow,allow,allow,allow,deny,requires auth
+4,PATCH,/api/v1/batches/:id/dispatch,allow,allow,deny,deny,deny,allow,deny,D-10; dispatch-coordinator, admin, super-admin may dispatch and override FEFO with reason; expired blocked; out-of-order blocked unless overrideReason
+3,PATCH,/api/v1/batches/:id/note,allow,allow,allow,allow,deny,deny,deny,
+3,PATCH,/api/v1/batches/:id/raw-material,allow,allow,allow,allow,deny,deny,deny,
+3,DELETE,/api/v1/batches/:id,allow,allow,deny,deny,deny,deny,deny,soft-delete
+3,PATCH,/api/v1/batches/:id/restore,allow,allow,deny,deny,deny,deny,deny,
+7,GET,/api/v1/batches/:id/qr,allow,allow,allow,allow,allow,allow,deny,requires auth
+7,GET,/api/v1/batches/:id/scans,allow,allow,allow,allow,allow,allow,deny,requires auth
+4,GET,/api/v1/dispatch/fefo,allow,allow,allow,allow,allow,allow,deny,requires auth; EXPIRED excluded
+7,GET,/api/v1/qr/trace/t/:token,allow,allow,allow,allow,allow,allow,allow,public; whitelisted DTO; no farmerName
+7,POST,/api/v1/qr/scan,allow,allow,allow,allow,allow,allow,allow,public; IP hashed
+4,GET,/api/v1/inspections,allow,allow,allow,allow,allow,deny,deny,dispatch-coordinator has no inspection access
+4,POST,/api/v1/inspections,allow,allow,deny,deny,allow,deny,deny,quality-inspector + admin + super-admin; server validates PASSED verdict
+4,GET,/api/v1/inspections/my,allow,allow,allow,allow,allow,deny,deny,
+4,GET,/api/v1/inspections/batch/:batchId,allow,allow,allow,allow,allow,deny,deny,
+4,GET,/api/v1/inspections/:id,allow,allow,allow,allow,allow,deny,deny,
+8,GET,/api/v1/import/schema,allow,allow,allow,allow,deny,deny,deny,
+8,POST,/api/v1/import/map-headers,allow,allow,allow,allow,deny,deny,deny,
+8,POST,/api/v1/import/validate,allow,allow,allow,allow,deny,deny,deny,max 500 rows/chunk
+8,POST,/api/v1/import/commit,allow,allow,allow,allow,deny,deny,deny,max 500 rows/chunk
+8,GET,/api/v1/import,allow,allow,allow,allow,deny,deny,deny,
+8,GET,/api/v1/import/:id,allow,allow,allow,allow,deny,deny,deny,
+8,POST,/api/v1/import/:id/rollback,allow,allow,allow,allow,deny,deny,deny,soft-deletes inserted batches
+10,GET,/api/v1/notifications,allow,allow,allow,allow,allow,allow,deny,own notifications only
+10,GET,/api/v1/notifications/stream,allow,allow,allow,allow,allow,allow,deny,SSE; authenticated
+10,PATCH,/api/v1/notifications/:id/read,allow,allow,allow,allow,allow,allow,deny,
+10,PATCH,/api/v1/notifications/read-all,allow,allow,allow,allow,allow,allow,deny,
+11,POST,/api/v1/ai/dispatch-audit,allow,allow,allow,allow,allow,allow,deny,rate-limited 5/15min
+3,GET,/api/v1/products,allow,allow,allow,allow,allow,allow,deny,
+6,GET,/api/v1/dashboard/summary,allow,allow,allow,allow,allow,allow,deny,D-21 Proposed; pendingAccessRequests populated only for manager/admin/super-admin

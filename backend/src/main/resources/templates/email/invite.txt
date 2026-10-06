@@ -1,0 +1,9 @@
+Hello %NAME%,
+
+Your access request for TraceX has been approved. Please visit the following link to set your password and activate your account:
+
+%ACTIVATION_URL%
+
+This invitation link expires in 48 hours.
+
+TraceX Smart Product Traceability and Inventory Management System

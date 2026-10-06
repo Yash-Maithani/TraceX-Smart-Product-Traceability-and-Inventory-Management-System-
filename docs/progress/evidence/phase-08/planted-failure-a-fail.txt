@@ -1,0 +1,225 @@
+
+C:\Users\yashm\OneDrive\Desktop\TraceX\backend>"C:\Program Files\Eclipse Adoptium\jdk-21.0.12.101-hotspot\\bin\java.exe"  "-Dmaven.multiModuleProjectDirectory=C:\Users\yashm\OneDrive\Desktop\TraceX\backend\." -classpath "C:\Users\yashm\OneDrive\Desktop\TraceX\backend\.mvn\wrapper\maven-wrapper.jar" org.apache.maven.wrapper.MavenWrapperMain test -Dtest=ImportTests#testRollbackHappyPathAndReImportAllowedAfterRollback 
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------------< com.tracex:tracex-backend >----------------------
+[INFO] Building tracex-backend 1.0.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ tracex-backend ---
+[INFO] Copying 5 resources from src\main\resources to target\classes
+[INFO] Copying 7 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ tracex-backend ---
+[INFO] Changes detected - recompiling the module! :source
+[INFO] Compiling 100 source files with javac [debug release 21] to target\classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ tracex-backend ---
+[INFO] Copying 4 resources from src\test\resources to target\test-classes
+[INFO] 
+[INFO] --- compiler:3.11.0:testCompile (default-testCompile) @ tracex-backend ---
+[INFO] Changes detected - recompiling the module! :dependency
+[INFO] Compiling 26 source files with javac [debug release 21] to target\test-classes
+[INFO] 
+[INFO] --- surefire:3.2.5:test (default-test) @ tracex-backend ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.tracex.ImportTests
+15:01:23.911 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.tracex.ImportTests]: ImportTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+15:01:24.014 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.tracex.TraceXApplication for test class com.tracex.ImportTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.5)
+
+2026-10-06T15:01:24.331+05:30  INFO 26004 --- [           main] com.tracex.ImportTests                   : Starting ImportTests using Java 21.0.12.1 with PID 26004 (started by yashm in C:\Users\yashm\OneDrive\Desktop\TraceX\backend)
+2026-10-06T15:01:24.333+05:30  INFO 26004 --- [           main] com.tracex.ImportTests                   : The following 1 profile is active: "test"
+2026-10-06T15:01:25.260+05:30  INFO 26004 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data MongoDB repositories in DEFAULT mode.
+2026-10-06T15:01:25.330+05:30  INFO 26004 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 67 ms. Found 9 MongoDB repository interfaces.
+2026-10-06T15:01:26.119+05:30  INFO 26004 --- [           main] org.mongodb.driver.client                : MongoClient with metadata {"driver": {"name": "mongo-java-driver|sync|spring-boot", "version": "4.11.2"}, "os": {"type": "Windows", "name": "Windows 11", "architecture": "amd64", "version": "10.0"}, "platform": "Java/Eclipse Adoptium/21.0.12.1+1-LTS"} created with settings MongoClientSettings{readPreference=primary, writeConcern=WriteConcern{w=null, wTimeout=null ms, journal=null}, retryWrites=true, retryReads=true, readConcern=ReadConcern{level=null}, credential=null, transportSettings=null, streamFactoryFactory=null, commandListeners=[io.micrometer.core.instrument.binder.mongodb.MongoMetricsCommandListener@388f1258], codecRegistry=ProvidersCodecRegistry{codecProviders=[ValueCodecProvider{}, BsonValueCodecProvider{}, DBRefCodecProvider{}, DBObjectCodecProvider{}, DocumentCodecProvider{}, CollectionCodecProvider{}, IterableCodecProvider{}, MapCodecProvider{}, GeoJsonCodecProvider{}, GridFSFileCodecProvider{}, Jsr310CodecProvider{}, JsonObjectCodecProvider{}, BsonCodecProvider{}, EnumCodecProvider{}, com.mongodb.client.model.mql.ExpressionCodecProvider@62058742, com.mongodb.Jep395RecordCodecProvider@aca2fc3, com.mongodb.KotlinCodecProvider@36df4c26]}, loggerSettings=LoggerSettings{maxDocumentLength=1000}, clusterSettings={hosts=[localhost:27017], srvServiceName=mongodb, mode=SINGLE, requiredClusterType=UNKNOWN, requiredReplicaSetName='null', serverSelector='null', clusterListeners='[]', serverSelectionTimeout='30000 ms', localThreshold='15 ms'}, socketSettings=SocketSettings{connectTimeoutMS=10000, readTimeoutMS=0, receiveBufferSize=0, proxySettings=ProxySettings{host=null, port=null, username=null, password=null}}, heartbeatSocketSettings=SocketSettings{connectTimeoutMS=10000, readTimeoutMS=10000, receiveBufferSize=0, proxySettings=ProxySettings{host=null, port=null, username=null, password=null}}, connectionPoolSettings=ConnectionPoolSettings{maxSize=100, minSize=0, maxWaitTimeMS=120000, maxConnectionLifeTimeMS=0, maxConnectionIdleTimeMS=0, maintenanceInitialDelayMS=0, maintenanceFrequencyMS=60000, connectionPoolListeners=[io.micrometer.core.instrument.binder.mongodb.MongoMetricsConnectionPoolListener@76828577], maxConnecting=2}, serverSettings=ServerSettings{heartbeatFrequencyMS=10000, minHeartbeatFrequencyMS=500, serverListeners='[]', serverMonitorListeners='[]'}, sslSettings=SslSettings{enabled=false, invalidHostNameAllowed=false, context=null}, applicationName='null', compressorList=[], uuidRepresentation=JAVA_LEGACY, serverApi=null, autoEncryptionSettings=null, dnsClient=null, inetAddressResolver=null, contextProvider=null}
+2026-10-06T15:01:26.159+05:30  INFO 26004 --- [localhost:27017] org.mongodb.driver.cluster               : Monitor thread successfully connected to server with description ServerDescription{address=localhost:27017, type=STANDALONE, state=CONNECTED, ok=true, minWireVersion=0, maxWireVersion=28, maxDocumentSize=16777216, logicalSessionTimeoutMinutes=30, roundTripTimeNanos=26746400}
+2026-10-06T15:01:27.974+05:30  WARN 26004 --- [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: f186bf7c-9aca-456f-a253-0adc7ceafe0b
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-10-06T15:01:28.599+05:30  INFO 26004 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint(s) beneath base path '/actuator'
+2026-10-06T15:01:28.656+05:30  INFO 26004 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@5e34a84b, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@438c0aaf, org.springframework.security.web.context.SecurityContextHolderFilter@29dfc68f, org.springframework.security.web.header.HeaderWriterFilter@20f99c18, org.springframework.web.filter.CorsFilter@7577589, org.springframework.security.web.authentication.logout.LogoutFilter@70aa03c0, com.tracex.security.RequestIdFilter@37b80ec7, com.tracex.security.JwtAuthFilter@4cb58e8b, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@333a2df2, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@5ffdd510, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@6f4f2cc0, org.springframework.security.web.session.SessionManagementFilter@22172b00, org.springframework.security.web.access.ExceptionTranslationFilter@4c9d833, org.springframework.security.web.access.intercept.AuthorizationFilter@1e406cbe]
+2026-10-06T15:01:29.063+05:30  INFO 26004 --- [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-10-06T15:01:29.064+05:30  INFO 26004 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-10-06T15:01:29.065+05:30  INFO 26004 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-10-06T15:01:29.116+05:30  INFO 26004 --- [           main] com.tracex.ImportTests                   : Started ImportTests in 4.984 seconds (process running for 5.816)
+2026-10-06T15:01:29.225+05:30  INFO 26004 --- [           main] c.t.s.BatchTraceTokenBackfillRunner      : [traceToken backfill] No batches missing traceToken. 0 batches updated.
+2026-10-06T15:01:29.225+05:30  INFO 26004 --- [           main] com.tracex.service.SeedRunner            : Executing idempotent database seed for demo users, access requests, products, batches, and inspections...
+2026-10-06T15:01:29.642+05:30  INFO 26004 --- [           main] com.tracex.service.SeedRunner            : Database seeding completed.
+.\mvnw.cmd : OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap 
+classpath has been appended
+At line:1 char:1
++ .\mvnw.cmd test "-Dtest=ImportTests#testRollbackHappyPathAndReImportA ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (OpenJDK 64-Bit ...s been appended:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+WARNING: A Java agent has been loaded dynamically 
+(C:\Users\yashm\.m2\repository\net\bytebuddy\byte-buddy-agent\1.14.13\byte-buddy-agent-1.14.13.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+
+MockHttpServletRequest:
+      HTTP Method = POST
+      Request URI = /api/v1/import/commit
+       Parameters = {}
+          Headers = [Content-Type:"application/json;charset=UTF-8", Authorization:"Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2YWM0YjlkODgwZGI3OTBlMDc5ODZjMTciLCJ0diI6MCwiaWF0IjoxNzkxMjc5MDkwLCJleHAiOjE3OTEzMDc4OTB9.4tiq4SXQ4dt8f_xhZhYsLri-LBA6z_bvHZ7m4X_Rdzg", Content-Length:"483"]
+             Body = {"rows":[{"productSku":"TEST-IMP-SKU","productName":"","sourceLotCode":"LOT-RB-HAPPY-1","farmerName":"Ramesh Negi","village":"Mukteshwar","quantityProduced":"150","unit":"Kg","yieldPercent":"88.5","packDate":"2026-10-05"},{"productSku":"TEST-IMP-SKU","productName":"","sourceLotCode":"LOT-RB-HAPPY-2","farmerName":"Ramesh Negi","village":"Mukteshwar","quantityProduced":"150","unit":"Kg","yieldPercent":"88.5","packDate":"2026-10-05"}],"isFinal":true,"fileName":"rollback-happy.csv"}
+    Session Attrs = {}
+
+Handler:
+             Type = com.tracex.controller.ImportController
+           Method = com.tracex.controller.ImportController#commitImport(ImportCommitRequestDto, UserPrincipal)
+
+Async:
+    Async started = false
+     Async result = null
+
+Resolved Exception:
+             Type = null
+
+ModelAndView:
+        View name = null
+             View = null
+            Model = null
+
+FlashMap:
+       Attributes = null
+
+MockHttpServletResponse:
+           Status = 200
+    Error message = null
+          Headers = [X-Request-Id:"eda432b7-61fe-4482-9316-1eecf9c2651a", Vary:"Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers", Content-Type:"application/json", X-Content-Type-Options:"nosniff", X-XSS-Protection:"0", Cache-Control:"no-cache, no-store, max-age=0, must-revalidate", Pragma:"no-cache", Expires:"0", X-Frame-Options:"DENY"]
+     Content type = application/json
+             Body = {"success":true,"requestId":"eda432b7-61fe-4482-9316-1eecf9c2651a","data":{"jobId":"6ac4bff26d0ee41c29e29568","status":"done","chunkInserted":2,"chunkSkipped":0,"chunkErrored":0,"totals":{"processedRows":2,"totalRows":2,"inserted":2,"skipped":0,"errored":0},"batches":[{"id":"6ac4bff26d0ee41c29e29569","batchCode":"TX-2026-10-4301","productName":"Test Import Himalayan Honey","sku":"TEST-IMP-SKU","sourceLotCode":"LOT-RB-HAPPY-1","packDate":"2026-10-05","expiryDate":"2027-04-23","status":"READY"},{"id":"6ac4bff26d0ee41c29e2956b","batchCode":"TX-2026-10-4302","productName":"Test Import Himalayan Honey","sku":"TEST-IMP-SKU","sourceLotCode":"LOT-RB-HAPPY-2","packDate":"2026-10-05","expiryDate":"2027-04-23","status":"READY"}],"errors":[],"rowErrorsTruncated":false}}
+    Forwarded URL = null
+   Redirected URL = null
+          Cookies = []
+
+MockHttpServletRequest:
+      HTTP Method = POST
+      Request URI = /api/v1/import/6ac4bff26d0ee41c29e29568/rollback
+       Parameters = {}
+          Headers = [Authorization:"Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2YWM0YjlkODgwZGI3OTBlMDc5ODZjMTciLCJ0diI6MCwiaWF0IjoxNzkxMjc5MDkwLCJleHAiOjE3OTEzMDc4OTB9.4tiq4SXQ4dt8f_xhZhYsLri-LBA6z_bvHZ7m4X_Rdzg"]
+             Body = null
+    Session Attrs = {}
+
+Handler:
+             Type = com.tracex.controller.ImportController
+           Method = com.tracex.controller.ImportController#rollbackImport(String, UserPrincipal)
+
+Async:
+    Async started = false
+     Async result = null
+
+Resolved Exception:
+             Type = null
+
+ModelAndView:
+        View name = null
+             View = null
+            Model = null
+
+FlashMap:
+       Attributes = null
+
+MockHttpServletResponse:
+           Status = 200
+    Error message = null
+          Headers = [X-Request-Id:"af987487-9bc6-44f4-bfdd-87b6ff42f318", Vary:"Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers", Content-Type:"application/json", X-Content-Type-Options:"nosniff", X-XSS-Protection:"0", Cache-Control:"no-cache, no-store, max-age=0, must-revalidate", Pragma:"no-cache", Expires:"0", X-Frame-Options:"DENY"]
+     Content type = application/json
+             Body = {"success":true,"requestId":"af987487-9bc6-44f4-bfdd-87b6ff42f318","data":{"jobId":"6ac4bff26d0ee41c29e29568","status":"rolled_back","archived":2,"alreadyArchived":0,"rolledBackAt":"2026-10-06T09:31:30.859203800Z","rolledBackBy":"import_test_admin"}}
+    Forwarded URL = null
+   Redirected URL = null
+          Cookies = []
+
+MockHttpServletRequest:
+      HTTP Method = POST
+      Request URI = /api/v1/import/validate
+       Parameters = {}
+          Headers = [Content-Type:"application/json;charset=UTF-8", Authorization:"Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2YWM0YjlkODgwZGI3OTBlMDc5ODZjMTciLCJ0diI6MCwiaWF0IjoxNzkxMjc5MDkwLCJleHAiOjE3OTEzMDc4OTB9.4tiq4SXQ4dt8f_xhZhYsLri-LBA6z_bvHZ7m4X_Rdzg", Content-Length:"436"]
+             Body = {"rows":[{"productSku":"TEST-IMP-SKU","productName":"","sourceLotCode":"LOT-RB-HAPPY-1","farmerName":"Ramesh Negi","village":"Mukteshwar","quantityProduced":"150","unit":"Kg","yieldPercent":"88.5","packDate":"2026-10-05"},{"productSku":"TEST-IMP-SKU","productName":"","sourceLotCode":"LOT-RB-HAPPY-2","farmerName":"Ramesh Negi","village":"Mukteshwar","quantityProduced":"150","unit":"Kg","yieldPercent":"88.5","packDate":"2026-10-05"}]}
+    Session Attrs = {}
+
+Handler:
+             Type = com.tracex.controller.ImportController
+           Method = com.tracex.controller.ImportController#validateImport(ImportValidateRequestDto, UserPrincipal)
+
+Async:
+    Async started = false
+     Async result = null
+
+Resolved Exception:
+             Type = null
+
+ModelAndView:
+        View name = null
+             View = null
+            Model = null
+
+FlashMap:
+       Attributes = null
+
+MockHttpServletResponse:
+           Status = 200
+    Error message = null
+          Headers = [X-Request-Id:"a80e8f18-50d9-450e-9380-ac2310940c09", Vary:"Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers", Content-Type:"application/json", X-Content-Type-Options:"nosniff", X-XSS-Protection:"0", Cache-Control:"no-cache, no-store, max-age=0, must-revalidate", Pragma:"no-cache", Expires:"0", X-Frame-Options:"DENY"]
+     Content type = application/json
+             Body = {"success":true,"requestId":"a80e8f18-50d9-450e-9380-ac2310940c09","data":{"summary":{"total":2,"insert":0,"skip":2,"error":0},"preview":[{"rowNumber":2,"verdict":"skip","reason":"Already imported ΓÇö lot LOT-RB-HAPPY-1 / TEST-IMP-SKU / 2026-10-05","product":{"sku":"TEST-IMP-SKU","productName":"Test Import Himalayan Honey"},"sourceLotCode":"LOT-RB-HAPPY-1","village":"Mukteshwar","quantityProduced":150,"unit":"Kg","yieldPercent":88.5,"packDate":"2026-10-05","insertKey":null,"errors":[]},{"rowNumber":3,"verdict":"skip","reason":"Already imported ΓÇö lot LOT-RB-HAPPY-2 / TEST-IMP-SKU / 2026-10-05","product":{"sku":"TEST-IMP-SKU","productName":"Test Import Himalayan Honey"},"sourceLotCode":"LOT-RB-HAPPY-2","village":"Mukteshwar","quantityProduced":150,"unit":"Kg","yieldPercent":88.5,"packDate":"2026-10-05","insertKey":null,"errors":[]}]}}
+    Forwarded URL = null
+   Redirected URL = null
+          Cookies = []
+[ERROR] Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 7.225 s <<< FAILURE! -- in com.tracex.ImportTests
+[ERROR] com.tracex.ImportTests.testRollbackHappyPathAndReImportAllowedAfterRollback -- Time elapsed: 1.340 s <<< FAILURE!
+java.lang.AssertionError: JSON path "$.data.summary.insert" expected:<2> but was:<0>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:59)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:122)
+	at org.springframework.test.util.JsonPathExpectationsHelper.assertValue(JsonPathExpectationsHelper.java:123)
+	at org.springframework.test.web.servlet.result.JsonPathResultMatchers.lambda$value$2(JsonPathResultMatchers.java:111)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:214)
+	at com.tracex.ImportTests.testRollbackHappyPathAndReImportAllowedAfterRollback(ImportTests.java:738)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+[INFO] 
+[INFO] Results:
+[INFO] 
+[ERROR] Failures: 
+[ERROR]   ImportTests.testRollbackHappyPathAndReImportAllowedAfterRollback:738 JSON path "$.data.summary.insert" expected:<2> but was:<0>
+[INFO] 
+[ERROR] Tests run: 1, Failures: 1, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  14.721 s
+[INFO] Finished at: 2026-10-06T15:01:31+05:30
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.2.5:test (default-test) on project tracex-backend: There are test failures.
+[ERROR] 
+[ERROR] Please refer to C:\Users\yashm\OneDrive\Desktop\TraceX\backend\target\surefire-reports for the individual test results.
+[ERROR] Please refer to dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

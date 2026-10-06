@@ -1,0 +1,143 @@
+=== 1. Batch.java lifecycleState & dispatchHistory (lines 48-62) ===
+    private String dataSource;
+    private String shelfLifeSource;
+    private String lifecycleState = "ACTIVE";
+    private double priorityScore;
+    @ValueConverter(BatchLocalDateValueConverter.class)
+    private LocalDate dispatchDate;
+    private String buyerName;
+    private String traceabilityNote;
+    private String createdBy;
+    
+    private List<NoteHistoryEntry> noteHistory = new ArrayList<>();
+    private QualityCheck qualityCheck;
+    private List<DispatchHistoryEntry> dispatchHistory = new ArrayList<>();
+    
+    private boolean isDeleted = false;
+=== 2. BatchService.java dispatchBatch lifecycleState check & transition (lines 223-230, 310-322) ===
+
+        // 2. Not already DISPATCHED (else 409 CONFLICT)
+        if ("DISPATCHED".equals(batch.getLifecycleState())) {
+            throw new ApiException(ErrorCode.CONFLICT, "Batch is already dispatched", HttpStatus.CONFLICT);
+        }
+
+        // 3. Not expired (daysUntilExpiry > 0, else 409 BATCH_EXPIRED)
+        long daysUntilExpiry = BatchFreshness.calculateDaysUntilExpiry(batch.getExpiryDate(), clockToUse);
+---
+                outOfOrder ? trimmedOverrideReason : null,
+                outOfOrder
+        );
+
+        Update update = new Update()
+                .set("lifecycleState", "DISPATCHED")
+                .set("buyerName", trimmedBuyerName)
+                .set("dispatchDate", effectiveDispatchDate.toString())
+                .set("updatedAt", now)
+                .push("dispatchHistory", historyEntry);
+
+        if (outOfOrder) {
+            String earlierCode = earlierBatchOpt.get().getBatchCode();
+=== 3. BatchFreshness.java DISPATCHED check (lines 45-50, 112-117) ===
+
+    public static String calculateStatus(String lifecycleState, LocalDate expiryDate, Clock clock) {
+        if ("DISPATCHED".equals(lifecycleState)) {
+            return "DISPATCHED";
+        }
+        if (expiryDate == null) {
+---
+                    Criteria.where("expiryDate").regex(ISO_LOCAL_DATE_REGEX)
+            ));
+        } else if ("DISPATCHED".equals(status)) {
+            query.addCriteria(Criteria.where("lifecycleState").is("DISPATCHED"));
+        } else if ("EXCEPTION".equals(status)) {
+            query.addCriteria(new Criteria().andOperator(
+=== 4. BatchCreateDto.java packDate annotations (lines 24-30) & BatchService.createBatch (lines 154-210) ===
+    private double yieldPercent;
+    @NotNull
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @JsonDeserialize(using = FlexibleLocalDateDeserializer.class)
+    @Schema(type = "string", format = "date", example = "2026-10-09")
+    private LocalDate packDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+---
+    public BatchDetailDto createBatch(BatchCreateDto dto, String createdByUsername, String requestId) {
+        Product product = productRepository.findById(dto.getProductId())
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+        LocalDate expiryDate;
+        String dataSource;
+        String shelfLifeSource;
+
+        if (dto.getExpiryDate() != null) {
+            expiryDate = dto.getExpiryDate();
+            dataSource = "fallback";
+            shelfLifeSource = "manual";
+        } else if (product.getPredictedShelfLifeDays() != null) {
+            expiryDate = dto.getPackDate().plusDays(product.getPredictedShelfLifeDays());
+            dataSource = "predicted";
+            shelfLifeSource = "predicted";
+        } else {
+            expiryDate = dto.getPackDate().plusDays(product.getBaseShelfLifeDays());
+            dataSource = "fallback";
+            shelfLifeSource = "base";
+        }
+
+        double priorityScore = fefoService.computePriorityScore(expiryDate, product.getRiskLevel(), clock);
+
+        Batch batch = new Batch();
+        batch.setProductId(product.getId());
+        batch.setProductName(product.getProductName());
+        batch.setSku(product.getSku());
+        batch.setSourceLotCode(dto.getSourceLotCode().trim().toUpperCase());
+        batch.setFarmerName(dto.getFarmerName().trim());
+        batch.setVillage(dto.getVillage().trim());
+        batch.setQuantityProduced(dto.getQuantityProduced());
+        batch.setUnit(dto.getUnit());
+        batch.setYieldPercent(dto.getYieldPercent());
+        batch.setPackDate(dto.getPackDate());
+        batch.setExpiryDate(expiryDate);
+        batch.setDataSource(dataSource);
+        batch.setShelfLifeSource(shelfLifeSource);
+        batch.setPriorityScore(priorityScore);
+        batch.setLifecycleState("ACTIVE");
+
+        if (dto.getTraceabilityNote() != null && !dto.getTraceabilityNote().trim().isEmpty()) {
+            batch.setTraceabilityNote(dto.getTraceabilityNote().trim());
+        } else {
+            batch.setTraceabilityNote("Best before " + expiryDate.toString());
+        }
+
+        batch.setCreatedBy(createdByUsername);
+        batch.setBatchCode(batchCodeGenerator.generateNextCode());
+        batch.setTraceToken(traceTokenService.generateToken());
+
+        Batch saved = batchRepository.save(batch);
+
+        auditService.record(null, createdByUsername, "BATCH_CREATED", "BATCH", saved.getId(), "Batch created: " + saved.getBatchCode());
+
+        return mapToDetail(saved);
+    }
+=== 5. ErrorCode.java (all lines) ===
+package com.tracex.exception;
+
+public enum ErrorCode {
+    AUTH_NO_TOKEN,
+    AUTH_INVALID_TOKEN,
+    AUTH_SESSION_REVOKED,
+    AUTH_ACCOUNT_DELETED,
+    AUTH_ACCOUNT_INACTIVE,
+    RBAC_INSUFFICIENT,
+    NOT_FOUND,
+    CONFLICT,
+    DISPATCH_OUT_OF_ORDER,
+    DISPATCH_EXPIRED,
+    BATCH_EXPIRED,
+    QUALITY_HOLD,
+    VALIDATION_ERROR,
+    METHOD_NOT_ALLOWED,
+    RATE_LIMITED,
+    AI_UNAVAILABLE,
+    INTERNAL_ERROR,
+    LAST_SUPERADMIN,
+    SELF_MODIFICATION_NOT_ALLOWED
+}
