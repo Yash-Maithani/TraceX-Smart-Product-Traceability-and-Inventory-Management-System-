@@ -66,7 +66,7 @@ Searched `backend/src/main` for Phase 7 artifacts before starting:
 ## Part A: Decisions & SPEC Corrections
 
 1. **D-21 (Server-computed dashboard summary endpoint)**: Marked `Resolved` in `PROGRESS.md` and `SPEC.md` §6.3.
-2. **D-22 (Trace token design)**: Recorded as `Resolved` (owner-delegated to planner):
+2. **D-22 (Trace token design)**: Recorded as `Resolved` (team decision):
    - Opaque token format: `16-byte nonce` (SecureRandom) + `16-byte HMAC-SHA256 tag` (keyed with `TRACE_TOKEN_SECRET`), base64url `<nonce>.<tag>`.
    - Stored in `traceToken` with a unique sparse index in MongoDB `batches`.
    - Verified in constant time first before performing any database read; invalid/forged tags are rejected immediately without database queries.

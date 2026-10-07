@@ -521,7 +521,7 @@ RESTORED_EXIT=0
 
 ### 4. Confirming Zero File Modifications After `.\mvnw.cmd clean verify`
 
-As tracked in `OI-10` in `PROGRESS.md`, this workspace does not have a `.git` repository initialized (`fatal: not a git repository`). Therefore, in addition to running `git status`, we record the SHA-256 hashes of `backend/src/main/resources/openapi/tracex-api.yaml`, `docs/openapi.json`, and `frontend/src/types/schema.d.ts` before and after `.\mvnw.cmd clean verify` to prove no files are touched during the build.
+As tracked in `OI-10` in `PROGRESS.md`, this workspace does not have a `.git` repository initialized (`fatal: not a git repository`). Therefore, in addition to running `git status`, the SHA-256 hashes of `backend/src/main/resources/openapi/tracex-api.yaml`, `docs/openapi.json`, and `frontend/src/types/schema.d.ts` are recorded before and after `.\mvnw.cmd clean verify` to prove no files are touched during the build.
 
 Command:
 

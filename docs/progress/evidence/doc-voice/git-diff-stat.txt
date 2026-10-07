@@ -1,0 +1,27 @@
+=== git diff --stat ===
+ PROGRESS.md                       | 12 ++---
+ README.md                         | 98 +++++++++++++++++++--------------------
+ SPEC.md                           | 24 +++++-----
+ docs/00-audit/feature-parity.md   |  2 +-
+ docs/00-audit/import-reference.md |  2 +-
+ docs/progress/phase-00.md         |  2 +-
+ docs/progress/phase-05-0-2.md     |  2 +-
+ docs/progress/phase-05-1.md       |  4 +-
+ docs/progress/phase-07.md         |  2 +-
+ docs/progress/phase-08-0.md       |  4 +-
+ docs/progress/phase-08.md         |  2 +-
+ 11 files changed, 77 insertions(+), 77 deletions(-)
+
+=== git status --short ===
+ M PROGRESS.md
+ M README.md
+ M SPEC.md
+ M docs/00-audit/feature-parity.md
+ M docs/00-audit/import-reference.md
+ M docs/progress/phase-00.md
+ M docs/progress/phase-05-0-2.md
+ M docs/progress/phase-05-1.md
+ M docs/progress/phase-07.md
+ M docs/progress/phase-08-0.md
+ M docs/progress/phase-08.md
+?? docs/progress/evidence/doc-voice/

@@ -1,0 +1,80 @@
+=== 1. SPEC.md (2 samples) ===
+[Sample 1A - SPEC.md line 7 & line 13]
+BEFORE:
+  ## Decisions Needed from the Owner
+  ...unverified until owner supplies a client ID...
+AFTER:
+  ## Open Decisions (Team)
+  ...unverified until the team supplies a client ID...
+
+[Sample 1B - SPEC.md lines 30 & 32]
+BEFORE:
+  | D-20 | Per-page photographic backdrops | Real owner-supplied/approved photographs ... | **RESOLVED - requested by owner** |
+  | D-22 | Trace token design (opaque HMAC token) | ... | **RESOLVED - owner-delegated to planner** |
+AFTER:
+  | D-20 | Per-page photographic backdrops | Real team-supplied/approved photographs ... | **RESOLVED - team decision** |
+  | D-22 | Trace token design (opaque HMAC token) | ... | **RESOLVED - team decision** |
+
+=== 2. PROGRESS.md (2 samples) ===
+[Sample 2A - PROGRESS.md line 11 & line 63]
+BEFORE:
+  | 0.1 | Correct SPEC.md, finish audit, apply owner decisions | COMPLETE | 2026-10-02 | [phase-00-1](docs/progress/phase-00-1.md) |
+  | D-20 | Per-page photographic backdrops | Resolved | Requested by owner: real owner-supplied/approved photographs ...
+AFTER:
+  | 0.1 | Correct SPEC.md, finish audit, apply team decisions | COMPLETE | 2026-10-02 | [phase-00-1](docs/progress/phase-00-1.md) |
+  | D-20 | Per-page photographic backdrops | Resolved | Team decision: real team-supplied/approved photographs ...
+
+[Sample 2B - PROGRESS.md line 65 & line 85]
+BEFORE:
+  | D-22 | Trace token design (opaque HMAC token) | Resolved | Owner-delegated to planner: traceToken is opaque ...
+  | OI-11 | All placeholder backdrops (`placeholder: true` in `design-assets/backdrops.json`) must be replaced with real licensed owner-approved photos before launch |
+AFTER:
+  | D-22 | Trace token design (opaque HMAC token) | Resolved | Team decision: traceToken is opaque ...
+  | OI-11 | All placeholder backdrops (`placeholder: true` in `design-assets/backdrops.json`) must be replaced with real licensed team-approved photos before launch |
+
+=== 3. README.md (2 samples) ===
+[Sample 3A - README.md lines 3-5]
+BEFORE:
+  TraceX is a batch-traceability and FEFO (First Expired, First Out) inventory-management platform for organic food production and distribution.
+  It tracks product batches from farm-level raw-material sourcing through production, quality inspection, and warehouse dispatch.
+  Consumers can scan a batch QR code to view an unauthenticated provenance and freshness page with zero PII exposure.
+AFTER:
+  TraceX is a batch-traceability and FEFO (First Expired, First Out) inventory-management system for organic food production and warehouse operations.
+  The platform records product batches from farm-level raw-material sourcing through production, quality inspection, and warehouse dispatch.
+  Consumers scanning a product QR code receive a public provenance and freshness verification page with zero personal data exposure.
+
+[Sample 3B - README.md line 92]
+BEFORE:
+  - [Build Progress & Verification Log (`PROGRESS.md`)](PROGRESS.md)
+AFTER:
+  - [Project Progress & Verification Log (`PROGRESS.md`)](PROGRESS.md)
+
+=== 4. Phase Logs (docs/progress/* - 2 samples) ===
+[Sample 4A - docs/progress/phase-08-0.md lines 415 & 419]
+BEFORE:
+  ### Open Questions for Phase 8 (for Owner / Reviewer)
+  1. **Multi-chunk job join, ownership, and stuck-`running` recovery (`commitImport` lines 489-501, 595-598)**:
+AFTER:
+  ### Open Questions for the Team
+  1. **Multi-chunk job join, creator match, and stuck-`running` recovery (`commitImport` lines 489-501, 595-598)**:
+
+[Sample 4B - docs/progress/phase-05-0-2.md line 524 & docs/progress/phase-07.md line 69]
+BEFORE:
+  Therefore, in addition to running `git status`, we record the SHA-256 hashes of ... before and after `.\mvnw.cmd clean verify` to prove no files are touched during the build.
+  2. **D-22 (Trace token design)**: Recorded as `Resolved` (owner-delegated to planner):
+AFTER:
+  Therefore, in addition to running `git status`, the SHA-256 hashes of ... are recorded before and after `.\mvnw.cmd clean verify` to prove no files are touched during the build.
+  2. **D-22 (Trace token design)**: Recorded as `Resolved` (team decision):
+
+=== 5. Audit Docs (docs/00-audit/* - 2 samples) ===
+[Sample 5A - docs/00-audit/feature-parity.md line 35]
+BEFORE:
+  | 29 | Bulk import - commit | `/import` (`ImportPage.tsx` Step 4) | `POST /api/import/commit` | Spring (`POST /api/v1/import/commit`) | Verified (Phase 8) | Creates batches via `BatchService.createBatchForProduct` (`D-23`); enforces ownership, running state, and 10,000-row cap |
+AFTER:
+  | 29 | Bulk import - commit | `/import` (`ImportPage.tsx` Step 4) | `POST /api/import/commit` | Spring (`POST /api/v1/import/commit`) | Verified (Phase 8) | Creates batches via `BatchService.createBatchForProduct` (`D-23`); enforces job creator match (`job.createdBy == actor.username`), running state, and 10,000-row cap |
+
+[Sample 5B - docs/00-audit/import-reference.md line 485]
+BEFORE:
+  7. **No total row cap, no file size cap, and no `jobId` ownership/state check on `commitImport` (`import.controller.js` lines 489-493)**:
+AFTER:
+  7. **No total row cap, no file size cap, and no `jobId` creator/state check on `commitImport` (`import.controller.js` lines 489-493)**:

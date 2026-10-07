@@ -1,0 +1,80 @@
+=== Summary Count Per Term (After) ===
+Owner                : 33 line match(es)
+Decisions Needed     : 0 line match(es)
+agent                : 3 line match(es)
+coding agent         : 0 line match(es)
+prompt               : 4 line match(es)
+Phase prompt         : 0 line match(es)
+reviewer             : 0 line match(es)
+planner              : 0 line match(es)
+Claude               : 0 line match(es)
+AI-generated         : 3 line match(es)
+as instructed        : 0 line match(es)
+the owner wants      : 0 line match(es)
+
+=== Term: "Owner" (33 match(es)) ===
+SPEC.md:553: - **Allowed**: Real photographs supplied or approved by the team, with `source`, `author`, `licence`, `licenceUrl`, and `approvedByOwner: true` recorded in `design-assets/backdrops.json`, used strictly as decorative backdrops (`alt=""`, `aria-hidden="true"`) behind a flat colour overlay token (`--backdrop-scrim`). Until the team's licensed photos arrive, `scripts/prepare-backdrops.mjs` generates flat neutral placeholders from design token colours (`placeholder: true` in `design-assets/backdrops.json`, tracked under `OI-11`).
+SPEC.md:1094: 1. All placeholder backdrops (`placeholder: true` in `design-assets/backdrops.json`, tracked as `OI-11`) must be replaced with real team-supplied or team-approved licensed photographs (`placeholder: false`, `approvedByOwner: true`, with `source`, `author`, `licence`, and `licenceUrl` recorded and verified by `npm run check:backdrops` with zero placeholder warnings).
+docs/progress/phase-05-1.md:18: - Recorded **`D-20`** (`Resolved`, team decision) in `PROGRESS.md` Decisions Log: per-page photographic backdrops behind a flat colour scrim (`--backdrop-scrim`) with source, author, licence, licence URL, and team approval (`approvedByOwner: true`) tracked in `design-assets/backdrops.json`, and an accessible flat surface fallback (`--backdrop-fallback-bg`) when images are disabled, blocked, or under `Save-Data: on`.
+docs/progress/phase-05-1.md:208:   [PLACEHOLDER WARNING] Key 'auth' (routes: /login, /request-access, /activate, /verify-otp) uses a generated token placeholder (placeholder: true). Replace with an owner-approved licensed photo before launch (OI-11).
+docs/progress/phase-05-1.md:209:   [PLACEHOLDER WARNING] Key 'auth-recovery' (routes: /forgot-password, /reset-password) uses a generated token placeholder (placeholder: true). Replace with an owner-approved licensed photo before launch (OI-11).
+docs/progress/phase-05-1.md:210:   [PLACEHOLDER WARNING] Key 'dashboard' (routes: /dashboard) uses a generated token placeholder (placeholder: true). Replace with an owner-approved licensed photo before launch (OI-11).
+docs/progress/phase-05-1.md:211:   [PLACEHOLDER WARNING] Key 'batches' (routes: /batches, /batches/:id) uses a generated token placeholder (placeholder: true). Replace with an owner-approved licensed photo before launch (OI-11).
+docs/progress/phase-05-1.md:212:   [PLACEHOLDER WARNING] Key 'fefo' (routes: /fefo, /dispatch/fefo) uses a generated token placeholder (placeholder: true). Replace with an owner-approved licensed photo before launch (OI-11).
+docs/progress/phase-05-1.md:213:   [PLACEHOLDER WARNING] Key 'inspections' (routes: /inspections) uses a generated token placeholder (placeholder: true). Replace with an owner-approved licensed photo before launch (OI-11).
+docs/progress/phase-05-1.md:214:   [PLACEHOLDER WARNING] Key 'dispatch' (routes: /dispatch) uses a generated token placeholder (placeholder: true). Replace with an owner-approved licensed photo before launch (OI-11).
+docs/progress/phase-05-1.md:215:   [PLACEHOLDER WARNING] Key 'qr' (routes: /qr) uses a generated token placeholder (placeholder: true). Replace with an owner-approved licensed photo before launch (OI-11).
+docs/progress/phase-05-1.md:216:   [PLACEHOLDER WARNING] Key 'trace-public' (routes: /trace/:token, /trace/t/:token) uses a generated token placeholder (placeholder: true). Replace with an owner-approved licensed photo before launch (OI-11).
+docs/progress/phase-05-1.md:217:   [PLACEHOLDER WARNING] Key 'team' (routes: /team, /users, /admin-check) uses a generated token placeholder (placeholder: true). Replace with an owner-approved licensed photo before launch (OI-11).
+docs/progress/phase-05-1.md:218:   [PLACEHOLDER WARNING] Key 'import' (routes: /import) uses a generated token placeholder (placeholder: true). Replace with an owner-approved licensed photo before launch (OI-11).
+docs/progress/phase-05-1.md:219:   [PLACEHOLDER WARNING] Key 'notifications' (routes: /notifications, /messages) uses a generated token placeholder (placeholder: true). Replace with an owner-approved licensed photo before launch (OI-11).
+docs/progress/phase-05-1.md:220:   [PLACEHOLDER WARNING] Key 'settings' (routes: /settings) uses a generated token placeholder (placeholder: true). Replace with an owner-approved licensed photo before launch (OI-11).
+docs/progress/phase-05-1.md:221:   [PLACEHOLDER WARNING] Key 'default' (routes: /, /privacy, /terms, /_styleguide, *) uses a generated token placeholder (placeholder: true). Replace with an owner-approved licensed photo before launch (OI-11).
+docs/progress/phase-05-1.md:236:   [ERROR] Non-placeholder key 'dashboard' must have "approvedByOwner": true.
+docs/progress/phase-05-1.md:244:   [PLACEHOLDER WARNING] Key 'auth' (routes: /login, /request-access, /activate, /verify-otp) uses a generated token placeholder (placeholder: true). Replace with an owner-approved licensed photo before launch (OI-11).
+docs/progress/phase-05-1.md:245:   [PLACEHOLDER WARNING] Key 'auth-recovery' (routes: /forgot-password, /reset-password) uses a generated token placeholder (placeholder: true). Replace with an owner-approved licensed photo before launch (OI-11).
+docs/progress/phase-05-1.md:246:   [PLACEHOLDER WARNING] Key 'dashboard' (routes: /dashboard) uses a generated token placeholder (placeholder: true). Replace with an owner-approved licensed photo before launch (OI-11).
+docs/progress/phase-05-1.md:247:   [PLACEHOLDER WARNING] Key 'batches' (routes: /batches, /batches/:id) uses a generated token placeholder (placeholder: true). Replace with an owner-approved licensed photo before launch (OI-11).
+docs/progress/phase-05-1.md:248:   [PLACEHOLDER WARNING] Key 'fefo' (routes: /fefo, /dispatch/fefo) uses a generated token placeholder (placeholder: true). Replace with an owner-approved licensed photo before launch (OI-11).
+docs/progress/phase-05-1.md:249:   [PLACEHOLDER WARNING] Key 'inspections' (routes: /inspections) uses a generated token placeholder (placeholder: true). Replace with an owner-approved licensed photo before launch (OI-11).
+docs/progress/phase-05-1.md:250:   [PLACEHOLDER WARNING] Key 'dispatch' (routes: /dispatch) uses a generated token placeholder (placeholder: true). Replace with an owner-approved licensed photo before launch (OI-11).
+docs/progress/phase-05-1.md:251:   [PLACEHOLDER WARNING] Key 'qr' (routes: /qr) uses a generated token placeholder (placeholder: true). Replace with an owner-approved licensed photo before launch (OI-11).
+docs/progress/phase-05-1.md:252:   [PLACEHOLDER WARNING] Key 'trace-public' (routes: /trace/:token, /trace/t/:token) uses a generated token placeholder (placeholder: true). Replace with an owner-approved licensed photo before launch (OI-11).
+docs/progress/phase-05-1.md:253:   [PLACEHOLDER WARNING] Key 'team' (routes: /team, /users, /admin-check) uses a generated token placeholder (placeholder: true). Replace with an owner-approved licensed photo before launch (OI-11).
+docs/progress/phase-05-1.md:254:   [PLACEHOLDER WARNING] Key 'import' (routes: /import) uses a generated token placeholder (placeholder: true). Replace with an owner-approved licensed photo before launch (OI-11).
+docs/progress/phase-05-1.md:255:   [PLACEHOLDER WARNING] Key 'notifications' (routes: /notifications, /messages) uses a generated token placeholder (placeholder: true). Replace with an owner-approved licensed photo before launch (OI-11).
+docs/progress/phase-05-1.md:256:   [PLACEHOLDER WARNING] Key 'settings' (routes: /settings) uses a generated token placeholder (placeholder: true). Replace with an owner-approved licensed photo before launch (OI-11).
+docs/progress/phase-05-1.md:257:   [PLACEHOLDER WARNING] Key 'default' (routes: /, /privacy, /terms, /_styleguide, *) uses a generated token placeholder (placeholder: true). Replace with an owner-approved licensed photo before launch (OI-11).
+docs/progress/phase-08.md:431:   ok 38 [chromium] Ã¢â‚¬Âº e2e\phase08.spec.ts:90:3 Ã¢â‚¬Âº Phase 8 Bulk CSV Import E2E Suite Ã¢â‚¬Âº P8-E2E-01: owner imports fixture CSV (valid + duplicate + error), views result, rolls back, and re-imports successfully (4.0s)
+
+=== Term: "Decisions Needed" (0 match(es)) ===
+
+=== Term: "agent" (3 match(es)) ===
+SPEC.md:469: `id`, `batchId`, `batchCode`, `scannedAt` (`Instant` UTC from injected `Clock`), `source` (factory/buyer/QA; default buyer), `deviceType` (Mobile/Tablet/Desktop/Unknown parsed from User-Agent), `ipHash` (HMAC-SHA256 keyed with `TRACE_TOKEN_SECRET` over `request.getRemoteAddr()`, lowercase hex-encoded; raw IP and raw User-Agent are NEVER stored or logged).
+docs/00-audit/feature-parity.md:27: | 21 | Record QR scan event | (automatic when trace page loads) | `POST /api/qr/scan` | Spring (`POST /api/v1/qr/scan`) | Verified (Phase 7) | Public unauthenticated scan event recorder with User-Agent parsing and HMAC IP hash |
+docs/progress/phase-07.md:7: > Scope: Secure opaque HMAC trace tokens (`16-byte nonce` + `16-byte HMAC-SHA256 tag`, base64url `<nonce>.<tag>`), constant-time token verification without database lookup on forged tokens, public unauthenticated trace endpoint `GET /api/v1/qr/trace/t/{token}` returning strictly whitelisted DTO (`batchCode`, `productName`, `sku`, `village`, `packDate`, `expiryDate`, `status`, `qualityCheck`, `traceabilityNote`), rate-limited scan event recording `POST /api/v1/qr/scan` with user-agent device parsing (`Mobile`, `Tablet`, `Desktop`, `Unknown`) and keyed HMAC `ipHash` (never raw IP), authenticated batch QR endpoint `GET /api/v1/batches/{id}/qr` (512px PNG data URL) and scan analytics `GET /api/v1/batches/{id}/scans`, startup backfill runner for legacy batches, prod profile fail-fast guards, frontend batch detail QR and scan sections, standalone public trace page `/trace/t/:token` with full photo backdrop `trace-public`, legacy deprecation view `/trace/:code`, client logger token redaction, and `no-referrer` policy.
+
+=== Term: "coding agent" (0 match(es)) ===
+
+=== Term: "prompt" (4 match(es)) ===
+SPEC.md:19: | D-9 | Farmer PII in AI prompts | Omit farmerName; send village only | **RESOLVED** |
+SPEC.md:538: 1. **`window.alert`, `window.confirm`, `window.prompt`** Ã¢â‚¬â€ use modal components.
+PROGRESS.md:52: | D-9 | Farmer PII in AI prompts | Resolved | Omit `farmerName`; send `village` only | SPEC Ã‚Â§7 |
+docs/00-audit/problems.md:27: **Evidence**: `backend/src/services/aiService.js` lines 54Ã¢â‚¬â€œ55 Ã¢â‚¬â€ `farmerName` and `village` sent in AI prompt to Google Gemini and NVIDIA APIs.
+
+=== Term: "Phase prompt" (0 match(es)) ===
+
+=== Term: "reviewer" (0 match(es)) ===
+
+=== Term: "planner" (0 match(es)) ===
+
+=== Term: "Claude" (0 match(es)) ===
+
+=== Term: "AI-generated" (3 match(es)) ===
+SPEC.md:550: 13. **Hotlinked external image URLs (`http://` or `https://` image URLs in `src/` or `design-assets/backdrops.json`), AI-generated imagery, fake UI screenshots, fake testimonials or customer logos, imagery that carries data or meaning, photos with identifiable people unless the licence clearly permits it, glass or blur panels (`backdrop-filter`, `filter: blur(...)`), and any parallax or scroll-linked motion.**
+PROGRESS.md:63: | D-20 | Per-page photographic backdrops | Resolved | Team decision: real team-supplied/approved photographs (with recorded source, author, licence, and licence URL in `design-assets/backdrops.json`) are allowed solely as decorative backdrops (`alt=""`, `aria-hidden="true"`) behind a flat colour overlay token (`--backdrop-scrim`), with content always on solid surface tokens and a flat fallback when images are off, blocked, or `Save-Data` is set. AI-generated imagery, fake UI screenshots, fake testimonials/logos, data-bearing imagery, unpermitted identifiable people, gradients, glass/blur, parallax, and hotlinked URLs remain banned | SPEC Ã‚Â§5.2, Ã‚Â§11 |
+PROGRESS.md:329: - **Part A (Decision `D-20`, Open Issue `OI-11`, and `SPEC.md` Updates)**: Recorded `D-20` (`Resolved`, team decision: per-page photographic backdrops behind a flat scrim `--backdrop-scrim`, with AI-generated imagery, fake UI, gradients, glass/blur, and parallax/motion remaining banned) and `OI-11` (`Open`, replace all 14 placeholder backdrops with real licensed team-approved photos before launch) in `PROGRESS.md` and updated `SPEC.md` Ã‚Â§5.2 and Ã‚Â§11.
+
+=== Term: "as instructed" (0 match(es)) ===
+
+=== Term: "the owner wants" (0 match(es)) ===

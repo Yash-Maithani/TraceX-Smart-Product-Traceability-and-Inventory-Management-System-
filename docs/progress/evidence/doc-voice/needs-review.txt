@@ -1,0 +1,26 @@
+=== Rule 5: Sentences that only make sense as an instruction to an agent ===
+Count: 0
+(No instruction-to-agent sentences such as "Read SPEC.md and PROGRESS.md, then do X" exist in any in-scope .md file.)
+
+=== Rule 7: kept (technical / schema / quoted evidence) - Count per file ===
+1. HTTP "User-Agent" / "user-agent" header ("agent" - 3 matches total):
+   - SPEC.md                         : 1 (line 469: "parsed from User-Agent", "raw User-Agent")
+   - docs/00-audit/feature-parity.md : 1 (line 27: "User-Agent parsing")
+   - docs/progress/phase-07.md       : 1 (line 7: "user-agent device parsing")
+
+2. Application AI assistant LLM prompts & DOM API window.prompt ("prompt" - 4 matches total):
+   - SPEC.md                         : 2 (line 19: D-9 "Farmer PII in AI prompts"; line 538: "`window.prompt`")
+   - PROGRESS.md                     : 1 (line 52: D-9 "Farmer PII in AI prompts")
+   - docs/00-audit/problems.md       : 1 (line 27: "sent in AI prompt to Google Gemini and NVIDIA APIs")
+
+3. Literal JSON schema field "`approvedByOwner: true`" in backdrops.json ("Owner" - 3 matches total):
+   - SPEC.md                         : 2 (lines 553, 1094: "`approvedByOwner: true`")
+   - docs/progress/phase-05-1.md     : 1 (line 18: "`approvedByOwner: true`")
+
+4. Verbatim quoted CLI evidence blocks ("Owner" - 30 matches total, preserved per rule "Quoted evidence output inside docs stays exactly as is"):
+   - docs/progress/phase-05-1.md     : 29 (lines 208-221, 236, 244-257: quoted `npm run check:backdrops` stdout)
+   - docs/progress/phase-08.md       : 1  (line 431: quoted `npx playwright test` stdout for test title P8-E2E-01)
+
+5. Design-system asset policy banning synthetic stock photos ("AI-generated" - 3 matches total):
+   - SPEC.md                         : 1 (line 550: "AI-generated imagery, fake UI screenshots...")
+   - PROGRESS.md                     : 2 (lines 63, 329: "AI-generated imagery, fake UI...")

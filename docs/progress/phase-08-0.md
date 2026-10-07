@@ -412,11 +412,11 @@ PROGRESS.md:67: | D-24 | Import rollback semantics & guards | Proposed | Rollbac
 PROGRESS.md:378: - **Part B (`SPEC.md`  3.7, Deviations Table, `D-23`, `D-24`, Role Wording, and Open Questions)**: Added `SPEC.md`  3.7 (`Bulk Import`) and the 3-column Deviations Table, recorded `D-23` and `D-24` as `Proposed` in `PROGRESS.md` and `SPEC.md`, aligned `SPEC.md`  2 and  6.3 importer role wording with `requireImporter` and `docs/permission-matrix.csv` (`super-admin`, `admin`, `manager`, `factory-manager`), and documented Phase 8 open questions in [docs/progress/phase-08-0.md](docs/progress/phase-08-0.md).
 ```
 
-### Open Questions for Phase 8 (for Owner / Reviewer)
+### Open Questions for the Team
 
 The following questions arise from gaps, ambiguities, or defects in the reference implementation and should be confirmed for Phase 8:
 
-1. **Multi-chunk job join, ownership, and stuck-`running` recovery (`commitImport` lines 489–501, 595–598)**:
+1. **Multi-chunk job join, creator match, and stuck-`running` recovery (`commitImport` lines 489–501, 595–598)**:
    - In the reference, chunk 0 creates an `ImportJob` (`status: "running"`) and returns `jobId`; later chunks pass `jobId` and the final chunk passes `isFinal: true`. However, the reference does not verify that subsequent chunks come from the same `createdBy` user, does not reject appending to a job whose status is already `done` or `failed`, and leaves the job permanently stuck in `status: "running"` (and un-rollbackable) if a browser tab closes or a later chunk fails mid-flight.
    - *Question*: Should `POST /api/v1/import/commit` enforce `job.createdBy == actor.username` and `job.status == "running"` (`409 CONFLICT` otherwise), and should a failed/aborted multi-chunk job either transition to `"failed"` or allow rollback of already-inserted batches?
 2. **Cross-chunk in-file duplicate detection during `POST /api/v1/import/validate` (`useImport.js` lines 67–94)**:

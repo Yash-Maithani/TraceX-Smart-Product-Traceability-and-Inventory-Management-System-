@@ -15,8 +15,8 @@ Confirmed `PROGRESS.md` records Phase 5, Phase 5.0, and Phase 5.0.2 as `COMPLETE
 
 ## Part A: Decision (`D-20`), Open Issue (`OI-11`), and `SPEC.md` Updates
 
-- Recorded **`D-20`** (`Resolved`, requested by the owner) in `PROGRESS.md` Decisions Log: per-page photographic backdrops behind a flat colour scrim (`--backdrop-scrim`) with source, author, licence, licence URL, and owner approval (`approvedByOwner: true`) tracked in `design-assets/backdrops.json`, and an accessible flat surface fallback (`--backdrop-fallback-bg`) when images are disabled, blocked, or under `Save-Data: on`.
-- Recorded **`OI-11`** (`Open`, High) in `PROGRESS.md` Open Issues: replace all 14 generated token placeholder backdrops in `design-assets/originals/<key>.jpg` and `design-assets/backdrops.json` with owner-supplied or owner-approved licensed photographs before production launch.
+- Recorded **`D-20`** (`Resolved`, team decision) in `PROGRESS.md` Decisions Log: per-page photographic backdrops behind a flat colour scrim (`--backdrop-scrim`) with source, author, licence, licence URL, and team approval (`approvedByOwner: true`) tracked in `design-assets/backdrops.json`, and an accessible flat surface fallback (`--backdrop-fallback-bg`) when images are disabled, blocked, or under `Save-Data: on`.
+- Recorded **`OI-11`** (`Open`, High) in `PROGRESS.md` Open Issues: replace all 14 generated token placeholder backdrops in `design-assets/originals/<key>.jpg` and `design-assets/backdrops.json` with team-supplied or team-approved licensed photographs before production launch.
 - Updated `SPEC.md` §5.2 (`Banned Patterns & Decorative Photo Backdrops (D-20)`) and §11 (`Production Launch Gate (Phase 14)`) with the `D-20` rules and `OI-11` launch gate item.
 
 ---
