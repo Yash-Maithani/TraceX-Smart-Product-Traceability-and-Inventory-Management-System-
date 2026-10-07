@@ -1,0 +1,16 @@
+=== 5. Grep for BRIEF.md and HANDOFF.md across repo ===
+README.md:93: - [Project Brief (docs/BRIEF.md)](docs/BRIEF.md)
+README.md:94: - [Handoff Summary (docs/HANDOFF.md)](docs/HANDOFF.md)
+PROGRESS.md:83: | OI-09 | HANDOFF.md uses `TX-` prefix; source code uses `HS-` prefix — resolved to `TX-` | LOW | Closed | `backend/src/utils/batchCodeGenerator.js` line 8 | SPEC §3.2 (D-11 resolved: `TX-` prefix adopted) (Phase 3) |
+docs\00-audit\discrepancies.md:1: # Audit: Discrepancies Between HANDOFF.md and Source Files
+docs\00-audit\permissions.md:112: | Batch list requires auth | HANDOFF.md (implied) | `batches.routes.js` line 10 — no `protect` | **Routes win**: batch list is public |
+docs\00-audit\permissions.md:113: | Dispatch FEFO requires auth | HANDOFF.md (implied) | `dispatch.routes.js` line 3 — no `protect` | **Routes win**: FEFO is public |
+
+=== Verify docs/BRIEF.md and docs/HANDOFF.md exist on disk ===
+
+Name       Length
+----       ------
+BRIEF.md     2148
+HANDOFF.md   2667
+
+

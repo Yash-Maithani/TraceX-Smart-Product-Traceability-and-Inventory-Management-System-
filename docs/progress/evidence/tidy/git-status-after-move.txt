@@ -1,0 +1,31 @@
+=== git status --short (staged tidy-up changes before commit) ===
+M  .gitignore
+A  README.md
+D  design-assets/backdrops.json
+D  design-assets/originals/.gitkeep
+R  BRIEF.md -> docs/BRIEF.md
+R  HANDOFF.md -> docs/HANDOFF.md
+D  fix_all.py
+D  fix_appconfig.py
+D  fix_audit.py
+D  fix_errors.py
+D  fix_errors2.py
+D  fix_geh.py
+D  fix_rbac.py
+D  fix_rbac2.py
+D  fix_route.py
+D  fix_seed.py
+D  fix_seed3.py
+D  fix_seed4.py
+D  fix_spec.py
+D  fix_spec2.py
+D  fix_test.py
+D  fix_tests_fin.py
+D  make_dtos.py
+D  make_index_test.py
+D  make_logic.py
+D  make_models.py
+D  make_repos.py
+D  make_tests.py
+D  phase07_prompt.txt
+?? docs/progress/evidence/tidy/

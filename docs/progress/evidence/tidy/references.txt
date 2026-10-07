@@ -1,0 +1,88 @@
+=== 1. Root scratch files found (23) ===
+  fix_all.py
+  fix_appconfig.py
+  fix_audit.py
+  fix_errors.py
+  fix_errors2.py
+  fix_geh.py
+  fix_rbac.py
+  fix_rbac2.py
+  fix_route.py
+  fix_seed.py
+  fix_seed3.py
+  fix_seed4.py
+  fix_spec.py
+  fix_spec2.py
+  fix_test.py
+  fix_tests_fin.py
+  make_dtos.py
+  make_index_test.py
+  make_logic.py
+  make_models.py
+  make_repos.py
+  make_tests.py
+  phase07_prompt.txt
+
+=== 2. Grep for root scratch files in scripts/, frontend/package.json, backend/pom.xml, docs/ ===
+NO_REFERENCES [fix_all.py]
+NO_REFERENCES [fix_appconfig.py]
+NO_REFERENCES [fix_audit.py]
+NO_REFERENCES [fix_errors.py]
+NO_REFERENCES [fix_errors2.py]
+NO_REFERENCES [fix_geh.py]
+NO_REFERENCES [fix_rbac.py]
+NO_REFERENCES [fix_rbac2.py]
+NO_REFERENCES [fix_route.py]
+NO_REFERENCES [fix_seed.py]
+NO_REFERENCES [fix_seed3.py]
+NO_REFERENCES [fix_seed4.py]
+NO_REFERENCES [fix_spec.py]
+NO_REFERENCES [fix_spec2.py]
+NO_REFERENCES [fix_test.py]
+NO_REFERENCES [fix_tests_fin.py]
+NO_REFERENCES [make_dtos.py]
+NO_REFERENCES [make_index_test.py]
+NO_REFERENCES [make_logic.py]
+NO_REFERENCES [make_models.py]
+NO_REFERENCES [make_repos.py]
+NO_REFERENCES [make_tests.py]
+NO_REFERENCES [phase07_prompt.txt]
+
+=== 3. Grep for design-assets/ across backend/, frontend/, scripts/, docs/, root configs ===
+frontend\src\components\ui\PageBackdrop.test.tsx:279: const tmpDesign = path.join(tmpDir, 'design-assets');
+frontend\scripts\check-backdrops.mjs:8: const defaultManifestPath = path.resolve(frontendRoot, 'design-assets/backdrops.json');
+frontend\scripts\check-backdrops.mjs:133: errors.push(`Required backdrop key '${reqKey}' is missing from design-assets/backdrops.json.`);
+frontend\scripts\check-banned-patterns.mjs:36: const manifestPath = path.join(baseDir, 'design-assets', 'backdrops.json');
+frontend\scripts\check-banned-patterns.mjs:51: const isManifest = relPath === 'design-assets/backdrops.json';
+frontend\scripts\check-banned-patterns.mjs:156: // 14. Hotlinked http/https image URLs in src/ or design-assets/backdrops.json (Phase 5.1 Part D)
+frontend\scripts\check-banned-patterns.mjs:213: console.log('Banned pattern check PASSED: 0 violations found across src/, index.html, and design-assets/backdrops.json.');
+frontend\scripts\prepare-backdrops.mjs:9: const manifestPath = path.resolve(frontendRoot, 'design-assets/backdrops.json');
+frontend\scripts\prepare-backdrops.mjs:10: const originalsDir = path.resolve(frontendRoot, 'design-assets/originals');
+frontend\scripts\prepare-backdrops.mjs:166: console.error(`Missing required backdrop key '${reqKey}' in design-assets/backdrops.json`);
+docs\progress\phase-05-1.md:18: - Recorded **`D-20`** (`Resolved`, requested by the owner) in `PROGRESS.md` Decisions Log: per-page photographic backdrops behind a flat colour scrim (`--backdrop-scrim`) with source, author, licence, licence URL, and owner approval (`approvedByOwner: true`) tracked in `design-assets/backdrops.json`, and an accessible flat surface fallback (`--backdrop-fallback-bg`) when images are disabled, blocked, or under `Save-Data: on`.
+docs\progress\phase-05-1.md:19: - Recorded **`OI-11`** (`Open`, High) in `PROGRESS.md` Open Issues: replace all 14 generated token placeholder backdrops in `design-assets/originals/<key>.jpg` and `design-assets/backdrops.json` with owner-supplied or owner-approved licensed photographs before production launch.
+docs\progress\phase-05-1.md:171: PS C:\Users\yashm\OneDrive\Desktop\TraceX\frontend> node -e "import('sharp').then(async ({default: sharp}) => { const buf = Buffer.alloc(1920*1080*3); for (let i=0; i<buf.length; i++) buf[i] = (i * 1103515245 + 12345) & 255; await sharp(buf, { raw: { width: 1920, height: 1080, channels: 3 } }).jpeg({ quality: 100 }).toFile('design-assets/originals/dashboard.jpg'); })"; npm run prepare:backdrops 2>&1 | Select-String -Pattern "dashboard-|BUDGET|FAILED"; Write-Host "PLANTED_EXIT=$LASTEXITCODE"; Remove-Item "design-assets/originals/dashboard.jpg" -Force; npm run prepare:backdrops | Select-Object -Last 6; Write-Host "RESTORED_EXIT=$LASTEXITCODE"
+docs\progress\phase-05-1.md:201: PS C:\Users\yashm\OneDrive\Desktop\TraceX\frontend> npm run check:backdrops; Write-Host "INITIAL_EXIT=$LASTEXITCODE"; $orig = Get-Content -Raw "design-assets/backdrops.json"; $planted = $orig -replace '"key": "dashboard",([\s\S]*?)"placeholder": true', '"key": "dashboard",$1"placeholder": false'; [System.IO.File]::WriteAllText((Resolve-Path "design-assets/backdrops.json"), $planted); npm run check:backdrops 2>&1; Write-Host "PLANTED_EXIT=$LASTEXITCODE"; [System.IO.File]::WriteAllText((Resolve-Path "design-assets/backdrops.json"), $orig); npm run check:backdrops; Write-Host "RESTORED_EXIT=$LASTEXITCODE"
+docs\progress\phase-05-1.md:442: Banned pattern check PASSED: 0 violations found across src/, index.html, and design-assets/backdrops.json.
+docs\progress\phase-06.md:124: Banned pattern check PASSED: 0 violations found across src/, index.html, and design-assets/backdrops.json.
+docs\progress\phase-06.md:172: Banned pattern check PASSED: 0 violations found across src/, index.html, and design-assets/backdrops.json.
+docs\progress\phase-07-1.md:389: Banned pattern check PASSED: 0 violations found across src/, index.html, and design-assets/backdrops.json.
+docs\progress\phase-07-1.md:564: Banned pattern check PASSED: 0 violations found across src/, index.html, and design-assets/backdrops.json.
+docs\progress\phase-07.md:185: Banned pattern check PASSED: 0 violations found across src/, index.html, and design-assets/backdrops.json.
+docs\progress\phase-08-0.md:527: Banned pattern check PASSED: 0 violations found across src/, index.html, and design-assets/backdrops.json.
+docs\progress\phase-08.md:371: Banned pattern check PASSED: 0 violations found across src/, index.html, and design-assets/backdrops.json.
+SPEC.md:30: | D-20 | Per-page photographic backdrops | Real owner-supplied/approved photographs (with recorded `source`, `author`, `licence`, and `licenceUrl` in `design-assets/backdrops.json`) allowed solely as decorative backdrops (`alt=""`, `aria-hidden="true"`) behind a flat colour overlay token (`--backdrop-scrim`), with content on solid surface tokens and a flat fallback when images are off, blocked, or `Save-Data` is set | **RESOLVED — requested by owner** |
+SPEC.md:550: 13. **Hotlinked external image URLs (`http://` or `https://` image URLs in `src/` or `design-assets/backdrops.json`), AI-generated imagery, fake UI screenshots, fake testimonials or customer logos, imagery that carries data or meaning, photos with identifiable people unless the licence clearly permits it, glass or blur panels (`backdrop-filter`, `filter: blur(...)`), and any parallax or scroll-linked motion.**
+SPEC.md:553: - **Allowed**: Real photographs supplied or approved by the owner, with `source`, `author`, `licence`, `licenceUrl`, and `approvedByOwner: true` recorded in `design-assets/backdrops.json`, used strictly as decorative backdrops (`alt=""`, `aria-hidden="true"`) behind a flat colour overlay token (`--backdrop-scrim`). Until the owner's licensed photos arrive, `scripts/prepare-backdrops.mjs` generates flat neutral placeholders from design token colours (`placeholder: true` in `design-assets/backdrops.json`, tracked under `OI-11`).
+SPEC.md:554: - **Asset pipeline & budgets**: Originals live in `design-assets/originals/<key>.jpg` across 14 keys (`auth`, `auth-recovery`, `dashboard`, `batches`, `fefo`, `inspections`, `dispatch`, `qr`, `trace-public`, `team`, `import`, `notifications`, `settings`, `default`). `scripts/prepare-backdrops.mjs` (`sharp`) generates widths `640`, `1280`, and `1920` in AVIF, WebP, and JPEG into `src/assets/backdrops/` with hashed asset filenames via Vite (`npm run prepare:backdrops`, wired into `predev` and `prebuild`). Enforced size budgets: banner images at most `60 KB` at `640` wide and `120 KB` at `1280` wide; auth and public trace images at most `250 KB` at `1920` wide.
+SPEC.md:1094: 1. All placeholder backdrops (`placeholder: true` in `design-assets/backdrops.json`, tracked as `OI-11`) must be replaced with real owner-supplied or owner-approved licensed photographs (`placeholder: false`, `approvedByOwner: true`, with `source`, `author`, `licence`, and `licenceUrl` recorded and verified by `npm run check:backdrops` with zero placeholder warnings).
+PROGRESS.md:63: | D-20 | Per-page photographic backdrops | Resolved | Requested by owner: real owner-supplied/approved photographs (with recorded source, author, licence, and licence URL in `design-assets/backdrops.json`) are allowed solely as decorative backdrops (`alt=""`, `aria-hidden="true"`) behind a flat colour overlay token (`--backdrop-scrim`), with content always on solid surface tokens and a flat fallback when images are off, blocked, or `Save-Data` is set. AI-generated imagery, fake UI screenshots, fake testimonials/logos, data-bearing imagery, unpermitted identifiable people, gradients, glass/blur, parallax, and hotlinked URLs remain banned | SPEC §5.2, §11 |
+PROGRESS.md:85: | OI-11 | All placeholder backdrops (`placeholder: true` in `design-assets/backdrops.json`) must be replaced with real licensed owner-approved photos before launch | MEDIUM | Open | `design-assets/backdrops.json` | SPEC §5.2, §11 (Phase 14 launch gate) |
+PROGRESS.md:330: - **Part B (Asset Pipeline & Manifest Validation)**: Added `sharp@0.35.5` (devDependency), `frontend/design-assets/backdrops.json` (14 keys: `auth`, `auth-recovery`, `dashboard`, `batches`, `fefo`, `inspections`, `dispatch`, `qr`, `trace-public`, `team`, `import`, `notifications`, `settings`, `default`), `frontend/scripts/prepare-backdrops.mjs` (generating widths `640`, `1280`, and `1920` in AVIF, WebP, and JPEG into `frontend/src/assets/backdrops/` — 126 image files + `index.ts` — and enforcing `<= 60 KB` / `<= 120 KB` / `<= 250 KB` budgets), and `frontend/scripts/check-backdrops.mjs` (`npm run check:backdrops`, validating route mappings and required licence metadata for non-placeholder entries while warning on placeholders). Wired `npm run prepare:backdrops` into `predev` and `prebuild`.
+PROGRESS.md:332: - **Part D (Worst-Case Scrim Contrast & Banned-Pattern Gates, Unit & E2E Tests)**: Extended `frontend/scripts/check-contrast.mjs` to verify worst-case pure white (`#ffffff`) and pure black (`#000000`) image pixels under `--backdrop-scrim` (`>= 4.5:1` for `--backdrop-text` and `--backdrop-text-muted`, `>= 3:1` for focus ring and controls across all 6 palette/mode pairs; 162 total checks) and extended `frontend/scripts/check-banned-patterns.mjs` to reject hotlinked `http`/`https` image URLs in `src/` and `design-assets/backdrops.json`, `backdrop-filter`, and parallax patterns. Added unit tests in `frontend/src/components/ui/PageBackdrop.test.tsx` (`33/33` total unit tests passing) and Playwright E2E tests in `frontend/e2e/phase05-1.spec.ts` (`18/18` total E2E tests passing), and captured 25 screenshots in `docs/screenshots/phase-05-1/`. Logged all 12 verification checks in `docs/progress/phase-05-1.md`.
+
+=== 4. Grep for BRIEF.md and HANDOFF.md across repo ===
+docs\00-audit\discrepancies.md:1: # Audit: Discrepancies Between HANDOFF.md and Source Files
+docs\00-audit\permissions.md:112: | Batch list requires auth | HANDOFF.md (implied) | `batches.routes.js` line 10 — no `protect` | **Routes win**: batch list is public |
+docs\00-audit\permissions.md:113: | Dispatch FEFO requires auth | HANDOFF.md (implied) | `dispatch.routes.js` line 3 — no `protect` | **Routes win**: FEFO is public |
+PROGRESS.md:83: | OI-09 | HANDOFF.md uses `TX-` prefix; source code uses `HS-` prefix — resolved to `TX-` | LOW | Closed | `backend/src/utils/batchCodeGenerator.js` line 8 | SPEC §3.2 (D-11 resolved: `TX-` prefix adopted) (Phase 3) |

@@ -1,0 +1,335 @@
+===Step 0: git status===
+git : warning: could not open directory 'design-assets/': No such file or directory
+At line:3 char:3
++   git status
++   ~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (warning: could ...le or directory:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	deleted:    design-assets/backdrops.json
+	deleted:    design-assets/originals/.gitkeep
+	modified:   frontend/tsconfig.tsbuildinfo
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	docs/progress/evidence/tidy/
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+===Step 0: git ls-files | Measure-Object===
+
+
+Count    : 599
+Average  : 
+Sum      : 
+Maximum  : 
+Minimum  : 
+Property : 
+
+
+===Step 0: Backend build (mvnw.cmd -q -DskipTests package)===
+
+C:\Users\yashm\OneDrive\Desktop\TraceX-Smart-Product-Traceability-and-Inventory-Management-System\backend>"C:\Program Files\Eclipse Adoptium\jdk-21.0.12.101-hotspot\\bin\java.exe"  "-Dmaven.multiModuleProjectDirectory=C:\Users\yashm\OneDrive\Desktop\TraceX-Smart-Product-Traceability-and-Inventory-Management-System\backend\." -classpath "C:\Users\yashm\OneDrive\Desktop\TraceX-Smart-Product-Traceability-and-Inventory-Management-System\backend\.mvn\wrapper\maven-wrapper.jar" org.apache.maven.wrapper.MavenWrapperMain -q -DskipTests package 
+Backend build exit code: 0
+
+===Step 0: Frontend build (with VITE_API_BASE_URL=https://api.tracex.example.com)===
+
+> tracex-frontend@1.0.0 prebuild
+> npm run prepare:backdrops
+
+
+> tracex-frontend@1.0.0 prepare:backdrops
+> node scripts/prepare-backdrops.mjs
+
+=== TraceX Backdrop Asset Pipeline (sharp) ===
+File                           | Source                     | Dimensions |       Size |   Budget | Status
+------------------------------------------------------------------------------------------------------
+auth-640.avif                  | placeholder (--bg-muted)   | 640x360    |    0.52 KB |    60 KB | OK
+auth-640.webp                  | placeholder (--bg-muted)   | 640x360    |    0.47 KB |    60 KB | OK
+auth-640.jpg                   | placeholder (--bg-muted)   | 640x360    |    0.99 KB |    60 KB | OK
+auth-1280.avif                 | placeholder (--bg-muted)   | 1280x720   |    0.82 KB |   120 KB | OK
+auth-1280.webp                 | placeholder (--bg-muted)   | 1280x720   |    1.67 KB |   120 KB | OK
+auth-1280.jpg                  | placeholder (--bg-muted)   | 1280x720   |    2.96 KB |   120 KB | OK
+auth-1920.avif                 | placeholder (--bg-muted)   | 1920x1080  |    1.05 KB |   250 KB | OK
+auth-1920.webp                 | placeholder (--bg-muted)   | 1920x1080  |    3.69 KB |   250 KB | OK
+auth-1920.jpg                  | placeholder (--bg-muted)   | 1920x1080  |    6.30 KB |   250 KB | OK
+auth-recovery-640.avif         | placeholder (--bg-elevated) | 640x360    |    0.51 KB |    60 KB | OK
+auth-recovery-640.webp         | placeholder (--bg-elevated) | 640x360    |    0.47 KB |    60 KB | OK
+auth-recovery-640.jpg          | placeholder (--bg-elevated) | 640x360    |    0.99 KB |    60 KB | OK
+auth-recovery-1280.avif        | placeholder (--bg-elevated) | 1280x720   |    0.80 KB |   120 KB | OK
+auth-recovery-1280.webp        | placeholder (--bg-elevated) | 1280x720   |    1.67 KB |   120 KB | OK
+auth-recovery-1280.jpg         | placeholder (--bg-elevated) | 1280x720   |    2.96 KB |   120 KB | OK
+auth-recovery-1920.avif        | placeholder (--bg-elevated) | 1920x1080  |    1.04 KB |   250 KB | OK
+auth-recovery-1920.webp        | placeholder (--bg-elevated) | 1920x1080  |    3.69 KB |   250 KB | OK
+auth-recovery-1920.jpg         | placeholder (--bg-elevated) | 1920x1080  |    6.30 KB |   250 KB | OK
+dashboard-640.avif             | placeholder (--bg-muted)   | 640x360    |    0.52 KB |    60 KB | OK
+dashboard-640.webp             | placeholder (--bg-muted)   | 640x360    |    0.47 KB |    60 KB | OK
+dashboard-640.jpg              | placeholder (--bg-muted)   | 640x360    |    0.99 KB |    60 KB | OK
+dashboard-1280.avif            | placeholder (--bg-muted)   | 1280x720   |    0.82 KB |   120 KB | OK
+dashboard-1280.webp            | placeholder (--bg-muted)   | 1280x720   |    1.67 KB |   120 KB | OK
+dashboard-1280.jpg             | placeholder (--bg-muted)   | 1280x720   |    2.96 KB |   120 KB | OK
+dashboard-1920.avif            | placeholder (--bg-muted)   | 1920x1080  |    1.05 KB |   250 KB | OK
+dashboard-1920.webp            | placeholder (--bg-muted)   | 1920x1080  |    3.69 KB |   250 KB | OK
+dashboard-1920.jpg             | placeholder (--bg-muted)   | 1920x1080  |    6.30 KB |   250 KB | OK
+batches-640.avif               | placeholder (--bg-elevated) | 640x360    |    0.51 KB |    60 KB | OK
+batches-640.webp               | placeholder (--bg-elevated) | 640x360    |    0.47 KB |    60 KB | OK
+batches-640.jpg                | placeholder (--bg-elevated) | 640x360    |    0.99 KB |    60 KB | OK
+batches-1280.avif              | placeholder (--bg-elevated) | 1280x720   |    0.80 KB |   120 KB | OK
+batches-1280.webp              | placeholder (--bg-elevated) | 1280x720   |    1.67 KB |   120 KB | OK
+batches-1280.jpg               | placeholder (--bg-elevated) | 1280x720   |    2.96 KB |   120 KB | OK
+batches-1920.avif              | placeholder (--bg-elevated) | 1920x1080  |    1.03 KB |   250 KB | OK
+batches-1920.webp              | placeholder (--bg-elevated) | 1920x1080  |    3.69 KB |   250 KB | OK
+batches-1920.jpg               | placeholder (--bg-elevated) | 1920x1080  |    6.30 KB |   250 KB | OK
+fefo-640.avif                  | placeholder (--bg-muted)   | 640x360    |    0.52 KB |    60 KB | OK
+fefo-640.webp                  | placeholder (--bg-muted)   | 640x360    |    0.47 KB |    60 KB | OK
+fefo-640.jpg                   | placeholder (--bg-muted)   | 640x360    |    0.99 KB |    60 KB | OK
+fefo-1280.avif                 | placeholder (--bg-muted)   | 1280x720   |    0.82 KB |   120 KB | OK
+fefo-1280.webp                 | placeholder (--bg-muted)   | 1280x720   |    1.66 KB |   120 KB | OK
+fefo-1280.jpg                  | placeholder (--bg-muted)   | 1280x720   |    2.96 KB |   120 KB | OK
+fefo-1920.avif                 | placeholder (--bg-muted)   | 1920x1080  |    1.05 KB |   250 KB | OK
+fefo-1920.webp                 | placeholder (--bg-muted)   | 1920x1080  |    3.69 KB |   250 KB | OK
+fefo-1920.jpg                  | placeholder (--bg-muted)   | 1920x1080  |    6.30 KB |   250 KB | OK
+inspections-640.avif           | placeholder (--bg-elevated) | 640x360    |    0.51 KB |    60 KB | OK
+inspections-640.webp           | placeholder (--bg-elevated) | 640x360    |    0.47 KB |    60 KB | OK
+inspections-640.jpg            | placeholder (--bg-elevated) | 640x360    |    0.99 KB |    60 KB | OK
+inspections-1280.avif          | placeholder (--bg-elevated) | 1280x720   |    0.80 KB |   120 KB | OK
+inspections-1280.webp          | placeholder (--bg-elevated) | 1280x720   |    1.67 KB |   120 KB | OK
+inspections-1280.jpg           | placeholder (--bg-elevated) | 1280x720   |    2.96 KB |   120 KB | OK
+inspections-1920.avif          | placeholder (--bg-elevated) | 1920x1080  |    1.03 KB |   250 KB | OK
+inspections-1920.webp          | placeholder (--bg-elevated) | 1920x1080  |    3.69 KB |   250 KB | OK
+inspections-1920.jpg           | placeholder (--bg-elevated) | 1920x1080  |    6.30 KB |   250 KB | OK
+dispatch-640.avif              | placeholder (--bg-muted)   | 640x360    |    0.52 KB |    60 KB | OK
+dispatch-640.webp              | placeholder (--bg-muted)   | 640x360    |    0.47 KB |    60 KB | OK
+dispatch-640.jpg               | placeholder (--bg-muted)   | 640x360    |    0.99 KB |    60 KB | OK
+dispatch-1280.avif             | placeholder (--bg-muted)   | 1280x720   |    0.82 KB |   120 KB | OK
+dispatch-1280.webp             | placeholder (--bg-muted)   | 1280x720   |    1.66 KB |   120 KB | OK
+dispatch-1280.jpg              | placeholder (--bg-muted)   | 1280x720   |    2.96 KB |   120 KB | OK
+dispatch-1920.avif             | placeholder (--bg-muted)   | 1920x1080  |    1.05 KB |   250 KB | OK
+dispatch-1920.webp             | placeholder (--bg-muted)   | 1920x1080  |    3.69 KB |   250 KB | OK
+dispatch-1920.jpg              | placeholder (--bg-muted)   | 1920x1080  |    6.30 KB |   250 KB | OK
+qr-640.avif                    | placeholder (--bg-elevated) | 640x360    |    0.51 KB |    60 KB | OK
+qr-640.webp                    | placeholder (--bg-elevated) | 640x360    |    0.47 KB |    60 KB | OK
+qr-640.jpg                     | placeholder (--bg-elevated) | 640x360    |    0.99 KB |    60 KB | OK
+qr-1280.avif                   | placeholder (--bg-elevated) | 1280x720   |    0.80 KB |   120 KB | OK
+qr-1280.webp                   | placeholder (--bg-elevated) | 1280x720   |    1.67 KB |   120 KB | OK
+qr-1280.jpg                    | placeholder (--bg-elevated) | 1280x720   |    2.96 KB |   120 KB | OK
+qr-1920.avif                   | placeholder (--bg-elevated) | 1920x1080  |    1.03 KB |   250 KB | OK
+qr-1920.webp                   | placeholder (--bg-elevated) | 1920x1080  |    3.69 KB |   250 KB | OK
+qr-1920.jpg                    | placeholder (--bg-elevated) | 1920x1080  |    6.30 KB |   250 KB | OK
+trace-public-640.avif          | placeholder (--bg-muted)   | 640x360    |    0.52 KB |    60 KB | OK
+trace-public-640.webp          | placeholder (--bg-muted)   | 640x360    |    0.47 KB |    60 KB | OK
+trace-public-640.jpg           | placeholder (--bg-muted)   | 640x360    |    0.99 KB |    60 KB | OK
+trace-public-1280.avif         | placeholder (--bg-muted)   | 1280x720   |    0.82 KB |   120 KB | OK
+trace-public-1280.webp         | placeholder (--bg-muted)   | 1280x720   |    1.66 KB |   120 KB | OK
+trace-public-1280.jpg          | placeholder (--bg-muted)   | 1280x720   |    2.96 KB |   120 KB | OK
+trace-public-1920.avif         | placeholder (--bg-muted)   | 1920x1080  |    1.05 KB |   250 KB | OK
+trace-public-1920.webp         | placeholder (--bg-muted)   | 1920x1080  |    3.69 KB |   250 KB | OK
+trace-public-1920.jpg          | placeholder (--bg-muted)   | 1920x1080  |    6.30 KB |   250 KB | OK
+team-640.avif                  | placeholder (--bg-elevated) | 640x360    |    0.51 KB |    60 KB | OK
+team-640.webp                  | placeholder (--bg-elevated) | 640x360    |    0.47 KB |    60 KB | OK
+team-640.jpg                   | placeholder (--bg-elevated) | 640x360    |    0.99 KB |    60 KB | OK
+team-1280.avif                 | placeholder (--bg-elevated) | 1280x720   |    0.80 KB |   120 KB | OK
+team-1280.webp                 | placeholder (--bg-elevated) | 1280x720   |    1.67 KB |   120 KB | OK
+team-1280.jpg                  | placeholder (--bg-elevated) | 1280x720   |    2.96 KB |   120 KB | OK
+team-1920.avif                 | placeholder (--bg-elevated) | 1920x1080  |    1.03 KB |   250 KB | OK
+team-1920.webp                 | placeholder (--bg-elevated) | 1920x1080  |    3.69 KB |   250 KB | OK
+team-1920.jpg                  | placeholder (--bg-elevated) | 1920x1080  |    6.30 KB |   250 KB | OK
+import-640.avif                | placeholder (--bg-muted)   | 640x360    |    0.52 KB |    60 KB | OK
+import-640.webp                | placeholder (--bg-muted)   | 640x360    |    0.47 KB |    60 KB | OK
+import-640.jpg                 | placeholder (--bg-muted)   | 640x360    |    0.99 KB |    60 KB | OK
+import-1280.avif               | placeholder (--bg-muted)   | 1280x720   |    0.82 KB |   120 KB | OK
+import-1280.webp               | placeholder (--bg-muted)   | 1280x720   |    1.66 KB |   120 KB | OK
+import-1280.jpg                | placeholder (--bg-muted)   | 1280x720   |    2.96 KB |   120 KB | OK
+import-1920.avif               | placeholder (--bg-muted)   | 1920x1080  |    1.05 KB |   250 KB | OK
+import-1920.webp               | placeholder (--bg-muted)   | 1920x1080  |    3.69 KB |   250 KB | OK
+import-1920.jpg                | placeholder (--bg-muted)   | 1920x1080  |    6.30 KB |   250 KB | OK
+notifications-640.avif         | placeholder (--bg-elevated) | 640x360    |    0.51 KB |    60 KB | OK
+notifications-640.webp         | placeholder (--bg-elevated) | 640x360    |    0.47 KB |    60 KB | OK
+notifications-640.jpg          | placeholder (--bg-elevated) | 640x360    |    0.99 KB |    60 KB | OK
+notifications-1280.avif        | placeholder (--bg-elevated) | 1280x720   |    0.80 KB |   120 KB | OK
+notifications-1280.webp        | placeholder (--bg-elevated) | 1280x720   |    1.67 KB |   120 KB | OK
+notifications-1280.jpg         | placeholder (--bg-elevated) | 1280x720   |    2.96 KB |   120 KB | OK
+notifications-1920.avif        | placeholder (--bg-elevated) | 1920x1080  |    1.03 KB |   250 KB | OK
+notifications-1920.webp        | placeholder (--bg-elevated) | 1920x1080  |    3.69 KB |   250 KB | OK
+notifications-1920.jpg         | placeholder (--bg-elevated) | 1920x1080  |    6.30 KB |   250 KB | OK
+settings-640.avif              | placeholder (--bg-muted)   | 640x360    |    0.52 KB |    60 KB | OK
+settings-640.webp              | placeholder (--bg-muted)   | 640x360    |    0.47 KB |    60 KB | OK
+settings-640.jpg               | placeholder (--bg-muted)   | 640x360    |    0.99 KB |    60 KB | OK
+settings-1280.avif             | placeholder (--bg-muted)   | 1280x720   |    0.82 KB |   120 KB | OK
+settings-1280.webp             | placeholder (--bg-muted)   | 1280x720   |    1.66 KB |   120 KB | OK
+settings-1280.jpg              | placeholder (--bg-muted)   | 1280x720   |    2.96 KB |   120 KB | OK
+settings-1920.avif             | placeholder (--bg-muted)   | 1920x1080  |    1.05 KB |   250 KB | OK
+settings-1920.webp             | placeholder (--bg-muted)   | 1920x1080  |    3.69 KB |   250 KB | OK
+settings-1920.jpg              | placeholder (--bg-muted)   | 1920x1080  |    6.30 KB |   250 KB | OK
+default-640.avif               | placeholder (--bg-elevated) | 640x360    |    0.51 KB |    60 KB | OK
+default-640.webp               | placeholder (--bg-elevated) | 640x360    |    0.47 KB |    60 KB | OK
+default-640.jpg                | placeholder (--bg-elevated) | 640x360    |    0.99 KB |    60 KB | OK
+default-1280.avif              | placeholder (--bg-elevated) | 1280x720   |    0.80 KB |   120 KB | OK
+default-1280.webp              | placeholder (--bg-elevated) | 1280x720   |    1.67 KB |   120 KB | OK
+default-1280.jpg               | placeholder (--bg-elevated) | 1280x720   |    2.96 KB |   120 KB | OK
+default-1920.avif              | placeholder (--bg-elevated) | 1920x1080  |    1.03 KB |   250 KB | OK
+default-1920.webp              | placeholder (--bg-elevated) | 1920x1080  |    3.69 KB |   250 KB | OK
+default-1920.jpg               | placeholder (--bg-elevated) | 1920x1080  |    6.30 KB |   250 KB | OK
+------------------------------------------------------------------------------------------------------
+Total generated files: 126 (14 keys x 3 widths x 3 formats)
+Backdrop preparation PASSED: all generated files are within size budgets.
+
+> tracex-frontend@1.0.0 build
+> tsc -b && vite build
+
+[36mvite v6.3.3 [32mbuilding for production...[36m[39m
+transforming...
+[32mΓ£ô[39m 1729 modules transformed.
+rendering chunks...
+computing gzip size...
+[2mdist/[22m[32massets/fefo-640-DHnqqx9Q.webp            [39m[1m[2m  0.48 kB[22m[1m[22m
+[2mdist/[22m[32massets/dispatch-640-BXv1Uwe5.webp        [39m[1m[2m  0.48 kB[22m[1m[22m
+[2mdist/[22m[32massets/trace-public-640-BuVK5kFO.webp    [39m[1m[2m  0.48 kB[22m[1m[22m
+[2mdist/[22m[32massets/import-640-BAgoTx_G.webp          [39m[1m[2m  0.48 kB[22m[1m[22m
+[2mdist/[22m[32massets/settings-640-2bxHaxy3.webp        [39m[1m[2m  0.48 kB[22m[1m[22m
+[2mdist/[22m[32massets/auth-640-I30REp_L.webp            [39m[1m[2m  0.49 kB[22m[1m[22m
+[2mdist/[22m[32massets/auth-recovery-640-CrXmng6I.webp   [39m[1m[2m  0.49 kB[22m[1m[22m
+[2mdist/[22m[32massets/dashboard-640-Boui4XB4.webp       [39m[1m[2m  0.49 kB[22m[1m[22m
+[2mdist/[22m[32massets/batches-640-DnLaFHma.webp         [39m[1m[2m  0.49 kB[22m[1m[22m
+[2mdist/[22m[32massets/inspections-640-MJZjrtLW.webp     [39m[1m[2m  0.49 kB[22m[1m[22m
+[2mdist/[22m[32massets/qr-640-CwwlIg0h.webp              [39m[1m[2m  0.49 kB[22m[1m[22m
+[2mdist/[22m[32massets/team-640-CpH9u-PJ.webp            [39m[1m[2m  0.49 kB[22m[1m[22m
+[2mdist/[22m[32massets/notifications-640-CFnkh0UG.webp   [39m[1m[2m  0.49 kB[22m[1m[22m
+[2mdist/[22m[32massets/default-640-DtkveGBm.webp         [39m[1m[2m  0.49 kB[22m[1m[22m
+[2mdist/[22m[32massets/auth-recovery-640-D-EdhMsf.avif   [39m[1m[2m  0.53 kB[22m[1m[22m
+[2mdist/[22m[32massets/batches-640-BeKp5s1f.avif         [39m[1m[2m  0.53 kB[22m[1m[22m
+[2mdist/[22m[32massets/inspections-640-DnzBhK2t.avif     [39m[1m[2m  0.53 kB[22m[1m[22m
+[2mdist/[22m[32massets/qr-640-_CwEEBqH.avif              [39m[1m[2m  0.53 kB[22m[1m[22m
+[2mdist/[22m[32massets/team-640-BCiSoTaT.avif            [39m[1m[2m  0.53 kB[22m[1m[22m
+[2mdist/[22m[32massets/notifications-640-D0JqciL3.avif   [39m[1m[2m  0.53 kB[22m[1m[22m
+[2mdist/[22m[32massets/default-640-BZHMRVtE.avif         [39m[1m[2m  0.53 kB[22m[1m[22m
+[2mdist/[22m[32massets/auth-640-BajqSd4u.avif            [39m[1m[2m  0.53 kB[22m[1m[22m
+[2mdist/[22m[32massets/dashboard-640-BSiJPpmI.avif       [39m[1m[2m  0.53 kB[22m[1m[22m
+[2mdist/[22m[32massets/fefo-640-BdwwWR4I.avif            [39m[1m[2m  0.53 kB[22m[1m[22m
+[2mdist/[22m[32massets/dispatch-640-CAe1s1fP.avif        [39m[1m[2m  0.53 kB[22m[1m[22m
+[2mdist/[22m[32massets/trace-public-640-BDP7ktVC.avif    [39m[1m[2m  0.53 kB[22m[1m[22m
+[2mdist/[22m[32massets/import-640-76ZTfkVJ.avif          [39m[1m[2m  0.53 kB[22m[1m[22m
+[2mdist/[22m[32massets/settings-640-CWoCMt0y.avif        [39m[1m[2m  0.53 kB[22m[1m[22m
+[2mdist/[22m[32massets/auth-recovery-1280-IGSNJBNw.avif  [39m[1m[2m  0.82 kB[22m[1m[22m
+[2mdist/[22m[32massets/batches-1280-CWXGgYgc.avif        [39m[1m[2m  0.82 kB[22m[1m[22m
+[2mdist/[22m[32massets/inspections-1280-Bpycp4bO.avif    [39m[1m[2m  0.82 kB[22m[1m[22m
+[2mdist/[22m[32massets/qr-1280-3vt71LdZ.avif             [39m[1m[2m  0.82 kB[22m[1m[22m
+[2mdist/[22m[32massets/team-1280-CsPOS0HR.avif           [39m[1m[2m  0.82 kB[22m[1m[22m
+[2mdist/[22m[32massets/notifications-1280-Cd8NbQlV.avif  [39m[1m[2m  0.82 kB[22m[1m[22m
+[2mdist/[22m[32massets/default-1280-DIOC9-GU.avif        [39m[1m[2m  0.82 kB[22m[1m[22m
+[2mdist/[22m[32massets/auth-1280-DOVTr6II.avif           [39m[1m[2m  0.84 kB[22m[1m[22m
+[2mdist/[22m[32massets/dashboard-1280-BEua8klK.avif      [39m[1m[2m  0.84 kB[22m[1m[22m
+[2mdist/[22m[32massets/fefo-1280-RTKOasJZ.avif           [39m[1m[2m  0.84 kB[22m[1m[22m
+[2mdist/[22m[32massets/dispatch-1280-lu8B2Y1D.avif       [39m[1m[2m  0.84 kB[22m[1m[22m
+[2mdist/[22m[32massets/trace-public-1280-B6-_j3n2.avif   [39m[1m[2m  0.84 kB[22m[1m[22m
+[2mdist/[22m[32massets/import-1280-eh0kMz_7.avif         [39m[1m[2m  0.84 kB[22m[1m[22m
+[2mdist/[22m[32massets/settings-1280-D_wZkZkK.avif       [39m[1m[2m  0.84 kB[22m[1m[22m
+[2mdist/[22m[32mindex.html                               [39m[1m[2m  0.90 kB[22m[1m[22m[2m Γöé gzip:   0.48 kB[22m
+[2mdist/[22m[32massets/auth-640-DsP4x1x2.jpg             [39m[1m[2m  1.02 kB[22m[1m[22m
+[2mdist/[22m[32massets/auth-recovery-640-DrEspJ8B.jpg    [39m[1m[2m  1.02 kB[22m[1m[22m
+[2mdist/[22m[32massets/dashboard-640-C1SetWdj.jpg        [39m[1m[2m  1.02 kB[22m[1m[22m
+[2mdist/[22m[32massets/batches-640-C7OK0RWD.jpg          [39m[1m[2m  1.02 kB[22m[1m[22m
+[2mdist/[22m[32massets/fefo-640-BFfgcE-6.jpg             [39m[1m[2m  1.02 kB[22m[1m[22m
+[2mdist/[22m[32massets/inspections-640-CdBdguo3.jpg      [39m[1m[2m  1.02 kB[22m[1m[22m
+[2mdist/[22m[32massets/dispatch-640-Dya8kwDY.jpg         [39m[1m[2m  1.02 kB[22m[1m[22m
+[2mdist/[22m[32massets/qr-640-BrRYCkJd.jpg               [39m[1m[2m  1.02 kB[22m[1m[22m
+[2mdist/[22m[32massets/trace-public-640-Cnd9F6NI.jpg     [39m[1m[2m  1.02 kB[22m[1m[22m
+[2mdist/[22m[32massets/team-640-DoVWR3nd.jpg             [39m[1m[2m  1.02 kB[22m[1m[22m
+[2mdist/[22m[32massets/import-640-B8C0VgwC.jpg           [39m[1m[2m  1.02 kB[22m[1m[22m
+[2mdist/[22m[32massets/notifications-640-BtzByY6x.jpg    [39m[1m[2m  1.02 kB[22m[1m[22m
+[2mdist/[22m[32massets/settings-640-BE0JZjhn.jpg         [39m[1m[2m  1.02 kB[22m[1m[22m
+[2mdist/[22m[32massets/default-640-C-K7Wczk.jpg          [39m[1m[2m  1.02 kB[22m[1m[22m
+[2mdist/[22m[32massets/batches-1920-C9ivlnB3.avif        [39m[1m[2m  1.06 kB[22m[1m[22m
+[2mdist/[22m[32massets/inspections-1920-5NJ_XZDb.avif    [39m[1m[2m  1.06 kB[22m[1m[22m
+[2mdist/[22m[32massets/qr-1920-Bf6V-_sm.avif             [39m[1m[2m  1.06 kB[22m[1m[22m
+[2mdist/[22m[32massets/team-1920-RNCAExBJ.avif           [39m[1m[2m  1.06 kB[22m[1m[22m
+[2mdist/[22m[32massets/notifications-1920-CaAUJShd.avif  [39m[1m[2m  1.06 kB[22m[1m[22m
+[2mdist/[22m[32massets/default-1920-VzFGA-Jr.avif        [39m[1m[2m  1.06 kB[22m[1m[22m
+[2mdist/[22m[32massets/auth-recovery-1920-C7Cpuh-P.avif  [39m[1m[2m  1.06 kB[22m[1m[22m
+[2mdist/[22m[32massets/auth-1920-B5hJs2-c.avif           [39m[1m[2m  1.07 kB[22m[1m[22m
+[2mdist/[22m[32massets/dashboard-1920-D-MXplAx.avif      [39m[1m[2m  1.07 kB[22m[1m[22m
+[2mdist/[22m[32massets/fefo-1920-4pn-zK7N.avif           [39m[1m[2m  1.07 kB[22m[1m[22m
+[2mdist/[22m[32massets/dispatch-1920-C7CuL4WB.avif       [39m[1m[2m  1.07 kB[22m[1m[22m
+[2mdist/[22m[32massets/trace-public-1920-DREBCCOY.avif   [39m[1m[2m  1.07 kB[22m[1m[22m
+[2mdist/[22m[32massets/import-1920-sjCcllLI.avif         [39m[1m[2m  1.07 kB[22m[1m[22m
+[2mdist/[22m[32massets/settings-1920-CTELp8Ds.avif       [39m[1m[2m  1.07 kB[22m[1m[22m
+[2mdist/[22m[32massets/fefo-1280-CcPAjJra.webp           [39m[1m[2m  1.70 kB[22m[1m[22m
+[2mdist/[22m[32massets/dispatch-1280-CFRd5yl5.webp       [39m[1m[2m  1.70 kB[22m[1m[22m
+[2mdist/[22m[32massets/trace-public-1280-DTDCnZUn.webp   [39m[1m[2m  1.70 kB[22m[1m[22m
+[2mdist/[22m[32massets/import-1280-BJWHE8lx.webp         [39m[1m[2m  1.70 kB[22m[1m[22m
+[2mdist/[22m[32massets/settings-1280-B_rlH98J.webp       [39m[1m[2m  1.70 kB[22m[1m[22m
+[2mdist/[22m[32massets/auth-1280-BlbLZLWL.webp           [39m[1m[2m  1.71 kB[22m[1m[22m
+[2mdist/[22m[32massets/auth-recovery-1280-c0Lc9T7Z.webp  [39m[1m[2m  1.71 kB[22m[1m[22m
+[2mdist/[22m[32massets/dashboard-1280-CCgw465E.webp      [39m[1m[2m  1.71 kB[22m[1m[22m
+[2mdist/[22m[32massets/batches-1280-BuARfale.webp        [39m[1m[2m  1.71 kB[22m[1m[22m
+[2mdist/[22m[32massets/inspections-1280-DbtE1jZf.webp    [39m[1m[2m  1.71 kB[22m[1m[22m
+[2mdist/[22m[32massets/qr-1280-xi-5pKqe.webp             [39m[1m[2m  1.71 kB[22m[1m[22m
+[2mdist/[22m[32massets/team-1280-BSphXBcx.webp           [39m[1m[2m  1.71 kB[22m[1m[22m
+[2mdist/[22m[32massets/notifications-1280-CkosrC0P.webp  [39m[1m[2m  1.71 kB[22m[1m[22m
+[2mdist/[22m[32massets/default-1280-C0lsBvIh.webp        [39m[1m[2m  1.71 kB[22m[1m[22m
+[2mdist/[22m[32massets/auth-1280-B4ZMaB-L.jpg            [39m[1m[2m  3.03 kB[22m[1m[22m
+[2mdist/[22m[32massets/auth-recovery-1280-xYKvN2g7.jpg   [39m[1m[2m  3.03 kB[22m[1m[22m
+[2mdist/[22m[32massets/dashboard-1280-CUpSBuSk.jpg       [39m[1m[2m  3.03 kB[22m[1m[22m
+[2mdist/[22m[32massets/batches-1280-C3lDxsie.jpg         [39m[1m[2m  3.03 kB[22m[1m[22m
+[2mdist/[22m[32massets/fefo-1280-jNKWBr0I.jpg            [39m[1m[2m  3.03 kB[22m[1m[22m
+[2mdist/[22m[32massets/inspections-1280-IVkWZbvO.jpg     [39m[1m[2m  3.03 kB[22m[1m[22m
+[2mdist/[22m[32massets/dispatch-1280-C00nmXXv.jpg        [39m[1m[2m  3.03 kB[22m[1m[22m
+[2mdist/[22m[32massets/qr-1280-BONJbmrE.jpg              [39m[1m[2m  3.03 kB[22m[1m[22m
+[2mdist/[22m[32massets/trace-public-1280-DQJwcex7.jpg    [39m[1m[2m  3.03 kB[22m[1m[22m
+[2mdist/[22m[32massets/team-1280-Cy0GOC-g.jpg            [39m[1m[2m  3.03 kB[22m[1m[22m
+[2mdist/[22m[32massets/import-1280-DJ7k_2Ys.jpg          [39m[1m[2m  3.03 kB[22m[1m[22m
+[2mdist/[22m[32massets/notifications-1280-CmHVZEeb.jpg   [39m[1m[2m  3.03 kB[22m[1m[22m
+[2mdist/[22m[32massets/settings-1280-TPhjGZv5.jpg        [39m[1m[2m  3.03 kB[22m[1m[22m
+[2mdist/[22m[32massets/default-1280-CaepNV-Y.jpg         [39m[1m[2m  3.03 kB[22m[1m[22m
+[2mdist/[22m[32massets/auth-1920-CuPgpS4h.webp           [39m[1m[2m  3.78 kB[22m[1m[22m
+[2mdist/[22m[32massets/dashboard-1920-CPHztQDH.webp      [39m[1m[2m  3.78 kB[22m[1m[22m
+[2mdist/[22m[32massets/fefo-1920-DI_VBOKd.webp           [39m[1m[2m  3.78 kB[22m[1m[22m
+[2mdist/[22m[32massets/dispatch-1920-CqOVtjFc.webp       [39m[1m[2m  3.78 kB[22m[1m[22m
+[2mdist/[22m[32massets/trace-public-1920-BjxhNdTg.webp   [39m[1m[2m  3.78 kB[22m[1m[22m
+[2mdist/[22m[32massets/import-1920-CoNv0swq.webp         [39m[1m[2m  3.78 kB[22m[1m[22m
+[2mdist/[22m[32massets/settings-1920-cUoaVP1e.webp       [39m[1m[2m  3.78 kB[22m[1m[22m
+[2mdist/[22m[32massets/auth-recovery-1920-DH7Wfgae.webp  [39m[1m[2m  3.78 kB[22m[1m[22m
+[2mdist/[22m[32massets/batches-1920-CCaXXH-X.webp        [39m[1m[2m  3.78 kB[22m[1m[22m
+[2mdist/[22m[32massets/inspections-1920-BCXGEiY5.webp    [39m[1m[2m  3.78 kB[22m[1m[22m
+[2mdist/[22m[32massets/qr-1920-CLMjWqWB.webp             [39m[1m[2m  3.78 kB[22m[1m[22m
+[2mdist/[22m[32massets/team-1920-D_HKesqP.webp           [39m[1m[2m  3.78 kB[22m[1m[22m
+[2mdist/[22m[32massets/notifications-1920-BqzHbASX.webp  [39m[1m[2m  3.78 kB[22m[1m[22m
+[2mdist/[22m[32massets/default-1920-DRaH-SNQ.webp        [39m[1m[2m  3.78 kB[22m[1m[22m
+[2mdist/[22m[32massets/auth-1920-CeZmNbx_.jpg            [39m[1m[2m  6.45 kB[22m[1m[22m
+[2mdist/[22m[32massets/auth-recovery-1920-C5pf7ckS.jpg   [39m[1m[2m  6.45 kB[22m[1m[22m
+[2mdist/[22m[32massets/dashboard-1920-C2wkg5W7.jpg       [39m[1m[2m  6.45 kB[22m[1m[22m
+[2mdist/[22m[32massets/batches-1920-Bs-Vk6qi.jpg         [39m[1m[2m  6.45 kB[22m[1m[22m
+[2mdist/[22m[32massets/fefo-1920-DH8rmC4F.jpg            [39m[1m[2m  6.45 kB[22m[1m[22m
+[2mdist/[22m[32massets/inspections-1920-DwIDjUy-.jpg     [39m[1m[2m  6.45 kB[22m[1m[22m
+[2mdist/[22m[32massets/dispatch-1920-DMqmUO3N.jpg        [39m[1m[2m  6.45 kB[22m[1m[22m
+[2mdist/[22m[32massets/qr-1920-C-VfuZxW.jpg              [39m[1m[2m  6.45 kB[22m[1m[22m
+[2mdist/[22m[32massets/trace-public-1920-DVO9S0Vk.jpg    [39m[1m[2m  6.45 kB[22m[1m[22m
+[2mdist/[22m[32massets/team-1920-LITLX5Lh.jpg            [39m[1m[2m  6.45 kB[22m[1m[22m
+[2mdist/[22m[32massets/import-1920-C1C9p51W.jpg          [39m[1m[2m  6.45 kB[22m[1m[22m
+[2mdist/[22m[32massets/notifications-1920-Dwt98lOO.jpg   [39m[1m[2m  6.45 kB[22m[1m[22m
+[2mdist/[22m[32massets/settings-1920-Bo9jbZst.jpg        [39m[1m[2m  6.45 kB[22m[1m[22m
+[2mdist/[22m[32massets/default-1920-2kMuQ_im.jpg         [39m[1m[2m  6.45 kB[22m[1m[22m
+[2mdist/[22m[35massets/index-D1g5Nbhj.css                [39m[1m[2m 47.45 kB[22m[1m[22m[2m Γöé gzip:   8.14 kB[22m
+[2mdist/[22m[36massets/index-D3yDKhjw.js                 [39m[1m[33m523.65 kB[39m[22m[2m Γöé gzip: 145.38 kB[22m
+npm : [33m
+At line:14 char:3
++   npm run build
++   ~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([33m:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: 
+https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+[32mΓ£ô built in 14.02s[39m
+Frontend build exit code: 0
+
+

@@ -1,0 +1,24 @@
+=== git ls-files (root level only) ===
+.gitignore
+PROGRESS.md
+README.md
+SPEC.md
+
+=== Root directories in git ls-files ===
+backend/
+docs/
+frontend/
+scripts/
+
+=== Total git ls-files count ===
+
+
+Count    : 575
+Average  : 
+Sum      : 
+Maximum  : 
+Minimum  : 
+Property : 
+
+
+

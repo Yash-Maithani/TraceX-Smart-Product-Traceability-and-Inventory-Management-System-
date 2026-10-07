@@ -1,12 +1,25 @@
+# Local archive (unreferenced scratch scripts)
+_local-archive/
+
 # Environment & Secrets
 .env
 .env.*
 !.env.example
 
-# Build Artifacts
+# Build Artifacts & Dependencies
 target/
+backend/target/
+frontend/node_modules/
+frontend/dist/
+node_modules/
+dist/
 *.jar
 *.war
+__pycache__/
+
+# Logs & Temporary Evidence Files
+*.log
+docs/progress/evidence/**/*.tmp
 
 # IDE & Editor files
 .idea/
@@ -18,8 +31,3 @@ target/
 # OS files
 .DS_Store
 Thumbs.db
-
-# Dependencies
-node_modules/
-dist/
-__pycache__/
