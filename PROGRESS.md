@@ -1,5 +1,5 @@
 # TraceX — PROGRESS.md
-> Updated: 2026-10-06 (Phase 8 COMPLETE)
+> Updated: 2026-10-22 (Phase 8.1 COMPLETE)
 
 ---
 
@@ -28,6 +28,7 @@
 | 7.1 | Phase 7 evidence and test repair | COMPLETE | 2026-10-06 | [phase-07-1](docs/progress/phase-07-1.md) |
 | 8.0 | Import reference extraction, SPEC §3.7, and Phase 7.1 carry-over | COMPLETE | 2026-10-06 | [phase-08-0](docs/progress/phase-08-0.md) |
 | 8 | Import | COMPLETE | 2026-10-06 | [phase-08](docs/progress/phase-08.md) |
+| 8.1 | Phase 8 import corrections | COMPLETE | 2026-10-22 | [phase-08-1](docs/progress/phase-08-1.md) |
 | 9 | Team admin UI, settings, login history | NOT STARTED | | |
 | 10 | Notifications, messages, live updates (SSE) | NOT STARTED | | |
 | 11 | AI and Google OAuth (conditional on the audit) | NOT STARTED | | |
@@ -83,6 +84,13 @@
 | OI-09 | HANDOFF.md uses `TX-` prefix; source code uses `HS-` prefix — resolved to `TX-` | LOW | Closed | `backend/src/utils/batchCodeGenerator.js` line 8 | SPEC §3.2 (D-11 resolved: `TX-` prefix adopted) (Phase 3) |
 | OI-10 | `.git` directory presence in reference — confirmed absent via `Test-Path` (downloaded zip, not cloned git repo) | INFO | Closed | Reference workspace root | Resolved / Closed in Audit |
 | OI-11 | All placeholder backdrops (`placeholder: true` in `design-assets/backdrops.json`) must be replaced with real licensed team-approved photos before launch | MEDIUM | Open | `design-assets/backdrops.json` | SPEC §5.2, §11 (Phase 14 launch gate) |
+
+---
+
+## Known Limitations
+
+- **Future `packDate` acceptance (`KL-01`)**: A future `packDate` is accepted by both `POST /api/v1/batches` and bulk import (`POST /api/v1/import/validate` and `POST /api/v1/import/commit`), kept consistent per `D-23` so both paths share the same validation rules. To be revisited in Phase 13 hardening.
+- **Browser closed mid-import (`KL-02`)**: A browser closed mid-import leaves an `ImportJob` in `"running"` status until the stale window (`tracex.import.stale-running-minutes`, default `15` min) passes, after which it lazily transitions to `"failed"` (with `finishedAt` set) and can be rolled back via `POST /api/v1/import/{id}/rollback`.
 
 ---
 
@@ -381,5 +389,8 @@
 
 ### Phase 8 Bulk CSV Import (Backend + UI)
 - **Part 0 & Part A (Phase 8.0 Log Corrections, Decisions, `D-23` & `D-24` Resolved)**: Corrected `docs/progress/phase-08-0.md` and `PROGRESS.md` for `management.health.mail.enabled=false` (`application-e2e.properties` already had it and was not modified) and the Markdown table linter count (`34` files in Phase 8.0; `35` files in Phase 8). Applied all 10 Part A decisions in `SPEC.md` §3.7 and `PROGRESS.md` and marked `D-23` and `D-24` as `Resolved`.
-- **Part B (Backend Import Engine, `BatchService` Reuse, OpenAPI & RBAC)**: Added `ImportJob.java`, `ImportJobRepository.java`, `ImportDtos.java`, `ImportService.java`, and `ImportController.java` implementing all 7 `/api/v1/import*` endpoints (`GET /schema`, `POST /map-headers`, `POST /validate`, `POST /commit`, `GET /`, `GET /:id`, `POST /:id/rollback`) authorized for `super-admin`, `admin`, `manager`, and `factory-manager`. Extracted `BatchService.createBatchForProduct` so single-batch creation (`POST /api/v1/batches`) and bulk import commit (`POST /api/v1/import/commit`) share one code path (`TX-YYYY-MM-NNN` atomic code, `traceToken`, runtime freshness derivation, and `BATCH_CREATED` audit). Added lazy stale-job detection (`tracex.import.stale-running-minutes`, default `15`), `500`-entry `rowErrors` cap with `rowErrorsTruncated`, cross-chunk `priorKeys` deduplication, `isDeleted=false` dedupe queries, and safe rollback via `BatchService.archiveBatch` (`"Import rollback <jobId>"`) with `409 CONFLICT` when any inserted batch is `DISPATCHED`. Updated `tracex-api.yaml` (`52` operations), `docs/openapi.json`, `RouteCoverageTest.java` (`phase <= 8`, `53` active matrix rows), `OpenApiExportTest.java`, `RbacMatrixTest.java` (`322 -> 371`, `+49`), and added `ImportTests.java` (`16` tests). Backend total: **`542` tests, `0` failures** (`mvnw-clean-verify.txt`).
+- **Part B (Backend Import Engine, `BatchService` Reuse, OpenAPI & RBAC)**: Added `ImportJob.java`, `ImportJobRepository.java`, `ImportDtos.java`, `ImportService.java`, and `ImportController.java` implementing all 7 `/api/v1/import*` endpoints (`GET /schema`, `POST /map-headers`, `POST /validate`, `POST /commit`, `GET /`, `GET /:id`, `POST /:id/rollback`) authorized for `super-admin`, `admin`, `manager`, and `factory-manager`. Extracted `BatchService.createBatchForProduct` so single-batch creation (`POST /api/v1/batches`) and bulk import commit (`POST /api/v1/import/commit`) share one code path (`TX-YYYY-MM-NNN` atomic code, `traceToken`, runtime freshness derivation, and `BATCH_CREATED` audit). Added lazy stale-job detection (`tracex.import.stale-running-minutes`, default `15`), `200`-entry `rowErrors` cap with `rowErrorsTruncated`, cross-chunk `priorKeys` deduplication, `isDeleted=false` dedupe queries, and safe rollback via `BatchService.archiveBatch` (`"Import rollback <jobId>"`) with `409 CONFLICT` when any inserted batch is `DISPATCHED`. Updated `tracex-api.yaml` (`52` operations), `docs/openapi.json`, `RouteCoverageTest.java` (`phase <= 8`, `53` active matrix rows), `OpenApiExportTest.java`, `RbacMatrixTest.java` (`322 -> 371`, `+49`), and added `ImportTests.java` (`16` tests). Backend total: **`542` tests, `0` failures** (`mvnw-clean-verify.txt`).
 - **Part C & Part D (Frontend RFC-4180 CSV Parser, `/import` Wizard + History UI, Unit & E2E Tests)**: Created `frontend/src/features/import/csvParser.ts` (RFC-4180 quotes, BOM strip, CRLF/LF, blank line skip, `10 MB` and `10,000`-row client guards, static sample CSV generator) and `ImportPage.tsx` (stepped Upload -> Map Columns -> Validate & Preview -> Commit Progress -> Result with Rollback + Job History drawer, `import-data` banner backdrop, and client-side `.xlsx`/`.xls` rejection per `D-5`). Wired `/import` into `navConfig.ts`, `AppShell.tsx`, `pages/index.ts`, and `App.tsx`. Added `csvParser.test.ts` (`8` tests) and `ImportPage.test.tsx` (`5` tests) — frontend unit total: **`88` tests in `15` files, `0` failures** (`frontend-checks-and-unit-tests.txt`). Added `frontend/e2e/phase08.spec.ts` (`P8-E2E-01` and `P8-E2E-02`) — Playwright E2E total: **`39` passed across `5` files** (`playwright-full.txt`). Proved all 3 planted failures (`A`, `B`, `C`) fail and pass on revert, verified live dev import + rollback on port `8081` (`live-dev-import-flow.txt`), updated `docs/00-audit/feature-parity.md` and `docs/06-ui/screen-map.md`, and verified `scripts/lint-md-tables.ps1` passes across `35` Markdown files (`lint-md-tables.txt`). Full log in [docs/progress/phase-08.md](docs/progress/phase-08.md).
+
+### Phase 8.1 Phase 8 Import Corrections (No New Features)
+- **Parts A–D**: Corrected the `rowErrors` cap from `500` to `200` in `PROGRESS.md` and `docs/progress/phase-08.md` to match `ImportService.MAX_STORED_ERRORS` and `SPEC.md` §3.7, added stored-`ImportJob` assertions (`200` `rowErrors`, `rowErrorsTruncated=true`) to the existing cap test in `ImportTests.java`, added a PII-free `WARN` log (row number, exception class, request id) when a row fails at commit, and added the `Known Limitations` section (`KL-01`, `KL-02`). Backend: **`542` tests, `0` failures**; frontend unit: **`88` tests in `15` files, `0` failures**; `scripts/lint-md-tables.ps1` passes across `37` Markdown files. Full log in [docs/progress/phase-08-1.md](docs/progress/phase-08-1.md).

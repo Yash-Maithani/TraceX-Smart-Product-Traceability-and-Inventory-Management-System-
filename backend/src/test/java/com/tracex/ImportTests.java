@@ -455,6 +455,11 @@ public class ImportTests {
         String jobId = objectMapper.readTree(res.getResponse().getContentAsString()).at("/data/jobId").asText();
         createdJobIds.add(jobId);
 
+        // Stored ImportJob in MongoDB has 200 rowErrors and rowErrorsTruncated=true
+        var storedJob = importJobRepository.findById(jobId).orElseThrow();
+        assertThat(storedJob.getRowErrors()).hasSize(200);
+        assertThat(storedJob.isRowErrorsTruncated()).isTrue();
+
         // Detail endpoint has 200 rowErrors and rowErrorsTruncated=true
         mockMvc.perform(get("/api/v1/import/" + jobId)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminToken))

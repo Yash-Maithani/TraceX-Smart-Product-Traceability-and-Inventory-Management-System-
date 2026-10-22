@@ -16,6 +16,8 @@ import com.tracex.repository.ImportJobRepository;
 import com.tracex.repository.ProductRepository;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -36,6 +38,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class ImportService {
+
+    private static final Logger log = LoggerFactory.getLogger(ImportService.class);
 
     public static final int MAX_CHUNK_ROWS = 500;
     public static final int MAX_JOB_ROWS = 10000;
@@ -423,6 +427,8 @@ public class ImportService {
                             created.getStatus()
                     ));
                 } catch (Exception ex) {
+                    log.warn("Import row {} failed during batch creation: exceptionClass={}, requestId={}",
+                            r.rowNumber, ex.getClass().getName(), requestId);
                     chunkErroredRowCount++;
                     chunkErrors.add(new ImportJob.RowError(
                             r.rowNumber,
