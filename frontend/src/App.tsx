@@ -25,6 +25,8 @@ import {
   PublicTracePage,
   RequestAccessPage,
   ResetPasswordPage,
+  SettingsPage,
+  TeamPage,
   TermsPage,
   VerifyOtpPage
 } from './pages';
@@ -130,7 +132,15 @@ export function App({ queryClient = defaultQueryClient }: { queryClient?: QueryC
                       }
                     />
                     <Route path="/profile" element={<ProfilePage />} />
-                    <Route path="/settings" element={<ProfilePage />} />
+                    <Route path="/settings" element={<SettingsPage />} />
+                    <Route
+                      path="/team"
+                      element={
+                        <RequireRole endpoint={{ method: 'GET', path: '/api/v1/auth/users' }}>
+                          <TeamPage />
+                        </RequireRole>
+                      }
+                    />
                   </Route>
 
                   {/* 404 Catch-All */}

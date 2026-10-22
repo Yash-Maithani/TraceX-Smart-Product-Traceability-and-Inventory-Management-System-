@@ -6,21 +6,28 @@ import com.tracex.dto.UserSummaryDto;
 import com.tracex.exception.ApiException;
 import com.tracex.exception.ErrorCode;
 import com.tracex.exception.RateLimitException;
+import com.tracex.model.LoginEvent;
 import com.tracex.model.User;
+import com.tracex.repository.LoginEventRepository;
 import com.tracex.repository.UserRepository;
 import com.tracex.security.JwtService;
 import com.tracex.security.RateLimiter;
+import com.tracex.util.UserAgentParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
 import java.time.Duration;
 import java.util.Optional;
 
 @Service
 public class AuthService {
 
+    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
     private static final Duration LOGIN_WINDOW = Duration.ofMinutes(15);
     private static final String GENERIC_AUTH_ERROR = "Invalid username or password";
 
@@ -31,18 +38,28 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final RateLimiter rateLimiter;
+    private final LoginEventRepository loginEventRepository;
+    private final Clock clock;
 
     public AuthService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
                        JwtService jwtService,
-                       RateLimiter rateLimiter) {
+                       RateLimiter rateLimiter,
+                       LoginEventRepository loginEventRepository,
+                       Clock clock) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.rateLimiter = rateLimiter;
+        this.loginEventRepository = loginEventRepository;
+        this.clock = clock;
     }
 
     public LoginResponse login(LoginRequest request, String clientIp) {
+        return login(request, clientIp, null);
+    }
+
+    public LoginResponse login(LoginRequest request, String clientIp, String userAgent) {
         String rateLimitKey = "login:" + (clientIp != null ? clientIp : "unknown");
         if (!rateLimiter.allowRequest(rateLimitKey, maxLoginAttempts, LOGIN_WINDOW)) {
             throw new RateLimitException("Too many login attempts. Please try again later.");
@@ -70,7 +87,24 @@ public class AuthService {
         }
 
         String token = jwtService.generateToken(user.getId(), user.getTokenVersion());
+        recordLoginEvent(user, userAgent);
         return new LoginResponse(token, UserSummaryDto.fromEntity(user));
+    }
+
+    private void recordLoginEvent(User user, String userAgent) {
+        try {
+            loginEventRepository.save(new LoginEvent(
+                    user.getId(),
+                    user.getUsername(),
+                    UserAgentParser.browser(userAgent),
+                    UserAgentParser.os(userAgent),
+                    UserAgentParser.deviceType(userAgent),
+                    "password",
+                    clock.instant()));
+        } catch (Exception ex) {
+            // Login history is informational; failing to write it must not block sign-in
+            log.warn("Failed to record login event: exceptionClass={}", ex.getClass().getName());
+        }
     }
 
     public UserSummaryDto getCurrentUser(String userId) {

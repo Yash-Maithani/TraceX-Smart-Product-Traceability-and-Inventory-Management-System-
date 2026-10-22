@@ -20,7 +20,19 @@ interface ThemeContextValue {
   setSidebarCollapsed: (collapsed: boolean) => void;
   setShowPageImages: (show: boolean) => void;
   toggleShowPageImages: () => void;
+  /** Applies settings saved on the user's account (Phase 9). Unknown values are ignored. */
+  applyAccountPreferences: (saved: AccountPreferences) => void;
 }
+
+export interface AccountPreferences {
+  mode?: string | undefined;
+  palette?: string | undefined;
+  accent?: string | undefined;
+  showPageImages?: boolean | undefined;
+}
+
+const PALETTES: readonly string[] = ['editorial', 'obsidian', 'emerald'];
+const ACCENTS: readonly string[] = ['auto', 'cobalt', 'emerald', 'amber', 'rose'];
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
@@ -88,6 +100,23 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setPrefs((prev) => ({ ...prev, showPageImages: !prev.showPageImages }));
   }, []);
 
+  const applyAccountPreferences = useCallback((saved: AccountPreferences) => {
+    setPrefs((prev) => {
+      const next: UiPreferences = { ...prev };
+      if (saved.mode === 'system') {
+        next.mode = getSystemThemeMode();
+        next.modeSource = 'system';
+      } else if (saved.mode === 'light' || saved.mode === 'dark') {
+        next.mode = saved.mode;
+        next.modeSource = 'manual';
+      }
+      if (saved.palette && PALETTES.includes(saved.palette)) next.palette = saved.palette as ThemePalette;
+      if (saved.accent && ACCENTS.includes(saved.accent)) next.accent = saved.accent as ThemeAccent;
+      if (typeof saved.showPageImages === 'boolean') next.showPageImages = saved.showPageImages;
+      return next;
+    });
+  }, []);
+
   return (
     <ThemeContext.Provider
       value={{
@@ -99,7 +128,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         setAccent,
         setSidebarCollapsed,
         setShowPageImages,
-        toggleShowPageImages
+        toggleShowPageImages,
+        applyAccountPreferences
       }}
     >
       {children}

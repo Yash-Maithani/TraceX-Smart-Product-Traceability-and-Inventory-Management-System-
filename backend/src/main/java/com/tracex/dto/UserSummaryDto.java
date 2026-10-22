@@ -19,6 +19,7 @@ public class UserSummaryDto {
     private boolean emailVerified;
     private Instant createdAt;
     private Instant updatedAt;
+    private User.Preferences preferences;
 
     public UserSummaryDto() {
     }
@@ -40,7 +41,17 @@ public class UserSummaryDto {
         dto.setEmailVerified(user.isEmailVerified());
         dto.setCreatedAt(user.getCreatedAt());
         dto.setUpdatedAt(user.getUpdatedAt());
+        // null until the user first saves settings, so the client keeps its local choices until then
+        dto.setPreferences(user.getPreferences());
         return dto;
+    }
+
+    public User.Preferences getPreferences() {
+        return preferences;
+    }
+
+    public void setPreferences(User.Preferences preferences) {
+        this.preferences = preferences;
     }
 
     public String getId() {

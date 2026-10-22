@@ -42,6 +42,8 @@ public class User {
     private String otpPurpose; // "ACTIVATION" or "PASSWORD_RESET"; an OTP is only accepted by its own endpoint
     private Instant otpLockedUntil; // set when otpAttempts reaches the limit; attempts reset once it passes
 
+    private Preferences preferences; // display settings synced across devices (Phase 9)
+
     @JsonIgnore
     private String resetToken; // SHA-256 hashed
 
@@ -207,6 +209,31 @@ public class User {
 
     public void setOtpAttempts(int otpAttempts) {
         this.otpAttempts = otpAttempts;
+    }
+
+    public Preferences getPreferences() {
+        return preferences;
+    }
+
+    public void setPreferences(Preferences preferences) {
+        this.preferences = preferences;
+    }
+
+    /** Display preferences (SPEC §4 `preferences.{mode, palette, accent}` plus showPageImages). */
+    public static class Preferences {
+        private String mode = "system";
+        private String palette = "editorial";
+        private String accent = "auto";
+        private boolean showPageImages = true;
+
+        public String getMode() { return mode; }
+        public void setMode(String mode) { this.mode = mode; }
+        public String getPalette() { return palette; }
+        public void setPalette(String palette) { this.palette = palette; }
+        public String getAccent() { return accent; }
+        public void setAccent(String accent) { this.accent = accent; }
+        public boolean isShowPageImages() { return showPageImages; }
+        public void setShowPageImages(boolean showPageImages) { this.showPageImages = showPageImages; }
     }
 
     public String getOtpPurpose() {

@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import styles from './AppShell.module.css';
 import { useAuth } from '../auth/AuthContext';
+import { usePreferencesSync } from '../hooks/usePreferencesSync';
 import { getEnabledNavRoutes, type NavRouteItem } from '../routes/navConfig';
 import {
   Button,
@@ -57,6 +58,7 @@ function renderNavIcon(iconName: NavRouteItem['iconName']) {
 
 export function AppShell() {
   const { user, logout, logoutAll } = useAuth();
+  usePreferencesSync();
   const location = useLocation();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [confirmLogoutAllOpen, setConfirmLogoutAllOpen] = useState(false);

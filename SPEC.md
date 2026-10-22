@@ -446,6 +446,8 @@ Fields (confirmed from `LoginEvent.model.js`):
 
 TTL: 30 days (MongoDB TTL index on `createdAt`, expires after 2,592,000 seconds). Source: `LoginEvent.model.js` line 17.
 
+**Phase 9 build**: `LoginEvent.java` stores `userId`, `username`, `browser`, `os`, `device`, `method` (`password`) and `createdAt`, written by `AuthService.login` on each successful sign-in only. `city`, `country` and `countryCode` are not stored: the reference filled them from a geo-IP lookup, which the new build does not have, and no IP address (raw or hashed) is kept. `browser`, `os` and `device` are broad families from `UserAgentParser` (no version numbers). `GET /api/v1/auth/me/login-history` returns the caller's own events from the last 30 days, newest first, at most 50. Index names: `createdAt_ttl_idx`, `userId_createdAt_desc_idx`.
+
 Indexes: `createdAt` (TTL), `userId+createdAt desc`.
 
 #### `messages`
@@ -671,7 +673,7 @@ All responses use `/api/v1/` prefix.
 | GET | /actuator/health | **public** | — | Spring Boot Actuator health check returning `{ "status": "UP" }` |
 | GET | /api/v1/auth/me | Bearer | any | Own profile |
 | PATCH | /api/v1/auth/me | Bearer | any | Update profile; changing `email` requires `currentPassword` (422 `VALIDATION_ERROR` otherwise) and clears any outstanding OTP or reset token (Phase 8.2) |
-| PATCH | /api/v1/auth/me/settings | Bearer | any | Theme/palette preferences |
+| PATCH | /api/v1/auth/me/settings | Bearer | any | Display preferences `{ mode: light\|dark\|system, palette: editorial\|obsidian\|emerald, accent: auto\|cobalt\|emerald\|amber\|rose, showPageImages }`, every field optional; returned as `preferences` on `UserSummaryDto` (`null` until first saved). The client applies saved settings at sign-in and saves later changes automatically (Phase 9) |
 | POST | /api/v1/auth/me/change-password | Bearer | any | Revokes all sessions |
 | POST | /api/v1/auth/me/logout-all | Bearer | any | Revokes all sessions |
 | GET | /api/v1/auth/me/login-history | Bearer | any | |

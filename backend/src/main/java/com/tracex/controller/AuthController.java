@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -38,7 +39,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest request,
                                                            HttpServletRequest httpRequest) {
         String clientIp = rateLimiter.resolveClientIp(httpRequest);
-        LoginResponse response = authService.login(request, clientIp);
+        LoginResponse response = authService.login(request, clientIp, httpRequest.getHeader("User-Agent"));
         String requestId = RequestIdContext.getOrCreate();
         return ResponseEntity.ok(ApiResponse.ok(response, "Login successful", requestId));
     }
@@ -116,6 +117,21 @@ public class AuthController {
         UserSummaryDto user = userService.updateProfile(principal.getUser(), request);
         String requestId = RequestIdContext.getOrCreate();
         return ResponseEntity.ok(ApiResponse.ok(user, "Profile updated successfully", requestId));
+    }
+
+    @PatchMapping("/me/settings")
+    public ResponseEntity<ApiResponse<UserSummaryDto>> updateSettings(@Valid @RequestBody UpdateSettingsDto request,
+                                                                     @AuthenticationPrincipal UserPrincipal principal) {
+        UserSummaryDto user = userService.updateSettings(principal.getUser(), request);
+        String requestId = RequestIdContext.getOrCreate();
+        return ResponseEntity.ok(ApiResponse.ok(user, "Settings saved", requestId));
+    }
+
+    @GetMapping("/me/login-history")
+    public ResponseEntity<ApiResponse<List<LoginEventDto>>> loginHistory(@AuthenticationPrincipal UserPrincipal principal) {
+        List<LoginEventDto> events = userService.getLoginHistory(principal.getUser());
+        String requestId = RequestIdContext.getOrCreate();
+        return ResponseEntity.ok(ApiResponse.ok(events, requestId));
     }
 
     @PostMapping("/me/change-password")

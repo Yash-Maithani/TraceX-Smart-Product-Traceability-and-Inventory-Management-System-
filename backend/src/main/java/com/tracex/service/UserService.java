@@ -10,6 +10,7 @@ import com.tracex.model.AccessRequestStatus;
 import com.tracex.model.Role;
 import com.tracex.model.User;
 import com.tracex.repository.AccessRequestRepository;
+import com.tracex.repository.LoginEventRepository;
 import com.tracex.repository.UserRepository;
 import com.tracex.security.JwtService;
 import com.tracex.security.RateLimiter;
@@ -62,6 +63,7 @@ public class UserService {
     private final RateLimiter rateLimiter;
     private final Clock clock;
     private final MongoTemplate mongoTemplate;
+    private final LoginEventRepository loginEventRepository;
 
     public UserService(UserRepository userRepository,
                        AccessRequestRepository accessRequestRepository,
@@ -71,7 +73,8 @@ public class UserService {
                        AuditService auditService,
                        RateLimiter rateLimiter,
                        Clock clock,
-                       MongoTemplate mongoTemplate) {
+                       MongoTemplate mongoTemplate,
+                       LoginEventRepository loginEventRepository) {
         this.userRepository = userRepository;
         this.accessRequestRepository = accessRequestRepository;
         this.passwordEncoder = passwordEncoder;
@@ -81,6 +84,7 @@ public class UserService {
         this.rateLimiter = rateLimiter;
         this.clock = clock;
         this.mongoTemplate = mongoTemplate;
+        this.loginEventRepository = loginEventRepository;
     }
 
     private void clearOtp(User user) {
@@ -421,6 +425,30 @@ public class UserService {
                 "Profile updated for " + saved.getUsername() + (emailChanged ? " (email changed)" : ""));
 
         return UserSummaryDto.fromEntity(saved);
+    }
+
+    public UserSummaryDto updateSettings(User actor, UpdateSettingsDto dto) {
+        User user = userRepository.findById(actor.getId())
+                .orElseThrow(() -> new ApiException(ErrorCode.AUTH_ACCOUNT_DELETED, "User not found", HttpStatus.UNAUTHORIZED));
+
+        User.Preferences prefs = user.getPreferences() != null ? user.getPreferences() : new User.Preferences();
+        if (dto.getMode() != null) prefs.setMode(dto.getMode());
+        if (dto.getPalette() != null) prefs.setPalette(dto.getPalette());
+        if (dto.getAccent() != null) prefs.setAccent(dto.getAccent());
+        if (dto.getShowPageImages() != null) prefs.setShowPageImages(dto.getShowPageImages());
+        user.setPreferences(prefs);
+        user.setUpdatedAt(clock.instant());
+        // Display settings only: no audit entry, as with the local-only preferences before Phase 9
+        return UserSummaryDto.fromEntity(userRepository.save(user));
+    }
+
+    /** The caller's own sign-ins from the last 30 days, newest first, at most 50. */
+    public List<LoginEventDto> getLoginHistory(User actor) {
+        Instant since = clock.instant().minusSeconds(com.tracex.model.LoginEvent.TTL_SECONDS);
+        return loginEventRepository.findTop50ByUserIdAndCreatedAtAfterOrderByCreatedAtDesc(actor.getId(), since)
+                .stream()
+                .map(LoginEventDto::fromEntity)
+                .toList();
     }
 
     public LoginResponse changePassword(User actor, ChangePasswordDto dto) {

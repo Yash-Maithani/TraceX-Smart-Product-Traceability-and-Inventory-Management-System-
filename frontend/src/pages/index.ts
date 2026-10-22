@@ -19,4 +19,6 @@ export {
 export { PublicTracePage } from '../features/public/PublicTracePage';
 export { LegacyTracePage } from '../features/public/LegacyTracePage';
 export { ImportPage } from '../features/import/ImportPage';
+export { TeamPage } from '../features/team/TeamPage';
+export { SettingsPage } from '../features/settings/SettingsPage';
 

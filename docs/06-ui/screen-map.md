@@ -43,24 +43,24 @@ This document maps every feature row in `docs/00-audit/feature-parity.md` (and t
 | 10 | Authentication | Forgot password — verify OTP (`POST /api/v1/auth/verify-reset-otp`) | Phase 5 | Complete (`/reset-password`) |
 | 11 | Authentication | Forgot password — reset (`POST /api/v1/auth/reset-password`) | Phase 5 | Complete (`/reset-password`) |
 | 12 | Onboarding | Request access (`POST /api/v1/auth/request-access`) | Phase 5 | Complete (`/request-access`) |
-| 13 | Onboarding | List access requests (`GET /api/v1/auth/requests`) | Phase 9 | Backend complete (Phase 2); Admin UI in Phase 9 (`pendingAccessRequests` count shown on Phase 6 Dashboard for `manager`/`admin`/`super-admin`) |
-| 14 | Onboarding | Approve access request (`POST /api/v1/auth/requests/:id/approve`) | Phase 9 | Backend complete (Phase 2); Admin UI in Phase 9 |
-| 15 | Onboarding | Reject access request (`POST /api/v1/auth/requests/:id/reject`) | Phase 9 | Backend complete (Phase 2); Admin UI in Phase 9 |
-| 16 | Onboarding | Resend invite email (`POST /api/v1/auth/requests/:id/resend`) | Phase 9 | Backend complete (Phase 2); Admin UI in Phase 9 |
-| 17 | Onboarding | Delete access request (`DELETE /api/v1/auth/requests/:id`) | Phase 9 | Backend complete (Phase 2); Admin UI in Phase 9 |
+| 13 | Onboarding | List access requests (`GET /api/v1/auth/requests`) | Phase 9 | Complete (`/team` Access Requests tab, `TeamPage.tsx`; read-only for `manager`) |
+| 14 | Onboarding | Approve access request (`POST /api/v1/auth/requests/:id/approve`) | Phase 9 | Complete (`/team` Access Requests tab, `TeamPage.tsx`) |
+| 15 | Onboarding | Reject access request (`POST /api/v1/auth/requests/:id/reject`) | Phase 9 | Complete (`/team` Access Requests tab, `TeamPage.tsx`) |
+| 16 | Onboarding | Resend invite email (`POST /api/v1/auth/requests/:id/resend`) | Phase 9 | Complete (`/team` Access Requests tab, `TeamPage.tsx`) |
+| 17 | Onboarding | Delete access request (`DELETE /api/v1/auth/requests/:id`) | Phase 9 | Complete (`/team` Access Requests tab, `TeamPage.tsx`) |
 | 18 | Onboarding | Activate account via invite token (`POST /api/v1/auth/activate`) | Phase 5 | Complete (`/activate`) |
 | 19 | Onboarding | Verify activation OTP (`POST /api/v1/auth/verify-otp`) | Phase 5 | Complete (`/verify-otp`) |
 | 20 | Onboarding | Resend activation OTP (`POST /api/v1/auth/verify-otp/resend`) | Phase 5 | Complete (`/verify-otp`) |
-| 21 | User Management | List active users (`GET /api/v1/auth/users`) | Phase 9 | Backend complete (Phase 2); Team Admin UI in Phase 9 |
-| 22 | User Management | User directory (`GET /api/v1/auth/directory`) | Phase 9 | Backend complete (Phase 2); Team Admin UI in Phase 9 |
-| 23 | User Management | Toggle user active/inactive (`PATCH /api/v1/auth/users/:id/toggle`) | Phase 9 | Backend complete (Phase 2); Team Admin UI in Phase 9 |
-| 24 | User Management | Change user role (`PATCH /api/v1/auth/users/:id/role`) | Phase 9 | Backend complete (Phase 2); Team Admin UI in Phase 9 |
-| 25 | User Management | Soft-delete user (`DELETE /api/v1/auth/users/:id`) | Phase 9 | Backend complete (Phase 2); Team Admin UI in Phase 9 |
-| 26 | User Management | List soft-deleted users (`GET /api/v1/auth/users/deleted`) | Phase 9 | Backend complete (Phase 2); Team Admin UI in Phase 9 |
-| 27 | User Management | Restore soft-deleted user (`PATCH /api/v1/auth/users/:id/restore`) | Phase 9 | Backend complete (Phase 2); Team Admin UI in Phase 9 |
+| 21 | User Management | List active users (`GET /api/v1/auth/users`) | Phase 9 | Complete (`/team` Users tab, `TeamPage.tsx`; read-only for `manager`) |
+| 22 | User Management | User directory (`GET /api/v1/auth/directory`) | Phase 9 | Backend complete (Phase 2); no screen calls it (the Team page lists users through `GET /api/v1/auth/users`) |
+| 23 | User Management | Toggle user active/inactive (`PATCH /api/v1/auth/users/:id/toggle`) | Phase 9 | Complete (`/team` Users tab, `TeamPage.tsx`; read-only for `manager`) |
+| 24 | User Management | Change user role (`PATCH /api/v1/auth/users/:id/role`) | Phase 9 | Complete (`/team` Users tab, `TeamPage.tsx`; read-only for `manager`) |
+| 25 | User Management | Soft-delete user (`DELETE /api/v1/auth/users/:id`) | Phase 9 | Complete (`/team` Users tab, `TeamPage.tsx`; read-only for `manager`) |
+| 26 | User Management | List soft-deleted users (`GET /api/v1/auth/users/deleted`) | Phase 9 | Complete (`/team` Recycle Bin tab, super-admin only) |
+| 27 | User Management | Restore soft-deleted user (`PATCH /api/v1/auth/users/:id/restore`) | Phase 9 | Complete (`/team` Recycle Bin tab, super-admin only) |
 | 28 | User Management | Hard-delete user | Excluded | Excluded per SPEC §2 (`users` are never hard-deleted via API) |
-| 29 | User Management | Update user settings (`PATCH /api/v1/auth/me/settings`) | Phase 9 | Server-synced settings in Phase 9 (local preferences in `src/lib/prefs.ts` active since Phase 5) |
-| 30 | User Management | Login history (`GET /api/v1/auth/me/login-history`) | Phase 9 | Deferred to Phase 9 |
+| 29 | User Management | Update user settings (`PATCH /api/v1/auth/me/settings`) | Phase 9 | Complete (`/settings`, `SettingsPage.tsx`; saved automatically by `usePreferencesSync` in `AppShell.tsx`) |
+| 30 | User Management | Login history (`GET /api/v1/auth/me/login-history`) | Phase 9 | Complete (`/settings` Recent sign-ins) |
 | 31 | Products | List products (`GET /api/v1/products`) | Phase 6 | Implemented in `CreateBatchDialog.tsx`, `BatchesPage.tsx`, and `FefoPage.tsx` |
 | 32 | Batches | Create batch (`POST /api/v1/batches`) | Phase 6 | Implemented in `CreateBatchDialog.tsx` (`/batches` and `/batches/new`) |
 | 33 | Batches | List batches with filter/pagination (`GET /api/v1/batches`) | Phase 6 | Implemented in `BatchesPage.tsx` (`/batches`) with URL search params |

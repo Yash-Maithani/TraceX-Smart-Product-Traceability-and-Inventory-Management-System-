@@ -102,7 +102,7 @@ public class RbacMatrixTest {
     }
 
     @TestFactory
-    @DisplayName("RBAC Permission Matrix Suite (Phase <= 8)")
+    @DisplayName("RBAC Permission Matrix Suite (Phase <= 9)")
     Stream<DynamicTest> testRbacMatrixPhaseLeq4() throws IOException {
         Path matrixPath = findPermissionMatrixPath();
         assertThat(matrixPath).isNotNull();
@@ -124,7 +124,7 @@ public class RbacMatrixTest {
             if (parts.length < 9) continue;
 
             int phase = Integer.parseInt(parts[0].trim());
-            if (phase > 8) {
+            if (phase > 9) {
                 continue; // Covered in later phases
             }
 
@@ -218,8 +218,8 @@ public class RbacMatrixTest {
             }
         }
 
-        assertThat(evaluatedRowCount).isEqualTo(53);
-        assertThat(tests.size()).isEqualTo(371);
+        assertThat(evaluatedRowCount).isEqualTo(55);
+        assertThat(tests.size()).isEqualTo(385);
         log.info("Generated {} dynamic tests for {} active phase rows", tests.size(), evaluatedRowCount);
         return tests.stream();
     }

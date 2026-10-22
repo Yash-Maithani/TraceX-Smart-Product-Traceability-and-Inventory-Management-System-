@@ -231,16 +231,7 @@ public class QrService {
     }
 
     private String parseDeviceType(String userAgent) {
-        if (userAgent == null || userAgent.isBlank()) {
-            return "Unknown";
-        }
-        if (userAgent.matches("(?i).*?(ipad|tablet|kindle).*?")) {
-            return "Tablet";
-        }
-        if (userAgent.matches("(?i).*?(mobi|android|iphone).*?")) {
-            return "Mobile";
-        }
-        return "Desktop";
+        return com.tracex.util.UserAgentParser.deviceType(userAgent);
     }
 
     private String hashIp(String clientIp) {

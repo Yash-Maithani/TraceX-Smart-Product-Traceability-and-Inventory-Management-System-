@@ -133,4 +133,10 @@ export type ImportJobSummaryDto = components['schemas']['ImportJobSummaryDto'];
 export type ImportJobDetailDto = components['schemas']['ImportJobDetailDto'];
 export type ImportRollbackResponseDto = components['schemas']['ImportRollbackResponseDto'];
 
-
+// Phase 9: team administration, synced settings, and login history
+export type UserPreferencesDto = components['schemas']['Preferences'];
+export type UpdateSettingsDto = components['schemas']['UpdateSettingsDto'];
+export type LoginEventDto = components['schemas']['LoginEventDto'];
+export type UpdateRoleDto = components['schemas']['UpdateRoleDto'];
+export type DeleteUserDto = components['schemas']['DeleteUserDto'];
+export type RejectRequestDto = components['schemas']['RejectRequestDto'];

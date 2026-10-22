@@ -29,7 +29,7 @@ export interface NavRouteItem {
 }
 
 /**
- * Single source of truth for application navigation routes (Phase 6–8).
+ * Single source of truth for application navigation routes (Phase 6–9).
  * Permissions are derived directly from `src/auth/permissions.generated.ts` (`docs/permission-matrix.csv`).
  */
 export const NAV_ROUTES: readonly NavRouteItem[] = [
@@ -90,7 +90,7 @@ export const NAV_ROUTES: readonly NavRouteItem[] = [
   {
     path: '/profile',
     label: 'Profile & Security',
-    iconName: 'settings',
+    iconName: 'shield',
     endpoint: { method: 'GET', path: '/api/v1/auth/me' },
     minRoles: getAllowedRolesForEndpoint('GET', '/api/v1/auth/me'),
     phase: 6,
@@ -103,7 +103,16 @@ export const NAV_ROUTES: readonly NavRouteItem[] = [
     endpoint: { method: 'GET', path: '/api/v1/auth/users' },
     minRoles: getAllowedRolesForEndpoint('GET', '/api/v1/auth/users'),
     phase: 9,
-    enabled: false
+    enabled: true
+  },
+  {
+    path: '/settings',
+    label: 'Settings',
+    iconName: 'settings',
+    endpoint: { method: 'PATCH', path: '/api/v1/auth/me/settings' },
+    minRoles: getAllowedRolesForEndpoint('PATCH', '/api/v1/auth/me/settings'),
+    phase: 9,
+    enabled: true
   }
 ];
 

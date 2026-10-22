@@ -10,7 +10,13 @@ import type {
   BatchQrDto,
   BatchRawMaterialDto,
   BatchScansDto,
+  AccessRequestSummaryDto,
   ChangePasswordDto,
+  DeleteUserDto,
+  LoginEventDto,
+  RejectRequestDto,
+  UpdateRoleDto,
+  UpdateSettingsDto,
   DashboardSummaryDto,
   FefoResultDto,
   ImportCommitRequestDto,
@@ -341,4 +347,96 @@ export async function rollbackImportJob(id: string): Promise<ImportRollbackRespo
   return res.data;
 }
 
+// ---------- Phase 9: synced settings and login history ----------
 
+export async function updateMySettings(
+  payload: UpdateSettingsDto
+): Promise<ApiSuccessEnvelope<UserSummaryDto>> {
+  return apiRequest<UserSummaryDto>('/api/v1/auth/me/settings', {
+    method: 'PATCH',
+    body: payload
+  });
+}
+
+export async function fetchMyLoginHistory(): Promise<LoginEventDto[]> {
+  const res = await apiRequest<LoginEventDto[]>('/api/v1/auth/me/login-history', {
+    method: 'GET'
+  });
+  return res.data ?? [];
+}
+
+// ---------- Phase 9: team administration ----------
+
+export async function fetchTeamUsers(): Promise<UserSummaryDto[]> {
+  const res = await apiRequest<UserSummaryDto[]>('/api/v1/auth/users', { method: 'GET' });
+  return res.data ?? [];
+}
+
+export async function fetchDeletedUsers(): Promise<UserSummaryDto[]> {
+  const res = await apiRequest<UserSummaryDto[]>('/api/v1/auth/users/deleted', { method: 'GET' });
+  return res.data ?? [];
+}
+
+export async function toggleUserActive(id: string): Promise<ApiSuccessEnvelope<UserSummaryDto>> {
+  return apiRequest<UserSummaryDto>(`/api/v1/auth/users/${encodeURIComponent(id)}/toggle`, {
+    method: 'PATCH'
+  });
+}
+
+export async function changeUserRole(
+  id: string,
+  payload: UpdateRoleDto
+): Promise<ApiSuccessEnvelope<UserSummaryDto>> {
+  return apiRequest<UserSummaryDto>(`/api/v1/auth/users/${encodeURIComponent(id)}/role`, {
+    method: 'PATCH',
+    body: payload
+  });
+}
+
+export async function deleteTeamUser(id: string, payload: DeleteUserDto): Promise<void> {
+  await apiRequest<null>(`/api/v1/auth/users/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+    body: payload
+  });
+}
+
+export async function restoreTeamUser(id: string): Promise<ApiSuccessEnvelope<UserSummaryDto>> {
+  return apiRequest<UserSummaryDto>(`/api/v1/auth/users/${encodeURIComponent(id)}/restore`, {
+    method: 'PATCH'
+  });
+}
+
+export async function fetchAccessRequests(): Promise<AccessRequestSummaryDto[]> {
+  const res = await apiRequest<AccessRequestSummaryDto[]>('/api/v1/auth/requests', { method: 'GET' });
+  return res.data ?? [];
+}
+
+export async function approveAccessRequest(
+  id: string
+): Promise<ApiSuccessEnvelope<AccessRequestSummaryDto>> {
+  return apiRequest<AccessRequestSummaryDto>(`/api/v1/auth/requests/${encodeURIComponent(id)}/approve`, {
+    method: 'POST'
+  });
+}
+
+export async function rejectAccessRequest(
+  id: string,
+  payload: RejectRequestDto
+): Promise<ApiSuccessEnvelope<AccessRequestSummaryDto>> {
+  return apiRequest<AccessRequestSummaryDto>(`/api/v1/auth/requests/${encodeURIComponent(id)}/reject`, {
+    method: 'POST',
+    body: payload
+  });
+}
+
+export async function resendAccessInvite(
+  id: string
+): Promise<ApiSuccessEnvelope<AccessRequestSummaryDto>> {
+  return apiRequest<AccessRequestSummaryDto>(`/api/v1/auth/requests/${encodeURIComponent(id)}/resend`, {
+    method: 'POST'
+  });
+}
+
+export async function deleteAccessRequest(id: string): Promise<void> {
+  await apiRequest<null>(`/api/v1/auth/requests/${encodeURIComponent(id)}`, { method: 'DELETE' });
+}

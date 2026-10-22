@@ -3,7 +3,7 @@ info:
   title: OpenAPI definition
   version: v0
 servers:
-- url: http://localhost:57956
+- url: http://localhost:63023
   description: Generated server url
 paths:
   /api/v1/qr/scan:
@@ -615,6 +615,24 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/ApiResponseUserSummaryDto'
+  /api/v1/auth/me/settings:
+    patch:
+      tags:
+      - auth-controller
+      operationId: updateSettings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSettingsDto'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseUserSummaryDto'
   /api/v1/qr/trace/t/{token}:
     get:
       tags:
@@ -904,6 +922,18 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/ApiResponseListAccessRequestSummaryDto'
+  /api/v1/auth/me/login-history:
+    get:
+      tags:
+      - auth-controller
+      operationId: loginHistory
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseListLoginEventDto'
   /api/v1/auth/directory:
     get:
       tags:
@@ -1658,6 +1688,17 @@ components:
           type: string
         user:
           $ref: '#/components/schemas/UserSummaryDto'
+    Preferences:
+      type: object
+      properties:
+        mode:
+          type: string
+        palette:
+          type: string
+        accent:
+          type: string
+        showPageImages:
+          type: boolean
     UserSummaryDto:
       type: object
       properties:
@@ -1687,11 +1728,13 @@ components:
         updatedAt:
           type: string
           format: date-time
+        preferences:
+          $ref: '#/components/schemas/Preferences'
         active:
           type: boolean
-        superAdmin:
-          type: boolean
         deleted:
+          type: boolean
+        superAdmin:
           type: boolean
     ResendOtpDto:
       required:
@@ -1962,6 +2005,20 @@ components:
           maxLength: 128
           minLength: 0
           type: string
+    UpdateSettingsDto:
+      type: object
+      properties:
+        mode:
+          pattern: light|dark|system
+          type: string
+        palette:
+          pattern: editorial|obsidian|emerald
+          type: string
+        accent:
+          pattern: auto|cobalt|emerald|amber|rose
+          type: string
+        showPageImages:
+          type: boolean
     ApiResponsePublicTraceDto:
       type: object
       properties:
@@ -2686,6 +2743,43 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FieldErrorDto'
+    ApiResponseListLoginEventDto:
+      type: object
+      properties:
+        success:
+          type: boolean
+        requestId:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/LoginEventDto'
+        message:
+          type: string
+        code:
+          type: string
+        error:
+          type: string
+        fieldErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldErrorDto'
+    LoginEventDto:
+      type: object
+      properties:
+        id:
+          type: string
+        browser:
+          type: string
+        os:
+          type: string
+        device:
+          type: string
+        method:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
     DeleteUserDto:
       type: object
       properties:

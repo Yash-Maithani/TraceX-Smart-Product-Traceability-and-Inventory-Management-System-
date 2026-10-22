@@ -452,6 +452,22 @@ export interface paths {
         patch: operations["updateMe"];
         trace?: never;
     };
+    "/api/v1/auth/me/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["updateSettings"];
+        trace?: never;
+    };
     "/api/v1/qr/trace/t/{token}": {
         parameters: {
             query?: never;
@@ -716,6 +732,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["getAllRequests"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/me/login-history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["loginHistory"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1148,6 +1180,12 @@ export interface components {
             token?: string;
             user?: components["schemas"]["UserSummaryDto"];
         };
+        Preferences: {
+            mode?: string;
+            palette?: string;
+            accent?: string;
+            showPageImages?: boolean;
+        };
         UserSummaryDto: {
             id?: string;
             username?: string;
@@ -1161,9 +1199,10 @@ export interface components {
             createdAt?: string;
             /** Format: date-time */
             updatedAt?: string;
+            preferences?: components["schemas"]["Preferences"];
             active?: boolean;
-            superAdmin?: boolean;
             deleted?: boolean;
+            superAdmin?: boolean;
         };
         ResendOtpDto: {
             email: string;
@@ -1279,6 +1318,12 @@ export interface components {
             email?: string;
             phone?: string;
             currentPassword?: string;
+        };
+        UpdateSettingsDto: {
+            mode?: string;
+            palette?: string;
+            accent?: string;
+            showPageImages?: boolean;
         };
         ApiResponsePublicTraceDto: {
             success?: boolean;
@@ -1672,6 +1717,24 @@ export interface components {
             code?: string;
             error?: string;
             fieldErrors?: components["schemas"]["FieldErrorDto"][];
+        };
+        ApiResponseListLoginEventDto: {
+            success?: boolean;
+            requestId?: string;
+            data?: components["schemas"]["LoginEventDto"][];
+            message?: string;
+            code?: string;
+            error?: string;
+            fieldErrors?: components["schemas"]["FieldErrorDto"][];
+        };
+        LoginEventDto: {
+            id?: string;
+            browser?: string;
+            os?: string;
+            device?: string;
+            method?: string;
+            /** Format: date-time */
+            createdAt?: string;
         };
         DeleteUserDto: {
             deleteNote?: string;
@@ -2422,6 +2485,30 @@ export interface operations {
             };
         };
     };
+    updateSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateSettingsDto"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseUserSummaryDto"];
+                };
+            };
+        };
+    };
     getPublicTrace: {
         parameters: {
             query?: never;
@@ -2800,6 +2887,26 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApiResponseListAccessRequestSummaryDto"];
+                };
+            };
+        };
+    };
+    loginHistory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseListLoginEventDto"];
                 };
             };
         };

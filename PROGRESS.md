@@ -1,5 +1,5 @@
 # TraceX — PROGRESS.md
-> Updated: 2026-10-22 (Phase 8.3 COMPLETE)
+> Updated: 2026-10-22 (Phase 9 COMPLETE)
 
 ---
 
@@ -31,7 +31,7 @@
 | 8.1 | Phase 8 import corrections | COMPLETE | 2026-10-22 | [phase-08-1](docs/progress/phase-08-1.md) |
 | 8.2 | Security fixes from the strict review (C1 to C3, H1 to H9) | COMPLETE | 2026-10-22 | [phase-08-2](docs/progress/phase-08-2.md) |
 | 8.3 | UI copy cleanup (spec codes and em dashes) | COMPLETE | 2026-10-22 | [phase-08-3](docs/progress/phase-08-3.md) |
-| 9 | Team admin UI, settings, login history | NOT STARTED | | |
+| 9 | Team admin UI, settings, login history | COMPLETE | 2026-10-22 | [phase-09](docs/progress/phase-09.md) |
 | 10 | Notifications, messages, live updates (SSE) | NOT STARTED | | |
 | 11 | AI and Google OAuth (conditional on the audit) | NOT STARTED | | |
 | 12 | UI refinement, legal pages, favicon, documentation | NOT STARTED | | |
@@ -405,3 +405,7 @@
 
 ### Phase 8.3 UI Copy Cleanup (No New Features)
 - **Parts A to C**: Removed internal spec codes (`SPEC §7`, `D-5`, `D-9`, `D-12`, `D-13`, `D-14`, `D-15`, `D-18`) and developer phrasing from user-visible text, deleted unused placeholder strings and the unrouted `TracePlaceholderPage`, replaced every visible em dash (empty values now read "Not recorded" via `src/lib/format.ts`), and added banned-pattern rules 10 and 11 so neither can return. Frontend unit: **`90` tests in `15` files, `0` failures**. Full log in [docs/progress/phase-08-3.md](docs/progress/phase-08-3.md).
+
+### Phase 9 Team Admin UI, Settings, and Login History
+- **Backend**: Added `LoginEvent.java` (`loginevents`, 30-day TTL), `LoginEventRepository.java`, `UserAgentParser.java` (shared with QR scan analytics), `UpdateSettingsDto.java` and `LoginEventDto.java`; `User.preferences`; `AuthService.login` records each successful sign-in; `PATCH /api/v1/auth/me/settings` and `GET /api/v1/auth/me/login-history`. Phase 9 matrix rows are now active in `RbacMatrixTest` (`371 -> 385`), `RouteCoverageTest` and `OpenApiExportTest` (`55` active rows). Added `SettingsAndLoginHistoryTests.java` (`7` tests). Backend total: **`582` tests, `0` failures**.
+- **Frontend**: `/team` (`TeamPage.tsx`: Users, Access Requests, and super-admin Recycle Bin tabs; actions hidden where the server would refuse them), `/settings` (`SettingsPage.tsx`: display settings and recent sign-ins), `usePreferencesSync.ts` (saved settings applied at sign-in, later changes saved automatically), navigation entries for Team & Access and Settings, and `TeamAndSettings.test.tsx` (`8` tests). Frontend unit total: **`98` tests in `16` files**. Added `e2e/phase09.spec.ts` (`4` tests); Playwright E2E total: **`43` passed across `6` files**. Full log in [docs/progress/phase-09.md](docs/progress/phase-09.md).
