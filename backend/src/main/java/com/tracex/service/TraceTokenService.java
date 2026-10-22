@@ -26,9 +26,14 @@ public class TraceTokenService {
             @Value("${tracex.security.trace-token-secret:}") String traceTokenSecret,
             @Value("${tracex.security.jwt-secret:}") String jwtSecret
     ) {
+        // Falls back to the JWT secret for local profiles only; prod requires TRACE_TOKEN_SECRET (AppConfig).
+        // There is no hard-coded fallback, so trace tokens can never be signed with a public key.
         String effectiveSecret = (traceTokenSecret != null && !traceTokenSecret.trim().isEmpty())
                 ? traceTokenSecret.trim()
-                : (jwtSecret != null && !jwtSecret.trim().isEmpty() ? jwtSecret.trim() : "default-dev-test-trace-token-secret-must-be-long-enough");
+                : (jwtSecret != null ? jwtSecret.trim() : "");
+        if (effectiveSecret.length() < 32) {
+            throw new IllegalStateException("TRACE_TOKEN_SECRET (or JWT_SECRET) is missing or shorter than 32 characters");
+        }
         this.secretKeyBytes = effectiveSecret.getBytes(StandardCharsets.UTF_8);
     }
 

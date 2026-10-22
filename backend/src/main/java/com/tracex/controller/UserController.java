@@ -50,7 +50,7 @@ public class UserController {
     }
 
     @PatchMapping("/users/{id}/toggle")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<UserSummaryDto>> toggleUserStatus(
             @PathVariable String id,
             @AuthenticationPrincipal UserPrincipal principal) {
@@ -60,7 +60,7 @@ public class UserController {
     }
 
     @PatchMapping("/users/{id}/role")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<UserSummaryDto>> updateUserRole(
             @PathVariable String id,
             @RequestBody(required = false) UpdateRoleDto dto,
@@ -78,7 +78,7 @@ public class UserController {
     }
 
     @DeleteMapping("/users/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<Void>> deleteUser(
             @PathVariable String id,
             @RequestBody(required = false) DeleteUserDto dto,

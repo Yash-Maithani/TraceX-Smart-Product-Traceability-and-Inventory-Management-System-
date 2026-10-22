@@ -32,7 +32,7 @@ public class AccessRequestController {
     }
 
     @PostMapping("/{id}/approve")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<AccessRequestSummaryDto>> approveRequest(
             @PathVariable String id,
             @AuthenticationPrincipal UserPrincipal principal) {
@@ -42,7 +42,7 @@ public class AccessRequestController {
     }
 
     @PostMapping("/{id}/reject")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<AccessRequestSummaryDto>> rejectRequest(
             @PathVariable String id,
             @RequestBody(required = false) RejectRequestDto dto,
@@ -54,7 +54,7 @@ public class AccessRequestController {
     }
 
     @PostMapping("/{id}/resend")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<AccessRequestSummaryDto>> resendInvite(
             @PathVariable String id,
             @AuthenticationPrincipal UserPrincipal principal) {
@@ -64,7 +64,7 @@ public class AccessRequestController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<Void>> deleteRequest(
             @PathVariable String id,
             @AuthenticationPrincipal UserPrincipal principal) {

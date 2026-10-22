@@ -25,6 +25,7 @@ export function ProfilePage() {
   const [name, setName] = useState(user?.name ?? '');
   const [email, setEmail] = useState(user?.email ?? '');
   const [phone, setPhone] = useState(user?.phone ?? '');
+  const [emailPassword, setEmailPassword] = useState('');
   const [profileError, setProfileError] = useState<string | null>(null);
   const [profileFieldErrors, setProfileFieldErrors] = useState<Record<string, string>>({});
 
@@ -41,15 +42,20 @@ export function ProfilePage() {
       setName(user.name ?? '');
       setEmail(user.email ?? '');
       setPhone(user.phone ?? '');
+      setEmailPassword('');
     }
   }, [user]);
+
+  // The server asks for the current password only when the email changes
+  const emailChanged = email.trim().toLowerCase() !== (user?.email ?? '').toLowerCase();
 
   const profileMutation = useMutation({
     mutationFn: async () =>
       updateMyProfile({
         name: name.trim(),
         email: email.trim(),
-        phone: phone.trim()
+        phone: phone.trim(),
+        ...(emailChanged ? { currentPassword: emailPassword } : {})
       }),
     onSuccess: async (res) => {
       setProfileError(null);
@@ -183,6 +189,24 @@ export function ProfilePage() {
                 data-testid="profile-email-input"
               />
             </Field>
+
+            {emailChanged ? (
+              <Field
+                label="Current Password"
+                required
+                hint="Needed to confirm a change of email address."
+                error={profileFieldErrors.currentPassword}
+              >
+                <Input
+                  type="password"
+                  autoComplete="current-password"
+                  value={emailPassword}
+                  onChange={(e) => setEmailPassword(e.target.value)}
+                  disabled={profileMutation.isPending}
+                  data-testid="profile-email-password-input"
+                />
+              </Field>
+            ) : null}
 
             <Field label="Phone Number" error={profileFieldErrors.phone}>
               <Input

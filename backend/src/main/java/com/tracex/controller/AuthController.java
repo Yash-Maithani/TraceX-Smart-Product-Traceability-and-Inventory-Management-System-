@@ -44,12 +44,15 @@ public class AuthController {
     }
 
     @PostMapping("/request-access")
-    public ResponseEntity<ApiResponse<AccessRequestSummaryDto>> requestAccess(@Valid @RequestBody RequestAccessDto request,
-                                                                              HttpServletRequest httpRequest) {
+    public ResponseEntity<ApiResponse<Map<String, String>>> requestAccess(@Valid @RequestBody RequestAccessDto request,
+                                                                          HttpServletRequest httpRequest) {
         String clientIp = rateLimiter.resolveClientIp(httpRequest);
-        AccessRequestSummaryDto summary = accessRequestService.submitRequest(request, clientIp);
+        accessRequestService.submitRequest(request, clientIp);
         String requestId = RequestIdContext.getOrCreate();
-        return ResponseEntity.ok(ApiResponse.ok(summary, "Access request submitted successfully", requestId));
+        // Same body whether or not the email already exists (anti-enumeration)
+        return ResponseEntity.ok(ApiResponse.ok(
+                Map.of("message", "If this email is eligible, your request has been received and an administrator will review it."),
+                "Access request received", requestId));
     }
 
     @PostMapping("/activate")
@@ -60,8 +63,9 @@ public class AuthController {
     }
 
     @PostMapping("/verify-otp")
-    public ResponseEntity<ApiResponse<LoginResponse>> verifyOtp(@Valid @RequestBody VerifyOtpDto request) {
-        LoginResponse response = userService.verifyOtp(request);
+    public ResponseEntity<ApiResponse<LoginResponse>> verifyOtp(@Valid @RequestBody VerifyOtpDto request,
+                                                                HttpServletRequest httpRequest) {
+        LoginResponse response = userService.verifyOtp(request, rateLimiter.resolveClientIp(httpRequest));
         String requestId = RequestIdContext.getOrCreate();
         return ResponseEntity.ok(ApiResponse.ok(response, "Account successfully verified", requestId));
     }
@@ -85,8 +89,9 @@ public class AuthController {
     }
 
     @PostMapping("/verify-reset-otp")
-    public ResponseEntity<ApiResponse<Map<String, String>>> verifyResetOtp(@Valid @RequestBody VerifyResetOtpDto request) {
-        Map<String, String> result = userService.verifyResetOtp(request);
+    public ResponseEntity<ApiResponse<Map<String, String>>> verifyResetOtp(@Valid @RequestBody VerifyResetOtpDto request,
+                                                                           HttpServletRequest httpRequest) {
+        Map<String, String> result = userService.verifyResetOtp(request, rateLimiter.resolveClientIp(httpRequest));
         String requestId = RequestIdContext.getOrCreate();
         return ResponseEntity.ok(ApiResponse.ok(result, "Verification successful", requestId));
     }
@@ -106,7 +111,7 @@ public class AuthController {
     }
 
     @PatchMapping("/me")
-    public ResponseEntity<ApiResponse<UserSummaryDto>> updateMe(@RequestBody UpdateProfileDto request,
+    public ResponseEntity<ApiResponse<UserSummaryDto>> updateMe(@Valid @RequestBody UpdateProfileDto request,
                                                                @AuthenticationPrincipal UserPrincipal principal) {
         UserSummaryDto user = userService.updateProfile(principal.getUser(), request);
         String requestId = RequestIdContext.getOrCreate();

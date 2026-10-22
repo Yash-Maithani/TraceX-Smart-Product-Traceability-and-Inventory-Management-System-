@@ -4,6 +4,7 @@ import com.tracex.dto.*;
 import com.tracex.exception.ApiException;
 import com.tracex.exception.ErrorCode;
 import com.tracex.exception.ResourceNotFoundException;
+import com.tracex.exception.ConflictException;
 import com.tracex.exception.ValidationException;
 import com.tracex.model.Batch;
 import com.tracex.model.Batch.NoteHistoryEntry;
@@ -29,6 +30,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -406,24 +408,73 @@ public class BatchService {
             throw new ResourceNotFoundException("Batch has been archived");
         }
 
-        StringBuilder changes = new StringBuilder("[Raw Material Correction] Fields updated:");
-        if (dto.getFarmerName() != null) { batch.setFarmerName(dto.getFarmerName().trim()); changes.append(" farmerName"); }
-        if (dto.getVillage() != null) { batch.setVillage(dto.getVillage().trim()); changes.append(" village"); }
-        if (dto.getSourceLotCode() != null) { batch.setSourceLotCode(dto.getSourceLotCode().trim().toUpperCase()); changes.append(" sourceLotCode"); }
-        if (dto.getQuantityProduced() != null) { batch.setQuantityProduced(dto.getQuantityProduced()); changes.append(" quantityProduced"); }
-        if (dto.getUnit() != null) { batch.setUnit(dto.getUnit()); changes.append(" unit"); }
-        if (dto.getYieldPercent() != null) { batch.setYieldPercent(dto.getYieldPercent()); changes.append(" yieldPercent"); }
+        // Traceability is permanent once goods have left: a dispatched batch's source data is frozen
+        if ("DISPATCHED".equals(batch.getLifecycleState())) {
+            throw new ConflictException("Raw material details cannot be changed after a batch is dispatched");
+        }
+        if (dto.getExpiryDate() != null && batch.getPackDate() != null && !dto.getExpiryDate().isAfter(batch.getPackDate())) {
+            throw new ValidationException("expiryDate", "expiryDate must be after packDate");
+        }
+
+        // Old and new values for the note history. farmerName is personal data (D-9), so its values
+        // stay on the batch's own note history and are never copied into audit_logs.
+        Map<String, Object> before = new LinkedHashMap<>();
+        Map<String, Object> after = new LinkedHashMap<>();
+        StringBuilder changes = new StringBuilder("[Raw Material Correction]");
+        if (dto.getFarmerName() != null) {
+            String v = dto.getFarmerName().trim();
+            changes.append(" farmerName: ").append(batch.getFarmerName()).append(" -> ").append(v).append(";");
+            batch.setFarmerName(v);
+            before.put("farmerName", "[redacted]");
+            after.put("farmerName", "[redacted]");
+        }
+        if (dto.getVillage() != null) {
+            String v = dto.getVillage().trim();
+            recordChange(changes, before, after, "village", batch.getVillage(), v);
+            batch.setVillage(v);
+        }
+        if (dto.getSourceLotCode() != null) {
+            String v = dto.getSourceLotCode().trim().toUpperCase();
+            recordChange(changes, before, after, "sourceLotCode", batch.getSourceLotCode(), v);
+            batch.setSourceLotCode(v);
+        }
+        if (dto.getQuantityProduced() != null) {
+            recordChange(changes, before, after, "quantityProduced", batch.getQuantityProduced(), dto.getQuantityProduced());
+            batch.setQuantityProduced(dto.getQuantityProduced());
+        }
+        if (dto.getUnit() != null) {
+            recordChange(changes, before, after, "unit", batch.getUnit(), dto.getUnit());
+            batch.setUnit(dto.getUnit());
+        }
+        if (dto.getYieldPercent() != null) {
+            recordChange(changes, before, after, "yieldPercent", batch.getYieldPercent(), dto.getYieldPercent());
+            batch.setYieldPercent(dto.getYieldPercent());
+        }
         if (dto.getExpiryDate() != null) {
+            recordChange(changes, before, after, "expiryDate", batch.getExpiryDate(), dto.getExpiryDate());
             batch.setExpiryDate(dto.getExpiryDate());
             batch.setShelfLifeSource("manual");
-            changes.append(" expiryDate");
+            // Keep the display priority score in step with the new expiry date
+            Optional<Product> product = batch.getProductId() != null
+                    ? productRepository.findById(batch.getProductId())
+                    : (batch.getSku() != null ? productRepository.findBySku(batch.getSku()) : Optional.empty());
+            product.ifPresent(p ->
+                    batch.setPriorityScore(fefoService.computePriorityScore(dto.getExpiryDate(), p.getRiskLevel(), clock)));
         }
 
         batch.getNoteHistory().add(new NoteHistoryEntry(changes.toString(), editorUsername, clock.instant()));
         Batch saved = batchRepository.save(batch);
 
-        auditService.record(null, editorUsername, "BATCH_RAW_MATERIAL_UPDATED", "BATCH", saved.getId(), "Batch raw material updated for: " + saved.getBatchCode());
+        auditService.record(null, editorUsername, "BATCH_RAW_MATERIAL_UPDATED", "BATCH", saved.getId(),
+                "Batch raw material updated for: " + saved.getBatchCode(), before, after, null);
         return mapToDetail(saved);
+    }
+
+    private static void recordChange(StringBuilder changes, Map<String, Object> before, Map<String, Object> after,
+                                     String field, Object oldValue, Object newValue) {
+        changes.append(" ").append(field).append(": ").append(oldValue).append(" -> ").append(newValue).append(";");
+        before.put(field, oldValue == null ? null : String.valueOf(oldValue));
+        after.put(field, newValue == null ? null : String.valueOf(newValue));
     }
 
     public BatchDetailDto archiveBatch(String id, String reason, String actorUsername, String requestId) {

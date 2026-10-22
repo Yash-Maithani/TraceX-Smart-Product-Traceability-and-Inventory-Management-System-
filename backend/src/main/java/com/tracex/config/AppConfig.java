@@ -15,6 +15,8 @@ import org.springframework.data.mongodb.config.EnableMongoAuditing;
 
 import java.time.Clock;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 
 @Configuration
 @EnableMongoAuditing
@@ -42,6 +44,8 @@ public class AppConfig {
     @Value("${tracex.seed.default-password:}")
     private String seedDefaultPassword;
 
+    private static final Set<String> LOCAL_PROFILES = Set.of("dev", "test", "e2e");
+
     public AppConfig(Environment environment) {
         this.environment = environment;
     }
@@ -50,7 +54,11 @@ public class AppConfig {
 
     @PostConstruct
     public void validateConfiguration() {
-        boolean isProd = Arrays.asList(environment.getActiveProfiles()).contains("prod");
+        // Production rules apply unless a local profile is explicitly active, so forgetting
+        // SPRING_PROFILES_ACTIVE fails safe instead of starting with development defaults
+        List<String> active = Arrays.asList(environment.getActiveProfiles());
+        boolean isLocalProfile = active.stream().anyMatch(LOCAL_PROFILES::contains);
+        boolean isProd = active.contains("prod") || !isLocalProfile;
         if (isProd) {
             if (jwtSecret == null || jwtSecret.trim().length() < 32) {
                 String msg = "Missing or invalid JWT_SECRET. In production profile, JWT_SECRET must be at least 32 characters long.";

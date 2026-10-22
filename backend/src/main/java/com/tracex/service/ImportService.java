@@ -10,6 +10,7 @@ import com.tracex.exception.ValidationException;
 import com.tracex.model.Batch;
 import com.tracex.model.ImportJob;
 import com.tracex.model.Product;
+import com.tracex.model.Role;
 import com.tracex.model.User;
 import com.tracex.repository.BatchRepository;
 import com.tracex.repository.ImportJobRepository;
@@ -524,6 +525,13 @@ public class ImportService {
     public ImportRollbackResponseDto rollback(String id, User actor, String requestId) {
         ImportJob job = importJobRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Import job not found"));
+
+        // Only the importer who ran the job, or an admin, may roll it back: rollback archives batches,
+        // and direct archive is admin-only (docs/permission-matrix.csv)
+        boolean isAdmin = actor.isSuperAdmin() || actor.getRole() == Role.ADMIN;
+        if (!isAdmin && !Objects.equals(job.getCreatedBy(), actor.getUsername())) {
+            throw new ApiException(ErrorCode.RBAC_INSUFFICIENT, "Only the user who ran this import or an administrator can roll it back", HttpStatus.FORBIDDEN);
+        }
 
         // Part A.2: Lazily mark stale running jobs as failed before checking status
         markJobFailedIfStale(job);

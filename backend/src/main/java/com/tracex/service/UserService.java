@@ -4,7 +4,9 @@ import com.tracex.dto.*;
 import com.tracex.exception.ApiException;
 import com.tracex.exception.ErrorCode;
 import com.tracex.exception.RateLimitException;
+import com.tracex.exception.ValidationException;
 import com.tracex.model.AccessRequest;
+import com.tracex.model.AccessRequestStatus;
 import com.tracex.model.Role;
 import com.tracex.model.User;
 import com.tracex.repository.AccessRequestRepository;
@@ -15,6 +17,11 @@ import com.tracex.util.HashUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -39,6 +46,12 @@ public class UserService {
     private static final Duration OTP_EXPIRY = Duration.ofMinutes(10);
     private static final Duration RESET_TOKEN_EXPIRY = Duration.ofMinutes(5);
     private static final int MAX_OTP_ATTEMPTS = 5;
+    private static final Duration OTP_LOCKOUT = Duration.ofMinutes(15);
+    static final String OTP_PURPOSE_ACTIVATION = "ACTIVATION";
+    static final String OTP_PURPOSE_PASSWORD_RESET = "PASSWORD_RESET";
+
+    @Value("${tracex.rate-limit.verify-otp:20}")
+    private int maxOtpVerifyPerIp = 20;
 
     private final UserRepository userRepository;
     private final AccessRequestRepository accessRequestRepository;
@@ -48,6 +61,7 @@ public class UserService {
     private final AuditService auditService;
     private final RateLimiter rateLimiter;
     private final Clock clock;
+    private final MongoTemplate mongoTemplate;
 
     public UserService(UserRepository userRepository,
                        AccessRequestRepository accessRequestRepository,
@@ -56,7 +70,8 @@ public class UserService {
                        EmailService emailService,
                        AuditService auditService,
                        RateLimiter rateLimiter,
-                       Clock clock) {
+                       Clock clock,
+                       MongoTemplate mongoTemplate) {
         this.userRepository = userRepository;
         this.accessRequestRepository = accessRequestRepository;
         this.passwordEncoder = passwordEncoder;
@@ -65,6 +80,53 @@ public class UserService {
         this.auditService = auditService;
         this.rateLimiter = rateLimiter;
         this.clock = clock;
+        this.mongoTemplate = mongoTemplate;
+    }
+
+    private void clearOtp(User user) {
+        user.setOtpCode(null);
+        user.setOtpExpiry(null);
+        user.setOtpPurpose(null);
+        user.setOtpAttempts(0);
+        user.setOtpLockedUntil(null);
+    }
+
+    /**
+     * Atomically reserves one OTP guess for this account before the code is compared, so parallel
+     * guesses cannot all be counted as attempt 1. Throws once MAX_OTP_ATTEMPTS guesses have been used.
+     * The counter only clears after a successful verification or once OTP_LOCKOUT has passed;
+     * requesting a new code does not clear it.
+     */
+    private void reserveOtpAttempt(User user) {
+        Instant now = clock.instant();
+        if (user.getOtpLockedUntil() != null && !user.getOtpLockedUntil().isAfter(now)) {
+            mongoTemplate.updateFirst(
+                    Query.query(Criteria.where("_id").is(user.getId()).and("otpLockedUntil").is(user.getOtpLockedUntil())),
+                    new Update().set("otpAttempts", 0).unset("otpLockedUntil"),
+                    User.class);
+        }
+        User after = mongoTemplate.findAndModify(
+                Query.query(Criteria.where("_id").is(user.getId()).and("otpAttempts").lt(MAX_OTP_ATTEMPTS)),
+                new Update().inc("otpAttempts", 1).set("updatedAt", now),
+                FindAndModifyOptions.options().returnNew(true),
+                User.class);
+        if (after == null) {
+            throw new ApiException(ErrorCode.AUTH_ACCOUNT_INACTIVE,
+                    "Too many failed attempts. Try again in 15 minutes or contact support.", HttpStatus.FORBIDDEN);
+        }
+        if (after.getOtpAttempts() >= MAX_OTP_ATTEMPTS) {
+            mongoTemplate.updateFirst(
+                    Query.query(Criteria.where("_id").is(user.getId()).and("otpLockedUntil").exists(false)),
+                    new Update().set("otpLockedUntil", now.plus(OTP_LOCKOUT)),
+                    User.class);
+        }
+    }
+
+    private void checkOtpVerifyRateLimit(String clientIp) {
+        String key = "otp-verify:" + (clientIp != null ? clientIp : "unknown");
+        if (!rateLimiter.allowRequest(key, maxOtpVerifyPerIp, RATE_LIMIT_WINDOW)) {
+            throw new RateLimitException("Too many verification attempts. Please try again later.");
+        }
     }
 
     private AccessRequest findAccessRequestByInviteTokenOrFailClosed(String tokenHash) {
@@ -94,6 +156,10 @@ public class UserService {
 
         String tokenHash = HashUtil.sha256(dto.getToken());
         AccessRequest request = findAccessRequestByInviteTokenOrFailClosed(tokenHash);
+
+        if (request.getStatus() != AccessRequestStatus.APPROVED) {
+            throw new ApiException(ErrorCode.AUTH_INVALID_TOKEN, "Invalid or expired invitation token", HttpStatus.BAD_REQUEST);
+        }
 
         if (request.isInviteUsed()) {
             throw new ApiException(ErrorCode.AUTH_INVALID_TOKEN, "Invitation token has already been used", HttpStatus.BAD_REQUEST);
@@ -131,6 +197,7 @@ public class UserService {
         user.setEmailVerified(false);
         user.setOtpCode(hashedOtp);
         user.setOtpExpiry(clock.instant().plus(OTP_EXPIRY));
+        user.setOtpPurpose(OTP_PURPOSE_ACTIVATION);
         user.setOtpAttempts(0);
         user.setCreatedAt(clock.instant());
         user.setUpdatedAt(clock.instant());
@@ -155,7 +222,8 @@ public class UserService {
         );
     }
 
-    public LoginResponse verifyOtp(VerifyOtpDto dto) {
+    public LoginResponse verifyOtp(VerifyOtpDto dto, String clientIp) {
+        checkOtpVerifyRateLimit(clientIp);
         String email = dto.getEmail().toLowerCase().trim();
         User user = findUserByEmailOrFailClosed(email, "Invalid verification request");
 
@@ -163,9 +231,13 @@ public class UserService {
             throw new ApiException(ErrorCode.AUTH_ACCOUNT_DELETED, "Account not found", HttpStatus.UNAUTHORIZED);
         }
 
-        if (user.getOtpAttempts() >= MAX_OTP_ATTEMPTS) {
-            throw new ApiException(ErrorCode.AUTH_ACCOUNT_INACTIVE, "Too many failed attempts. Account locked. Contact support.", HttpStatus.FORBIDDEN);
+        // Only a pending activation can be verified here. A password-reset code, or any code for an
+        // account that is already verified (including one an admin deactivated), is rejected.
+        if (user.isEmailVerified() || !OTP_PURPOSE_ACTIVATION.equals(user.getOtpPurpose())) {
+            throw new ApiException(ErrorCode.AUTH_INVALID_TOKEN, "Invalid verification request", HttpStatus.BAD_REQUEST);
         }
+
+        reserveOtpAttempt(user);
 
         if (user.getOtpExpiry() == null || user.getOtpExpiry().isBefore(clock.instant())) {
             throw new ApiException(ErrorCode.AUTH_INVALID_TOKEN, "Verification code has expired", HttpStatus.BAD_REQUEST);
@@ -173,18 +245,14 @@ public class UserService {
 
         String inputHash = HashUtil.sha256(dto.getOtp());
         if (!inputHash.equals(user.getOtpCode())) {
-            user.setOtpAttempts(user.getOtpAttempts() + 1);
-            user.setUpdatedAt(clock.instant());
-            userRepository.save(user);
             throw new ApiException(ErrorCode.AUTH_INVALID_TOKEN, "Invalid verification code", HttpStatus.BAD_REQUEST);
         }
 
-        // Success: activate account
+        // Success: activate account (re-read so the reserved attempt is not overwritten by a stale copy)
+        user = userRepository.findById(user.getId()).orElseThrow();
         user.setActive(true);
         user.setEmailVerified(true);
-        user.setOtpCode(null);
-        user.setOtpExpiry(null);
-        user.setOtpAttempts(0);
+        clearOtp(user);
         user.setUpdatedAt(clock.instant());
         User activated = userRepository.save(user);
 
@@ -211,7 +279,8 @@ public class UserService {
                 String rawOtp = HashUtil.generateOtp(6);
                 user.setOtpCode(HashUtil.sha256(rawOtp));
                 user.setOtpExpiry(clock.instant().plus(OTP_EXPIRY));
-                user.setOtpAttempts(0);
+                user.setOtpPurpose(OTP_PURPOSE_ACTIVATION);
+                // otpAttempts is deliberately not reset: a new code must not grant new guesses
                 user.setUpdatedAt(clock.instant());
                 userRepository.save(user);
 
@@ -234,7 +303,8 @@ public class UserService {
             String rawOtp = HashUtil.generateOtp(6);
             user.setOtpCode(HashUtil.sha256(rawOtp));
             user.setOtpExpiry(clock.instant().plus(OTP_EXPIRY));
-            user.setOtpAttempts(0);
+            user.setOtpPurpose(OTP_PURPOSE_PASSWORD_RESET);
+            // otpAttempts is deliberately not reset: a new code must not grant new guesses
             user.setUpdatedAt(clock.instant());
             userRepository.save(user);
 
@@ -247,17 +317,16 @@ public class UserService {
         }
     }
 
-    public Map<String, String> verifyResetOtp(VerifyResetOtpDto dto) {
+    public Map<String, String> verifyResetOtp(VerifyResetOtpDto dto, String clientIp) {
+        checkOtpVerifyRateLimit(clientIp);
         String email = dto.getEmail().toLowerCase().trim();
         User user = findUserByEmailOrFailClosed(email, "Invalid password reset request");
 
-        if (user.isDeleted() || !user.isActive()) {
+        if (user.isDeleted() || !user.isActive() || !OTP_PURPOSE_PASSWORD_RESET.equals(user.getOtpPurpose())) {
             throw new ApiException(ErrorCode.AUTH_INVALID_TOKEN, "Invalid password reset request", HttpStatus.BAD_REQUEST);
         }
 
-        if (user.getOtpAttempts() >= MAX_OTP_ATTEMPTS) {
-            throw new ApiException(ErrorCode.AUTH_ACCOUNT_INACTIVE, "Too many failed attempts. Account locked. Contact support.", HttpStatus.FORBIDDEN);
-        }
+        reserveOtpAttempt(user);
 
         if (user.getOtpExpiry() == null || user.getOtpExpiry().isBefore(clock.instant())) {
             throw new ApiException(ErrorCode.AUTH_INVALID_TOKEN, "Verification code has expired", HttpStatus.BAD_REQUEST);
@@ -265,19 +334,15 @@ public class UserService {
 
         String inputHash = HashUtil.sha256(dto.getOtp());
         if (!inputHash.equals(user.getOtpCode())) {
-            user.setOtpAttempts(user.getOtpAttempts() + 1);
-            user.setUpdatedAt(clock.instant());
-            userRepository.save(user);
             throw new ApiException(ErrorCode.AUTH_INVALID_TOKEN, "Invalid verification code", HttpStatus.BAD_REQUEST);
         }
 
-        // Issue reset token (32 random bytes)
+        // Issue reset token (32 random bytes); re-read so the reserved attempt is not overwritten
+        user = userRepository.findById(user.getId()).orElseThrow();
         String rawResetToken = HashUtil.generateRandomHexToken(32);
         user.setResetToken(HashUtil.sha256(rawResetToken));
         user.setResetTokenExpiry(clock.instant().plus(RESET_TOKEN_EXPIRY));
-        user.setOtpCode(null);
-        user.setOtpExpiry(null);
-        user.setOtpAttempts(0);
+        clearOtp(user);
         user.setUpdatedAt(clock.instant());
         userRepository.save(user);
 
@@ -292,7 +357,7 @@ public class UserService {
         String email = dto.getEmail().toLowerCase().trim();
         User user = findUserByEmailOrFailClosed(email, "Invalid password reset request");
 
-        if (user.isDeleted()) {
+        if (user.isDeleted() || !user.isActive()) {
             throw new ApiException(ErrorCode.AUTH_INVALID_TOKEN, "Invalid password reset request", HttpStatus.BAD_REQUEST);
         }
 
@@ -324,12 +389,24 @@ public class UserService {
             user.setName(dto.getName().trim());
         }
 
+        boolean emailChanged = false;
         if (dto.getEmail() != null && !dto.getEmail().isBlank()) {
             String newEmail = dto.getEmail().toLowerCase().trim();
-            if (!newEmail.equalsIgnoreCase(user.getEmail()) && userRepository.existsByEmailIgnoreCase(newEmail)) {
-                throw new ApiException(ErrorCode.CONFLICT, "Email already in use", HttpStatus.CONFLICT);
+            if (!newEmail.equalsIgnoreCase(user.getEmail())) {
+                // A session token alone must not be able to redirect password resets to another inbox
+                if (dto.getCurrentPassword() == null || !passwordEncoder.matches(dto.getCurrentPassword(), user.getPasswordHash())) {
+                    throw new ValidationException("currentPassword", "Enter your current password to change your email");
+                }
+                if (userRepository.existsByEmailIgnoreCase(newEmail)) {
+                    throw new ApiException(ErrorCode.CONFLICT, "Email already in use", HttpStatus.CONFLICT);
+                }
+                user.setEmail(newEmail);
+                // Any outstanding code or reset token was sent to the old address
+                clearOtp(user);
+                user.setResetToken(null);
+                user.setResetTokenExpiry(null);
+                emailChanged = true;
             }
-            user.setEmail(newEmail);
         }
 
         if (dto.getPhone() != null) {
@@ -341,7 +418,7 @@ public class UserService {
         User saved = userRepository.save(user);
 
         auditService.record(saved, "PROFILE_UPDATED", "USER", saved.getId(),
-                "Profile updated for " + saved.getUsername());
+                "Profile updated for " + saved.getUsername() + (emailChanged ? " (email changed)" : ""));
 
         return UserSummaryDto.fromEntity(saved);
     }
@@ -420,6 +497,10 @@ public class UserService {
         target.setActive(!target.isActive());
         if (!target.isActive()) {
             target.setTokenVersion(target.getTokenVersion() + 1); // Revoke sessions on deactivation!
+            // Outstanding OTPs and reset tokens must not survive deactivation
+            clearOtp(target);
+            target.setResetToken(null);
+            target.setResetTokenExpiry(null);
         }
         target.setUpdatedAt(clock.instant());
         User saved = userRepository.save(target);

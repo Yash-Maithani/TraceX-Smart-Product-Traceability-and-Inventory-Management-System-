@@ -1278,6 +1278,7 @@ export interface components {
             name?: string;
             email?: string;
             phone?: string;
+            currentPassword?: string;
         };
         ApiResponsePublicTraceDto: {
             success?: boolean;
@@ -2086,7 +2087,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["ApiResponseAccessRequestSummaryDto"];
+                    "*/*": components["schemas"]["ApiResponseMapStringString"];
                 };
             };
         };

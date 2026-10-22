@@ -123,7 +123,7 @@ TraceX is a batch-traceability and inventory-management system for an organic fo
 - `quality-inspector` (Tier 3)
 - `dispatch-coordinator` (Tier 3)
 
-**`isSuperAdmin: true` flag** (Tier 0) — not a sixth role value. It may coexist with any role string. It grants all permissions above Tier 1. No API endpoint may set this flag to `true`. The system must also guard against the last super-admin being deactivated or deleted, leaving the system without a super-admin.
+**`isSuperAdmin: true` flag** (Tier 0) — not a sixth role value. It may coexist with any role string. It grants all permissions above Tier 1. Every admin-only endpoint therefore accepts `hasAnyRole('ADMIN', 'SUPER_ADMIN')`, so a super-admin whose role string is not `admin` (for example `factory-manager`) is never locked out (Phase 8.2, `SecurityFixesTests.superAdminWithNonAdminRoleCanUseAdminEndpoints`). No API endpoint may set this flag to `true`. The system must also guard against the last super-admin being deactivated or deleted, leaving the system without a super-admin.
 
 Source for confirmed role values: `backend/src/models/User.model.js` lines 22–26; `backend/src/middleware/requireAdmin.js` lines 16–23; `tracex-backend/src/main/java/com/tracex/model/Role.java` lines 10–15 (five Java enum values matching the five role strings).
 
@@ -135,6 +135,8 @@ Source for confirmed role values: `backend/src/models/User.model.js` lines 22–
 
 ### Admin-vs-Admin Action Rules
 
+**Source of truth for RBAC**: `docs/permission-matrix.csv` decides who may call each endpoint, and `RbacMatrixTest` enforces it cell by cell. The table below decides what an allowed actor may do to a given target, and `AdminVsAdminRulesTest` enforces it. Any prose elsewhere in this SPEC must agree with these two; where it did not, Phase 8.2 corrected the prose to match the code and tests.
+
 | Actor | Target | toggle | role-change | delete | restore |
 |---|---|---|---|---|---|
 | super-admin | super-admin | deny (`409 LAST_SUPERADMIN` if sole active super-admin; else `409 SELF_MODIFICATION_NOT_ALLOWED` on self, `200 OK` on other active super-admin) | deny (`409 SELF_MODIFICATION_NOT_ALLOWED` on self; `409 LAST_SUPERADMIN` on other super-admin) | deny (`409 LAST_SUPERADMIN` if sole active super-admin or targeting other super-admin; `409 SELF_MODIFICATION_NOT_ALLOWED` on self when >= 2 active super-admins exist) | allow (200 OK) |
@@ -142,19 +144,19 @@ Source for confirmed role values: `backend/src/models/User.model.js` lines 22–
 | super-admin | any lower | allow (200 OK) | allow (200 OK) | allow (200 OK) | allow (200 OK) |
 | admin | super-admin | deny (403 RBAC_INSUFFICIENT) | deny (403 RBAC_INSUFFICIENT) | deny (403 RBAC_INSUFFICIENT) | deny (403 RBAC_INSUFFICIENT) |
 | admin | admin (self) | deny (409 SELF_MODIFICATION_NOT_ALLOWED) | deny (409 SELF_MODIFICATION_NOT_ALLOWED) | deny (409 SELF_MODIFICATION_NOT_ALLOWED) | N/A |
-| admin | admin (other) | allow (200 OK) | allow (200 OK) | allow (200 OK) | deny (403 RBAC_INSUFFICIENT) |
-| admin | any lower | allow (200 OK) | allow (200 OK) | allow (200 OK) | deny (403 RBAC_INSUFFICIENT) |
+| admin | admin (other) | deny (403 RBAC_INSUFFICIENT) | deny (403 RBAC_INSUFFICIENT) | deny (403 RBAC_INSUFFICIENT) | deny (403 RBAC_INSUFFICIENT) |
+| admin | any lower | allow (200 OK) | allow (200 OK; granting `admin` is denied with 403 RBAC_INSUFFICIENT) | allow (200 OK) | deny (403 RBAC_INSUFFICIENT) |
 
 **Precedence rule (`LAST_SUPERADMIN` vs `SELF_MODIFICATION_NOT_ALLOWED`)**:
-- In `toggle` (`PATCH /api/v1/auth/users/:id/toggle`, `UserService.java` lines 379–383) and `delete` (`DELETE /api/v1/auth/users/:id`, `UserService.java` lines 450–454), when the actor targets their own account AND is the last active super-admin (`countByIsSuperAdminTrueAndIsActiveTrueAndIsDeletedFalse() <= 1`), `LAST_SUPERADMIN` (HTTP 409) wins over `SELF_MODIFICATION_NOT_ALLOWED` (HTTP 409). When two or more active super-admins exist, self-toggle and self-delete return `409 SELF_MODIFICATION_NOT_ALLOWED`.
-- In `role-change` (`PATCH /api/v1/auth/users/:id/role`, `UserService.java` lines 415–431), self-modification is checked first and always returns `409 SELF_MODIFICATION_NOT_ALLOWED` (even if the actor is the sole active super-admin), whereas attempting to change another super-admin's role returns `409 LAST_SUPERADMIN` (super-admin role immutability).
+- In `toggle` (`PATCH /api/v1/auth/users/:id/toggle`, `UserService.toggleUserStatus`) and `delete` (`DELETE /api/v1/auth/users/:id`, `UserService.deleteUser`), when the actor targets their own account AND is the last active super-admin (`countByIsSuperAdminTrueAndIsActiveTrueAndIsDeletedFalse() <= 1`), `LAST_SUPERADMIN` (HTTP 409) wins over `SELF_MODIFICATION_NOT_ALLOWED` (HTTP 409). When two or more active super-admins exist, self-toggle and self-delete return `409 SELF_MODIFICATION_NOT_ALLOWED`.
+- In `role-change` (`PATCH /api/v1/auth/users/:id/role`, `UserService.updateUserRole`), self-modification is checked first and always returns `409 SELF_MODIFICATION_NOT_ALLOWED` (even if the actor is the sole active super-admin), whereas attempting to change another super-admin's role returns `409 LAST_SUPERADMIN` (super-admin role immutability).
 
 ### Permission Matrix
 See `docs/permission-matrix.csv` for the full machine-readable matrix. Key highlights:
 - **Factory-manager**: create batches, edit notes, edit raw material, bulk import; cannot dispatch, cannot manage users.
 - **Quality-inspector**: submit and read inspections; cannot create batches, dispatch, or import.
 - **Dispatch-coordinator**: dispatch batches (including override with reason); cannot create batches, inspect, or import.
-- **Manager**: read-only admin panel (users, requests, directory) and bulk import (`GET`/`POST /api/v1/import*`); cannot write users or create/edit individual batches directly.
+- **Manager**: read-only admin panel (users, requests, directory), create batches, edit batch notes and raw material, and bulk import (`GET`/`POST /api/v1/import*`), as `docs/permission-matrix.csv` rows `POST /api/v1/batches`, `PATCH /api/v1/batches/:id/note` and `PATCH /api/v1/batches/:id/raw-material` allow; cannot write users, archive or restore batches, dispatch, or inspect.
 - **Admin**: all of the above plus user CRUD, batch archive/restore, bulk import, and batch dispatch (including FEFO override with reason).
 - **Super-admin flag**: everything admin can do plus recycle-bin (deleted users), hard-delete users, bulk import, and batch dispatch (including FEFO override with reason).
 
@@ -329,7 +331,7 @@ Dispatch executes a single atomic `findAndModify` on `batches` matching `{ _id: 
 4. `POST /api/v1/import/commit`: Commits a chunk of rows (`1..500` rows per request) within a maximum job cap of **10,000 rows per job**. Creates or updates an `ImportJob` (`importjobs` collection) and creates valid non-duplicate batches via `BatchService` (`D-23`, `Proposed`).
 5. `GET /api/v1/import`: Lists recent `ImportJob` summaries (newest first, up to 25, without `rowErrors` or `insertedBatchIds`), lazily transitioning any stale `"running"` jobs first.
 6. `GET /api/v1/import/:id`: Returns full `ImportJob` detail including `rowErrors` (`{ rowNumber, field, message, sourceLotCode }`, capped at `200` stored errors with `rowErrorsTruncated` flag), lazily transitioning the job if it is stale `"running"`.
-7. `POST /api/v1/import/:id/rollback`: Soft-deletes batches inserted by the job (`D-24`, `Proposed`), returning `{ archived, alreadyArchived }`.
+7. `POST /api/v1/import/:id/rollback`: Soft-deletes batches inserted by the job (`D-24`), returning `{ archived, alreadyArchived }`. Only the user who ran the job, an `admin`, or a super-admin may roll it back; anyone else gets `403 RBAC_INSUFFICIENT`, because rollback archives batches and direct archive is admin-only (Phase 8.2).
 
 **Format, Row Caps, Job Join/Creator Match, and Stale Running Recovery (`D-5`, §6.2, §7)**:
 - **CSV only (`D-5`)**: Browser parses `.csv` files in memory (`stripBom`, `detectDelimiter` over `,` / `;` / `\t`, RFC-4180 quotes and `""` escapes, CRLF/LF/CR line endings, skipping blank lines); `.xls`/`.xlsx` and any non-`.csv` files are rejected client-side, and files exceeding `10,000` rows are rejected client-side. No file ever touches server disk.
@@ -632,7 +634,7 @@ All responses use `/api/v1/` prefix.
 | `AUTH_INVALID_TOKEN` | 401 | Token signature invalid or expired |
 | `AUTH_SESSION_REVOKED` | 401 | tokenVersion mismatch |
 | `AUTH_ACCOUNT_DELETED` | 401 | Account soft-deleted |
-| `AUTH_ACCOUNT_INACTIVE` | 403 | Account deactivated |
+| `AUTH_ACCOUNT_INACTIVE` | 403 | Account deactivated (login returns it only after the password is correct) |
 | `RBAC_INSUFFICIENT` | 403 | Role too low for this action |
 | `NOT_FOUND` | 404 | Resource not found |
 | `CONFLICT` | 409 | Duplicate or state conflict |
@@ -659,7 +661,7 @@ All responses use `/api/v1/` prefix.
 | Method | Path | Auth | Min Role | Notes |
 |--------|------|------|----------|-------|
 | POST | /api/v1/auth/login | **public** | — | Returns `{token, user}` |
-| POST | /api/v1/auth/request-access | **public** | — | Generic 200 even if email exists (anti-enumeration) |
+| POST | /api/v1/auth/request-access | **public** | — | Generic 200 with the same body even if the email already has a request or an account; nothing is stored in that case (anti-enumeration, Phase 8.2) |
 | POST | /api/v1/auth/activate | **public** | — | Invite token + password |
 | POST | /api/v1/auth/verify-otp | **public** | — | |
 | POST | /api/v1/auth/verify-otp/resend | **public** | — | |
@@ -668,7 +670,7 @@ All responses use `/api/v1/` prefix.
 | POST | /api/v1/auth/reset-password | **public** | — | |
 | GET | /actuator/health | **public** | — | Spring Boot Actuator health check returning `{ "status": "UP" }` |
 | GET | /api/v1/auth/me | Bearer | any | Own profile |
-| PATCH | /api/v1/auth/me | Bearer | any | Update profile |
+| PATCH | /api/v1/auth/me | Bearer | any | Update profile; changing `email` requires `currentPassword` (422 `VALIDATION_ERROR` otherwise) and clears any outstanding OTP or reset token (Phase 8.2) |
 | PATCH | /api/v1/auth/me/settings | Bearer | any | Theme/palette preferences |
 | POST | /api/v1/auth/me/change-password | Bearer | any | Revokes all sessions |
 | POST | /api/v1/auth/me/logout-all | Bearer | any | Revokes all sessions |
@@ -708,7 +710,7 @@ All responses use `/api/v1/` prefix.
 | GET | /api/v1/batches/:id | Bearer | any | Requires auth; returns `packDate` and `expiryDate` as `"YYYY-MM-DD"` (`daysUntilExpiry: null` and `exceptionReason` populated when `status == "EXCEPTION"`) |
 | PATCH | /api/v1/batches/:id/dispatch | Bearer | dispatch-coordinator | D-10, D-18, D-19; includes optional overrideReason |
 | PATCH | /api/v1/batches/:id/note | Bearer | factory-manager | |
-| PATCH | /api/v1/batches/:id/raw-material | Bearer | factory-manager | `packDate` and `expiryDate` accepted as `"YYYY-MM-DD"` date-only strings |
+| PATCH | /api/v1/batches/:id/raw-material | Bearer | factory-manager | `packDate` and `expiryDate` accepted as `"YYYY-MM-DD"` date-only strings; `409 CONFLICT` once the batch is `DISPATCHED`; `expiryDate` must be after `packDate`; old and new values are recorded in the note history and the audit entry (`farmerName` values redacted from `audit_logs`) (Phase 8.2) |
 | DELETE | /api/v1/batches/:id | Bearer | admin | Soft-delete |
 | PATCH | /api/v1/batches/:id/restore | Bearer | admin | |
 | GET | /api/v1/batches/:id/qr | Bearer | any | Requires auth |
@@ -831,13 +833,13 @@ Per-request DB check: `isDeleted`, `isActive`, and `tokenVersion`. A deactivated
 
 ### Password & Credential Policies
 - **Password Policy**: Minimum 8 characters required on registration, activation, reset, and password change (source: `auth.controller.js` line 294).
-- **OTP Policy**: 6-digit SecureRandom string, SHA-256 hashed in database, 10-minute validity window. Maximum 5 consecutive failed attempts before account lockout (source: `auth.controller.js` lines 328–342, 398, 843–850).
+- **OTP Policy**: 6-digit SecureRandom string, SHA-256 hashed in database, 10-minute validity window. Each OTP carries a purpose (`ACTIVATION` or `PASSWORD_RESET`) and is only accepted by its own endpoint; `/verify-otp` additionally requires an account that has not yet verified its email, so it can never reactivate an account an admin deactivated. Each guess is reserved atomically before the code is compared; after 5 failed guesses the account is locked for 15 minutes. Requesting a new code does not reset the counter. `/verify-otp` and `/verify-reset-otp` are also limited per IP (`tracex.rate-limit.verify-otp`, default 20 per 15 minutes). Deactivating a user clears any outstanding OTP and reset token (Phase 8.2; reference: `auth.controller.js` lines 328–342, 398, 843–850).
 - **Password Reset Flow**: `POST /auth/forgot-password` dispatches a 6-digit OTP (anti-enumeration defense: returns identical success message whether email exists or not). `POST /auth/verify-reset-otp` exchanges OTP for a one-time 32-byte raw `resetToken` (SHA-256 hashed in DB, 5-minute validity window). `POST /auth/reset-password` consumes token, applies new password, and immediately increments `tokenVersion` to revoke all active sessions.
 
 ### Admin-vs-Admin Rules & Hierarchy
 - **Super-Admin Immutability**: Super-admin accounts cannot have their role changed (`ErrorCode.LAST_SUPERADMIN`, 409 Conflict) and cannot be deleted (`ErrorCode.LAST_SUPERADMIN`, 409 Conflict).
 - **Last Active Super-Admin Protection**: The system strictly prevents deactivating or deleting the last active super-administrator (`ErrorCode.LAST_SUPERADMIN`, 409 Conflict).
-- **Self-Action Prevention**: Users cannot modify their own active status, cannot change their own role, and cannot delete their own account (`ErrorCode.CONFLICT`, 409 Conflict).
+- **Self-Action Prevention**: Users cannot modify their own active status, cannot change their own role, and cannot delete their own account (`ErrorCode.SELF_MODIFICATION_NOT_ALLOWED`, 409 Conflict).
 - **Secondary Admin Restrictions**: Secondary administrators cannot modify, deactivate, or delete administrator or super-administrator accounts, and cannot grant administrator role to anyone (`ErrorCode.RBAC_INSUFFICIENT`, 403 Forbidden).
 - **Recycle Bin**: Soft-deleted accounts can only be viewed and restored by super-administrators (`GET /auth/users/deleted`, `PATCH /auth/users/:id/restore`).
 

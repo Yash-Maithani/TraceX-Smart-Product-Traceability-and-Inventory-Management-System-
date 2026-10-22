@@ -327,4 +327,46 @@ describe('FefoPage, InspectionsPage, and ProfilePage (Phase 6 Part D)', () => {
       );
     });
   });
+
+  it('asks for the current password only when the email changes, and sends it with the update', async () => {
+    const profileSpy = vi.spyOn(Endpoints, 'updateMyProfile').mockResolvedValue({
+      success: true,
+      data: {
+        id: 'u-mgr',
+        name: 'Operations Manager',
+        username: 'manager',
+        email: 'new-manager@tracex.demo',
+        role: 'manager'
+      }
+    });
+
+    renderWithAuth(<ProfilePage />, {
+      id: 'u-mgr',
+      name: 'Operations Manager',
+      username: 'manager',
+      email: 'manager@tracex.demo',
+      role: 'manager',
+      superAdmin: false,
+      active: true
+    });
+
+    expect(screen.queryByTestId('profile-email-password-input')).not.toBeInTheDocument();
+
+    fireEvent.change(screen.getByTestId('profile-email-input'), {
+      target: { value: 'new-manager@tracex.demo' }
+    });
+    fireEvent.change(screen.getByTestId('profile-email-password-input'), {
+      target: { value: 'CurrentPass123!' }
+    });
+    fireEvent.click(screen.getByTestId('profile-save-btn'));
+
+    await waitFor(() => {
+      expect(profileSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          email: 'new-manager@tracex.demo',
+          currentPassword: 'CurrentPass123!'
+        })
+      );
+    });
+  });
 });

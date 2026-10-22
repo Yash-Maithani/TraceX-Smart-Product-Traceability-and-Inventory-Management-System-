@@ -22,14 +22,12 @@ public class JwtService {
     private final SecretKey signingKey;
     private final Clock clock;
 
-    public JwtService(@Value("${tracex.security.jwt-secret:default_dev_secret_key_must_be_at_least_32_characters_long_123456}") String secret,
+    public JwtService(@Value("${tracex.security.jwt-secret:}") String secret,
                       Clock clock) {
-        byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
+        // No built-in default and no padding: a missing or short secret stops startup in every profile
+        byte[] keyBytes = secret == null ? new byte[0] : secret.getBytes(StandardCharsets.UTF_8);
         if (keyBytes.length < 32) {
-            // Pad if short in dev/test fallback
-            byte[] padded = new byte[32];
-            System.arraycopy(keyBytes, 0, padded, 0, keyBytes.length);
-            keyBytes = padded;
+            throw new IllegalStateException("JWT_SECRET is missing or shorter than 32 bytes");
         }
         this.signingKey = Keys.hmacShaKeyFor(keyBytes);
         this.clock = clock;

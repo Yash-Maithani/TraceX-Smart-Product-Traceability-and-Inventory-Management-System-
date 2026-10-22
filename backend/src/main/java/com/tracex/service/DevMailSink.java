@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Service
-@ConditionalOnProperty(name = "tracex.mail.sink.enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(name = "tracex.mail.sink.enabled", havingValue = "true")
 public class DevMailSink implements EmailService {
 
     private static final Logger log = LoggerFactory.getLogger(DevMailSink.class);

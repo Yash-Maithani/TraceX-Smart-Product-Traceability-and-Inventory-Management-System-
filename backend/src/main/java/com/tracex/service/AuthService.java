@@ -60,12 +60,13 @@ public class AuthService {
 
         User user = userOpt.get();
 
-        if (!user.isActive()) {
-            throw new ApiException(ErrorCode.AUTH_ACCOUNT_INACTIVE, "Your account has been deactivated. Contact your administrator.", HttpStatus.FORBIDDEN);
-        }
-
+        // Password first: account status is only revealed to someone who already knows the password
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
             throw new ApiException(ErrorCode.AUTH_INVALID_TOKEN, GENERIC_AUTH_ERROR, HttpStatus.UNAUTHORIZED);
+        }
+
+        if (!user.isActive()) {
+            throw new ApiException(ErrorCode.AUTH_ACCOUNT_INACTIVE, "Your account has been deactivated. Contact your administrator.", HttpStatus.FORBIDDEN);
         }
 
         String token = jwtService.generateToken(user.getId(), user.getTokenVersion());

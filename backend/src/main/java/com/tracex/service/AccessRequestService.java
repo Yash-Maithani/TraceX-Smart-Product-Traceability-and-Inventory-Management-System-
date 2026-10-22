@@ -23,6 +23,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AccessRequestService {
@@ -54,7 +55,11 @@ public class AccessRequestService {
         this.clock = clock;
     }
 
-    public AccessRequestSummaryDto submitRequest(RequestAccessDto dto, String clientIp) {
+    /**
+     * Returns the saved request, or empty when the email already has a request or an account.
+     * The controller answers both cases with the same generic 200 (anti-enumeration, SPEC §6.3).
+     */
+    public Optional<AccessRequestSummaryDto> submitRequest(RequestAccessDto dto, String clientIp) {
         String rateLimitKey = "request-access:" + (clientIp != null ? clientIp : "unknown");
         if (!rateLimiter.allowRequest(rateLimitKey, MAX_REQUEST_ACCESS_ATTEMPTS, RATE_LIMIT_WINDOW)) {
             throw new RateLimitException("Too many access requests. Please try again later.");
@@ -74,9 +79,9 @@ public class AccessRequestService {
 
         String email = dto.getEmail().toLowerCase().trim();
 
-        // Check for duplicate email in access requests or existing users
+        // Duplicate email in access requests or existing users: store nothing, reveal nothing
         if (accessRequestRepository.existsByEmail(email) || userRepository.existsByEmailIgnoreCase(email)) {
-            throw new ApiException(ErrorCode.CONFLICT, "An access request or account with this email already exists.", HttpStatus.CONFLICT);
+            return Optional.empty();
         }
 
         AccessRequest request = new AccessRequest(dto.getName().trim(), email, requestedRole);
@@ -87,7 +92,7 @@ public class AccessRequestService {
         auditService.record("anonymous", email, "ACCESS_REQUEST_SUBMITTED", "ACCESS_REQUEST", saved.getId(),
                 "Access request submitted for " + email + " with requested role " + requestedRole.getValue());
 
-        return AccessRequestSummaryDto.fromEntity(saved);
+        return Optional.of(AccessRequestSummaryDto.fromEntity(saved));
     }
 
     public List<AccessRequestSummaryDto> getAllRequests() {
@@ -135,8 +140,18 @@ public class AccessRequestService {
         AccessRequest request = accessRequestRepository.findById(id)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Access request not found", HttpStatus.NOT_FOUND));
 
+        if (request.getStatus() == AccessRequestStatus.REJECTED) {
+            throw new ApiException(ErrorCode.CONFLICT, "Access request has already been rejected", HttpStatus.CONFLICT);
+        }
+        if (request.isInviteUsed()) {
+            throw new ApiException(ErrorCode.CONFLICT, "Invitation has already been used to create an account", HttpStatus.CONFLICT);
+        }
+
         request.setStatus(AccessRequestStatus.REJECTED);
         request.setNote(note);
+        // Revoke any invite issued by an earlier approval so the emailed link stops working
+        request.setInviteToken(null);
+        request.setInviteExpiry(null);
         request.setUpdatedAt(clock.instant());
 
         AccessRequest saved = accessRequestRepository.save(request);

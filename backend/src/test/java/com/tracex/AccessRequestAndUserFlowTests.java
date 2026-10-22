@@ -130,7 +130,8 @@ public class AccessRequestAndUserFlowTests {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        String requestId = objectMapper.readTree(submitResult.getResponse().getContentAsString()).get("data").get("id").asText();
+        // The response is generic (anti-enumeration), so the id comes from the database
+        String requestId = accessRequestRepository.findByEmail("alice@example.com").orElseThrow().getId();
 
         mockMvc.perform(post("/api/v1/auth/requests/" + requestId + "/approve")
                         .header("Authorization", "Bearer " + adminToken))
@@ -229,7 +230,7 @@ public class AccessRequestAndUserFlowTests {
     }
 
     @Test
-    @DisplayName("Check 8: Approve twice returns 409, duplicate email returns CONFLICT, invalid role or super-admin gives 422")
+    @DisplayName("Check 8: Approve twice returns 409, duplicate email returns the same generic 200, invalid role or super-admin gives 422")
     void testCheck8ValidationAndConflictRules() throws Exception {
         // Request with super-admin role gives 422
         RequestAccessDto superAdminReq = new RequestAccessDto("Fake Super", "super@example.com", "super-admin");
@@ -255,14 +256,18 @@ public class AccessRequestAndUserFlowTests {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        String reqId = objectMapper.readTree(submitResult.getResponse().getContentAsString()).get("data").get("id").asText();
+        String reqId = accessRequestRepository.findByEmail("bob@example.com").orElseThrow().getId();
+        String firstBody = submitResult.getResponse().getContentAsString();
 
-        // Duplicate email request returns 409 CONFLICT
-        mockMvc.perform(post("/api/v1/auth/request-access")
+        // Duplicate email returns the same generic 200 (anti-enumeration, SPEC §6.3) and stores nothing
+        MvcResult duplicateResult = mockMvc.perform(post("/api/v1/auth/request-access")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validReq)))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.code").value(ErrorCode.CONFLICT.name()));
+                .andExpect(status().isOk())
+                .andReturn();
+        assertThat(objectMapper.readTree(duplicateResult.getResponse().getContentAsString()).get("data"))
+                .isEqualTo(objectMapper.readTree(firstBody).get("data"));
+        assertThat(accessRequestRepository.findAll().stream().filter(r -> r.getEmail().equals("bob@example.com")).count()).isEqualTo(1);
 
         // Approve once
         mockMvc.perform(post("/api/v1/auth/requests/" + reqId + "/approve")

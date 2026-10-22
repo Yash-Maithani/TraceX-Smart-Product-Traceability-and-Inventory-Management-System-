@@ -20,6 +20,8 @@ cd backend
 .\mvnw.cmd spring-boot:run "-Dspring-boot.run.profiles=dev"
 ```
 
+The `dev` profile must be named explicitly. With no profile set, the backend applies production rules and refuses to start without real secrets (`JWT_SECRET`, `TRACE_TOKEN_SECRET`, `FRONTEND_URL`, `PUBLIC_TRACE_BASE_URL`). The Docker image sets `SPRING_PROFILES_ACTIVE=prod`.
+
 ### Frontend (Vite dev server on port `5174`)
 
 ```powershell

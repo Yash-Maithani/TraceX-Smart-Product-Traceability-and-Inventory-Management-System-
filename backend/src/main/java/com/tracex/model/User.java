@@ -39,6 +39,8 @@ public class User {
 
     private Instant otpExpiry;
     private int otpAttempts = 0;
+    private String otpPurpose; // "ACTIVATION" or "PASSWORD_RESET"; an OTP is only accepted by its own endpoint
+    private Instant otpLockedUntil; // set when otpAttempts reaches the limit; attempts reset once it passes
 
     @JsonIgnore
     private String resetToken; // SHA-256 hashed
@@ -205,6 +207,22 @@ public class User {
 
     public void setOtpAttempts(int otpAttempts) {
         this.otpAttempts = otpAttempts;
+    }
+
+    public String getOtpPurpose() {
+        return otpPurpose;
+    }
+
+    public void setOtpPurpose(String otpPurpose) {
+        this.otpPurpose = otpPurpose;
+    }
+
+    public Instant getOtpLockedUntil() {
+        return otpLockedUntil;
+    }
+
+    public void setOtpLockedUntil(Instant otpLockedUntil) {
+        this.otpLockedUntil = otpLockedUntil;
     }
 
     public String getResetToken() {

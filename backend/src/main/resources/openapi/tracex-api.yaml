@@ -3,7 +3,7 @@ info:
   title: OpenAPI definition
   version: v0
 servers:
-- url: http://localhost:62436
+- url: http://localhost:57956
   description: Generated server url
 paths:
   /api/v1/qr/scan:
@@ -353,7 +353,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/ApiResponseAccessRequestSummaryDto'
+                $ref: '#/components/schemas/ApiResponseMapStringString'
   /api/v1/auth/me/logout-all:
     post:
       tags:
@@ -1947,10 +1947,20 @@ components:
       type: object
       properties:
         name:
+          maxLength: 100
+          minLength: 0
           type: string
         email:
+          maxLength: 254
+          minLength: 0
           type: string
         phone:
+          maxLength: 30
+          minLength: 0
+          type: string
+        currentPassword:
+          maxLength: 128
+          minLength: 0
           type: string
     ApiResponsePublicTraceDto:
       type: object

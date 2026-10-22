@@ -1,5 +1,5 @@
 # TraceX — PROGRESS.md
-> Updated: 2026-10-22 (Phase 8.1 COMPLETE)
+> Updated: 2026-10-22 (Phase 8.2 COMPLETE)
 
 ---
 
@@ -29,6 +29,7 @@
 | 8.0 | Import reference extraction, SPEC §3.7, and Phase 7.1 carry-over | COMPLETE | 2026-10-06 | [phase-08-0](docs/progress/phase-08-0.md) |
 | 8 | Import | COMPLETE | 2026-10-06 | [phase-08](docs/progress/phase-08.md) |
 | 8.1 | Phase 8 import corrections | COMPLETE | 2026-10-22 | [phase-08-1](docs/progress/phase-08-1.md) |
+| 8.2 | Security fixes from the strict review (C1 to C3, H1 to H9) | COMPLETE | 2026-10-22 | [phase-08-2](docs/progress/phase-08-2.md) |
 | 9 | Team admin UI, settings, login history | NOT STARTED | | |
 | 10 | Notifications, messages, live updates (SSE) | NOT STARTED | | |
 | 11 | AI and Google OAuth (conditional on the audit) | NOT STARTED | | |
@@ -84,6 +85,7 @@
 | OI-09 | HANDOFF.md uses `TX-` prefix; source code uses `HS-` prefix — resolved to `TX-` | LOW | Closed | `backend/src/utils/batchCodeGenerator.js` line 8 | SPEC §3.2 (D-11 resolved: `TX-` prefix adopted) (Phase 3) |
 | OI-10 | `.git` directory presence in reference — confirmed absent via `Test-Path` (downloaded zip, not cloned git repo) | INFO | Closed | Reference workspace root | Resolved / Closed in Audit |
 | OI-11 | All placeholder backdrops (`placeholder: true` in `design-assets/backdrops.json`) must be replaced with real licensed team-approved photos before launch | MEDIUM | Open | `design-assets/backdrops.json` | SPEC §5.2, §11 (Phase 14 launch gate) |
+| OI-12 | Strict review (19 Oct) findings not fixed in Phase 8.2: H10 (tests need a local MongoDB, no Testcontainers, CI or coverage tool), H11 (no CSP headers yet; OI-03 relies on them), and M1 to M14 (dispatch-check race, other check-then-act races, 500s for bad query params, pagination envelope, global rate limit, archived-batch reads, FEFO loads all batches, audit actorId and clock, forgeable scan source, two authorization styles, unchecked X-Request-Id, in-process inspection lock, JWT parsed three times, `.env.example` forward-headers advice) | MEDIUM | Open | Strict PBL review, 19 Oct 2026 (team copy outside the repo), sections 4 and 5 | Phase 13 (hardening); H11 in Phase 14 |
 
 ---
 
@@ -394,3 +396,8 @@
 
 ### Phase 8.1 Phase 8 Import Corrections (No New Features)
 - **Parts A–D**: Corrected the `rowErrors` cap from `500` to `200` in `PROGRESS.md` and `docs/progress/phase-08.md` to match `ImportService.MAX_STORED_ERRORS` and `SPEC.md` §3.7, added stored-`ImportJob` assertions (`200` `rowErrors`, `rowErrorsTruncated=true`) to the existing cap test in `ImportTests.java`, added a PII-free `WARN` log (row number, exception class, request id) when a row fails at commit, and added the `Known Limitations` section (`KL-01`, `KL-02`). Backend: **`542` tests, `0` failures**; frontend unit: **`88` tests in `15` files, `0` failures**; `scripts/lint-md-tables.ps1` passes across `37` Markdown files. Full log in [docs/progress/phase-08-1.md](docs/progress/phase-08-1.md).
+
+### Phase 8.2 Security Fixes from the Strict Review
+- **C1 to C3 and H1 to H7 (backend)**: OTPs now carry a purpose (`ACTIVATION` or `PASSWORD_RESET`) and `/verify-otp` only accepts a pending activation, so a reset code can no longer reactivate a deactivated account; deactivation clears outstanding codes. Rejecting a request revokes its invite and activation requires `APPROVED`. No default Spring profile, no hard-coded JWT or trace secret, real SMTP unless a local profile enables the mail sink, and the Docker image sets `prod`. Admin-only endpoints accept `SUPER_ADMIN`. `request-access` answers duplicates with the same generic 200. OTP guesses are reserved atomically, a new code no longer resets the counter, lockout lasts 15 minutes, and both verify endpoints are rate-limited per IP. Changing the profile email needs the current password. Login checks the password before account status. Raw material is frozen after dispatch, `expiryDate` must follow `packDate`, and corrections record old and new values (`farmerName` redacted in `audit_logs`). Import rollback is limited to the job's owner or an admin.
+- **H8 and H9 (docs)**: `SPEC.md` names `docs/permission-matrix.csv` plus `RbacMatrixTest` and the Admin-vs-Admin table plus `AdminVsAdminRulesTest` as the RBAC source of truth and corrects the three contradictions. `docs/traceability.md` now cites only test methods that exist (`16` made-up names replaced) and gains `S-02` and `SEC-8.2` rows. Remaining review findings are tracked as `OI-12`.
+- **Totals**: backend **`561` tests, `0` failures** (`+19` in `SecurityFixesTests`); frontend unit **`89` tests in `15` files** (`+1`); Playwright E2E **`39` passed across `5` files**. Full log in [docs/progress/phase-08-2.md](docs/progress/phase-08-2.md).
