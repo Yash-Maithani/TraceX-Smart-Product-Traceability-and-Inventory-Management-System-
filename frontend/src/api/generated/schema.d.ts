@@ -20,6 +20,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/messages/record/{refType}/{refId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["thread"];
+        put?: never;
+        post: operations["postToThread"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/messages/channel/{role}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["channel"];
+        put?: never;
+        post: operations["postToChannel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/inspections": {
         parameters: {
             query?: never;
@@ -356,6 +388,22 @@ export interface paths {
         patch: operations["markAllRead"];
         trace?: never;
     };
+    "/api/v1/messages/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["delete"];
+        options?: never;
+        head?: never;
+        patch: operations["edit"];
+        trace?: never;
+    };
     "/api/v1/batches/{id}/restore": {
         parameters: {
             query?: never;
@@ -556,6 +604,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["stream"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/messages/channels": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["channels"];
         put?: never;
         post?: never;
         delete?: never;
@@ -888,6 +952,35 @@ export interface components {
         FieldErrorDto: {
             field?: string;
             message?: string;
+        };
+        MessageBodyDto: {
+            body: string;
+        };
+        ApiResponseMessageDto: {
+            success?: boolean;
+            requestId?: string;
+            data?: components["schemas"]["MessageDto"];
+            message?: string;
+            code?: string;
+            error?: string;
+            fieldErrors?: components["schemas"]["FieldErrorDto"][];
+        };
+        MessageDto: {
+            id?: string;
+            scope?: string;
+            body?: string;
+            authorName?: string;
+            authorRole?: string;
+            mine?: boolean;
+            deleted?: boolean;
+            /** Format: int32 */
+            editCount?: number;
+            /** Format: date-time */
+            editedAt?: string;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            expiresAt?: string;
         };
         ChecklistItem: {
             label?: string;
@@ -1265,8 +1358,8 @@ export interface components {
             updatedAt?: string;
             preferences?: components["schemas"]["Preferences"];
             active?: boolean;
-            deleted?: boolean;
             superAdmin?: boolean;
+            deleted?: boolean;
         };
         ResendOtpDto: {
             email: string;
@@ -1500,6 +1593,44 @@ export interface components {
         SseEmitter: {
             /** Format: int64 */
             timeout?: number;
+        };
+        ApiResponseListMessageDto: {
+            success?: boolean;
+            requestId?: string;
+            data?: components["schemas"]["MessageDto"][];
+            message?: string;
+            code?: string;
+            error?: string;
+            fieldErrors?: components["schemas"]["FieldErrorDto"][];
+        };
+        ApiResponseChannelsDto: {
+            success?: boolean;
+            requestId?: string;
+            data?: components["schemas"]["ChannelsDto"];
+            message?: string;
+            code?: string;
+            error?: string;
+            fieldErrors?: components["schemas"]["FieldErrorDto"][];
+        };
+        ChannelActivityDto: {
+            /** Format: date-time */
+            lastAt?: string;
+            lastAuthor?: string;
+            lastBody?: string;
+            /** Format: int64 */
+            total?: number;
+        };
+        ChannelsDto: {
+            channels?: string[];
+            superAdmin?: boolean;
+            /** Format: int64 */
+            retentionDays?: number;
+            memberCounts?: {
+                [key: string]: number;
+            };
+            activity?: {
+                [key: string]: components["schemas"]["ChannelActivityDto"];
+            };
         };
         ApiResponseInspectionPageResult: {
             success?: boolean;
@@ -1884,6 +2015,106 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApiResponseVoid"];
+                };
+            };
+        };
+    };
+    thread: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                refType: string;
+                refId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseListMessageDto"];
+                };
+            };
+        };
+    };
+    postToThread: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                refType: string;
+                refId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MessageBodyDto"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseMessageDto"];
+                };
+            };
+        };
+    };
+    channel: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                role: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseListMessageDto"];
+                };
+            };
+        };
+    };
+    postToChannel: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                role: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MessageBodyDto"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseMessageDto"];
                 };
             };
         };
@@ -2429,6 +2660,54 @@ export interface operations {
             };
         };
     };
+    delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseMessageDto"];
+                };
+            };
+        };
+    };
+    edit: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MessageBodyDto"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseMessageDto"];
+                };
+            };
+        };
+    };
     restoreBatch: {
         parameters: {
             query?: never;
@@ -2745,6 +3024,26 @@ export interface operations {
                 };
                 content: {
                     "text/event-stream": components["schemas"]["SseEmitter"];
+                };
+            };
+        };
+    };
+    channels: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseChannelsDto"];
                 };
             };
         };

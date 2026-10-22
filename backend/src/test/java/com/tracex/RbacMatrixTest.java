@@ -218,8 +218,8 @@ public class RbacMatrixTest {
             }
         }
 
-        assertThat(evaluatedRowCount).isEqualTo(59);
-        assertThat(tests.size()).isEqualTo(413);
+        assertThat(evaluatedRowCount).isEqualTo(66);
+        assertThat(tests.size()).isEqualTo(462);
         log.info("Generated {} dynamic tests for {} active phase rows", tests.size(), evaluatedRowCount);
         return tests.stream();
     }

@@ -3,7 +3,7 @@ info:
   title: OpenAPI definition
   version: v0
 servers:
-- url: http://localhost:51437
+- url: http://localhost:61838
   description: Generated server url
 paths:
   /api/v1/qr/scan:
@@ -24,6 +24,104 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/ApiResponseVoid'
+  /api/v1/messages/record/{refType}/{refId}:
+    get:
+      tags:
+      - message-controller
+      operationId: thread
+      parameters:
+      - name: refType
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: refId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseListMessageDto'
+    post:
+      tags:
+      - message-controller
+      operationId: postToThread
+      parameters:
+      - name: refType
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: refId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageBodyDto'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseMessageDto'
+  /api/v1/messages/channel/{role}:
+    get:
+      tags:
+      - message-controller
+      operationId: channel
+      parameters:
+      - name: role
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseListMessageDto'
+    post:
+      tags:
+      - message-controller
+      operationId: postToChannel
+      parameters:
+      - name: role
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageBodyDto'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseMessageDto'
   /api/v1/inspections:
     get:
       tags:
@@ -468,6 +566,47 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/ApiResponseReadAllResultDto'
+  /api/v1/messages/{id}:
+    delete:
+      tags:
+      - message-controller
+      operationId: delete
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseMessageDto'
+    patch:
+      tags:
+      - message-controller
+      operationId: edit
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageBodyDto'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseMessageDto'
   /api/v1/batches/{id}/restore:
     patch:
       tags:
@@ -717,6 +856,18 @@ paths:
             text/event-stream:
               schema:
                 $ref: '#/components/schemas/SseEmitter'
+  /api/v1/messages/channels:
+    get:
+      tags:
+      - message-controller
+      operationId: channels
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseChannelsDto'
   /api/v1/inspections/{id}:
     get:
       tags:
@@ -1078,6 +1229,63 @@ components:
           type: string
         message:
           type: string
+    MessageBodyDto:
+      required:
+      - body
+      type: object
+      properties:
+        body:
+          maxLength: 2000
+          minLength: 0
+          type: string
+    ApiResponseMessageDto:
+      type: object
+      properties:
+        success:
+          type: boolean
+        requestId:
+          type: string
+        data:
+          $ref: '#/components/schemas/MessageDto'
+        message:
+          type: string
+        code:
+          type: string
+        error:
+          type: string
+        fieldErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldErrorDto'
+    MessageDto:
+      type: object
+      properties:
+        id:
+          type: string
+        scope:
+          type: string
+        body:
+          type: string
+        authorName:
+          type: string
+        authorRole:
+          type: string
+        mine:
+          type: boolean
+        deleted:
+          type: boolean
+        editCount:
+          type: integer
+          format: int32
+        editedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
     ChecklistItem:
       type: object
       properties:
@@ -1786,9 +1994,9 @@ components:
           $ref: '#/components/schemas/Preferences'
         active:
           type: boolean
-        deleted:
-          type: boolean
         superAdmin:
+          type: boolean
+        deleted:
           type: boolean
     ResendOtpDto:
       required:
@@ -2278,6 +2486,80 @@ components:
         timeout:
           type: integer
           format: int64
+    ApiResponseListMessageDto:
+      type: object
+      properties:
+        success:
+          type: boolean
+        requestId:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageDto'
+        message:
+          type: string
+        code:
+          type: string
+        error:
+          type: string
+        fieldErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldErrorDto'
+    ApiResponseChannelsDto:
+      type: object
+      properties:
+        success:
+          type: boolean
+        requestId:
+          type: string
+        data:
+          $ref: '#/components/schemas/ChannelsDto'
+        message:
+          type: string
+        code:
+          type: string
+        error:
+          type: string
+        fieldErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldErrorDto'
+    ChannelActivityDto:
+      type: object
+      properties:
+        lastAt:
+          type: string
+          format: date-time
+        lastAuthor:
+          type: string
+        lastBody:
+          type: string
+        total:
+          type: integer
+          format: int64
+    ChannelsDto:
+      type: object
+      properties:
+        channels:
+          type: array
+          items:
+            type: string
+        superAdmin:
+          type: boolean
+        retentionDays:
+          type: integer
+          format: int64
+        memberCounts:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int64
+        activity:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ChannelActivityDto'
     ApiResponseInspectionPageResult:
       type: object
       properties:

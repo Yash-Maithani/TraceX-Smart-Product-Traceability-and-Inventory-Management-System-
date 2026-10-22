@@ -13,7 +13,10 @@ import type {
   AccessRequestSummaryDto,
   ChangePasswordDto,
   DeleteUserDto,
+  ChannelsDto,
   LoginEventDto,
+  MessageDto,
+  MessageRefType,
   NotificationDto,
   NotificationListDto,
   ReadAllResultDto,
@@ -460,5 +463,54 @@ export async function markNotificationRead(id: string): Promise<NotificationDto>
 
 export async function markAllNotificationsRead(): Promise<ReadAllResultDto> {
   const res = await apiRequest<ReadAllResultDto>('/api/v1/notifications/read-all', { method: 'PATCH' });
+  return res.data;
+}
+
+// ---------- Phase 10.1: role channels and record comments ----------
+
+export async function fetchMessageChannels(): Promise<ChannelsDto> {
+  const res = await apiRequest<ChannelsDto>('/api/v1/messages/channels', { method: 'GET' });
+  return res.data;
+}
+
+export async function fetchChannelMessages(role: string): Promise<MessageDto[]> {
+  const res = await apiRequest<MessageDto[]>(`/api/v1/messages/channel/${encodeURIComponent(role)}`, { method: 'GET' });
+  return res.data ?? [];
+}
+
+export async function postChannelMessage(role: string, body: string): Promise<MessageDto> {
+  const res = await apiRequest<MessageDto>(`/api/v1/messages/channel/${encodeURIComponent(role)}`, {
+    method: 'POST',
+    body: { body }
+  });
+  return res.data;
+}
+
+export async function fetchRecordComments(refType: MessageRefType, refId: string): Promise<MessageDto[]> {
+  const res = await apiRequest<MessageDto[]>(
+    `/api/v1/messages/record/${refType}/${encodeURIComponent(refId)}`,
+    { method: 'GET' }
+  );
+  return res.data ?? [];
+}
+
+export async function postRecordComment(refType: MessageRefType, refId: string, body: string): Promise<MessageDto> {
+  const res = await apiRequest<MessageDto>(`/api/v1/messages/record/${refType}/${encodeURIComponent(refId)}`, {
+    method: 'POST',
+    body: { body }
+  });
+  return res.data;
+}
+
+export async function editMessage(id: string, body: string): Promise<MessageDto> {
+  const res = await apiRequest<MessageDto>(`/api/v1/messages/${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    body: { body }
+  });
+  return res.data;
+}
+
+export async function deleteMessage(id: string): Promise<MessageDto> {
+  const res = await apiRequest<MessageDto>(`/api/v1/messages/${encodeURIComponent(id)}`, { method: 'DELETE' });
   return res.data;
 }

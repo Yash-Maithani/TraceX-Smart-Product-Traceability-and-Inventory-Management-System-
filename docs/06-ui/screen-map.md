@@ -90,7 +90,7 @@ This document maps every feature row in `docs/00-audit/feature-parity.md` (and t
 | 57 | Bulk Import | Single import record (`GET /api/v1/import/:id`) | Phase 8 | Implemented in `ImportPage.tsx` (`/import` Job Details dialog); tested in `ImportTests.java`, `ImportPage.test.tsx` |
 | 58 | Bulk Import | Rollback import (`POST /api/v1/import/:id/rollback`) | Phase 8 | Implemented in `ImportPage.tsx` (`/import` Rollback `ConfirmDialog`); tested in `ImportTests.java`, `ImportPage.test.tsx`, `P8-E2E-01` |
 | 59 | Notifications | List notifications, SSE stream, mark read | Phase 10 | Complete (`/notifications` `NotificationsPage.tsx`, top-bar `NotificationBell.tsx`, live stream via `useLiveUpdates.ts` in `AppShell.tsx`) |
-| 60 | Role Messages | List/post role-channel messages & record comments | Phase 10 | Deferred to Phase 10 |
+| 60 | Role Messages | List/post role-channel messages & record comments | Phase 10.1 | Complete (`/messages` `MessagesPage.tsx`; comments on `/batches/:id` and the inspection record dialog via `RecordComments.tsx`) |
 | 61 | AI Dispatch Audit | AI dispatch risk analysis (`POST /api/v1/ai/dispatch-audit`) | Phase 11 | Deferred to Phase 11 |
 | 62 | Health | Health check (`GET /actuator/health`) | Phase 1 & 5 | Complete (`OfflineBanner.tsx`) |
 

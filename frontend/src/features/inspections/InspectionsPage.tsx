@@ -33,6 +33,7 @@ import {
 } from '../../components/ui';
 import { formatTimestamp } from '../../lib/dates';
 import { EMPTY_VALUE } from '../../lib/format';
+import { RecordComments } from '../messages/RecordComments';
 
 export const FIXED_CHECKLIST_LABELS: readonly string[] = [
   'Packaging integrity',
@@ -690,6 +691,13 @@ export function InspectionsPage() {
                 </div>
               ))}
             </div>
+
+            {selectedInspection.id ? (
+              <div className={coreStyles.pageStack} data-testid="inspection-comments-section">
+                <span className={coreStyles.checklistLabel}>Comments</span>
+                <RecordComments refType="inspection" refId={selectedInspection.id} />
+              </div>
+            ) : null}
           </div>
         ) : null}
       </Dialog>

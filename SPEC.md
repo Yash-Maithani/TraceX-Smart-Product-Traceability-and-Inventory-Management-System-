@@ -460,6 +460,8 @@ Retention:
 
 TTL index: `{ expiresAt: 1 }, { expireAfterSeconds: 0 }` — documents with `expiresAt: null` are never expired. Source: `Message.model.js` line 106.
 
+**Phase 10.1 build** (`Message.java`, `MessageService.java`, ported from reference `messages.controller.js`): channel access is the caller's own role channel only, all five for a super-admin. Record threads exist for `batch` and `inspection`; an inspection thread follows `GET /api/v1/inspections`, so `dispatch-coordinator` gets `403` (the reference let every signed-in user in). Edits are author-only (not even an admin) and push the previous text to `editHistory`; deletes are soft (author, `admin` or super-admin) and the response withholds the body. Editing or deleting a message in a conversation the caller cannot open returns `404`. Bodies are trimmed, required and at most 2,000 characters (`422 VALIDATION_ERROR` with a `body` field error). Each post, edit or delete pushes a live `message:new` event (scope and ids only, no body) to the users who can open that conversation; no notification is stored. Index names: `record_thread_idx`, `channel_feed_idx`, `expiresAt_ttl_idx`.
+
 #### `notifications`
 Fields (confirmed from `Notification.model.js`):
 `recipientRole` (one of 5 roles or 'super-admin'), `recipientUserId` (null = broadcast to all with role), `type` (batch_created/batch_imported/batch_dispatched/inspection_completed/admin_action/system), `title` (max 120), `message` (max 400), `refId`, `refType`, `triggeredBy.{userId, name, role}`, `read` (default false), `createdAt`.
@@ -789,6 +791,18 @@ Fields explicitly omitted: `farmerName`, `qrCodeDataUrl`, `priorityScore`, `trac
 | GET | /api/v1/import | Bearer | factory-manager |
 | GET | /api/v1/import/:id | Bearer | factory-manager |
 | POST | /api/v1/import/:id/rollback | Bearer | factory-manager |
+
+#### Messages (Phase 10.1, S-05)
+
+| Method | Path | Auth | Min Role | Notes |
+|--------|------|------|----------|-------|
+| GET | /api/v1/messages/channels | Bearer | any | Channels the caller may open, member counts, last-message preview (90 characters), retention days |
+| GET | /api/v1/messages/channel/:role | Bearer | any | Own role channel (super-admin: all); up to 100, oldest first; unknown channel `404`, other channel `403` |
+| POST | /api/v1/messages/channel/:role | Bearer | any | Same channel rule; `expiresAt` 90 days after posting |
+| GET | /api/v1/messages/record/:refType/:refId | Bearer | any | `refType` `batch` or `inspection` (else `422`); unknown record `404`; inspection threads `403` for `dispatch-coordinator` |
+| POST | /api/v1/messages/record/:refType/:refId | Bearer | any | Same record rule; permanent (`expiresAt` null) |
+| PATCH | /api/v1/messages/:id | Bearer | any | Author only; previous text kept in `editHistory`; deleted message `409` |
+| DELETE | /api/v1/messages/:id | Bearer | any | Author, `admin` or super-admin; soft delete |
 
 #### Notifications
 

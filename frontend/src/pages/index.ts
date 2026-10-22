@@ -22,4 +22,5 @@ export { ImportPage } from '../features/import/ImportPage';
 export { TeamPage } from '../features/team/TeamPage';
 export { SettingsPage } from '../features/settings/SettingsPage';
 export { NotificationsPage } from '../features/notifications/NotificationsPage';
+export { MessagesPage } from '../features/messages/MessagesPage';
 

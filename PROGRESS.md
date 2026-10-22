@@ -1,5 +1,5 @@
 # TraceX — PROGRESS.md
-> Updated: 2026-10-22 (Phase 10 COMPLETE)
+> Updated: 2026-10-22 (Phase 10.1 COMPLETE)
 
 ---
 
@@ -33,7 +33,7 @@
 | 8.3 | UI copy cleanup (spec codes and em dashes) | COMPLETE | 2026-10-22 | [phase-08-3](docs/progress/phase-08-3.md) |
 | 9 | Team admin UI, settings, login history | COMPLETE | 2026-10-22 | [phase-09](docs/progress/phase-09.md) |
 | 10 | Notifications and live updates (SSE) | COMPLETE | 2026-10-22 | [phase-10](docs/progress/phase-10.md) |
-| 10.1 | Role-channel messages and record comments (S-05) | NOT STARTED | | |
+| 10.1 | Role-channel messages and record comments (S-05) | COMPLETE | 2026-10-22 | [phase-10-1](docs/progress/phase-10-1.md) |
 | 11 | AI and Google OAuth (conditional on the audit) | NOT STARTED | | |
 | 12 | UI refinement, legal pages, favicon, documentation | NOT STARTED | | |
 | 13 | Testing and hardening | NOT STARTED | | |
@@ -415,3 +415,7 @@
 - **Backend**: Added `Notification.java` (`notifications`, 7-day TTL, per-user `readBy`), `NotificationDto.java`, `NotificationService.java`, `NotificationStreamRegistry.java` (SSE connections with a heartbeat that closes revoked sessions) and `NotificationController.java` (`GET /api/v1/notifications`, `GET /stream`, `PATCH /:id/read`, `PATCH /read-all`). Batch create, dispatch, inspection create, final import commit and new access requests now raise notifications; note, raw-material, archive, restore and import rollback push live-only `batch:updated` events. `SecurityConfig` permits the async dispatch that ends an SSE response. Phase 10 matrix rows are active (`RbacMatrixTest` `385 -> 413`, `59` active rows). Added `NotificationTests.java` (`8` tests, including `TEST-M-09`). Backend total: **`618` tests, `0` failures**.
 - **Frontend**: `src/lib/eventStream.ts` (fetch-based SSE reader with backoff), `openAuthorizedStream` in `src/api/client.ts`, `useLiveUpdates.ts` (refreshes lists, the bell and the dashboard; toasts for stored notifications), `NotificationBell.tsx` in the top bar, `/notifications` (`NotificationsPage.tsx`) and a Notifications nav entry. Added `Notifications.test.tsx` (`6` tests). Frontend unit total: **`104` tests in `17` files**. Added `e2e/phase10.spec.ts` (`2` tests); Playwright E2E total: **`45` passed across `7` files**.
 - **Correction**: `docs/progress/phase-08.md` decision 9 claimed an import `Notification` and `IMPORT_COMMITTED` / `IMPORT_FAILED` audit entries; neither existed. The log now says so, and Phase 10 adds the notification. Messages and record comments (S-05) moved to Phase 10.1. Full log in [docs/progress/phase-10.md](docs/progress/phase-10.md).
+
+### Phase 10.1 Role-Channel Messages and Record Comments (S-05)
+- **Backend**: Added `Message.java` (`messages`; TTL on `expiresAt`, null for record comments), `MessageDtos.java`, `MessageService.java` and `MessageController.java` (7 endpoints under `/api/v1/messages`), ported from the reference `messages.controller.js` with one tightening: inspection threads follow the inspection read rule, so `dispatch-coordinator` is refused. Added 7 rows to `docs/permission-matrix.csv` (phase `10`) and regenerated `src/auth/permissions.generated.ts`; `RbacMatrixTest` `413 -> 462` (`66` active rows). Added `MessageTests.java` (`9` tests). Backend total: **`676` tests, `0` failures**.
+- **Frontend**: `/messages` (`MessagesPage.tsx`, channel tabs only for a super-admin), `MessageThread.tsx` (shared list and composer; Edit for the author, Delete for the author or a moderator, deleted slots kept), `RecordComments.tsx` on the batch detail page and in the inspection record dialog, `useMessageActions.ts`, live refresh on `message:new`, and a Messages nav entry. Added `Messages.test.tsx` (`4` tests). Frontend unit total: **`108` tests in `18` files**. Added `e2e/phase10-1.spec.ts` (`2` tests); Playwright E2E total: **`47` passed across `8` files**. Full log in [docs/progress/phase-10-1.md](docs/progress/phase-10-1.md).

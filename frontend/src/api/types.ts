@@ -147,3 +147,8 @@ export type NotificationListDto = Omit<components['schemas']['NotificationListDt
   items?: NotificationDto[];
 };
 export type ReadAllResultDto = components['schemas']['ReadAllResultDto'];
+
+// Phase 10.1: role channels and record comments
+export type MessageDto = components['schemas']['MessageDto'];
+export type ChannelsDto = components['schemas']['ChannelsDto'];
+export type MessageRefType = 'batch' | 'inspection';

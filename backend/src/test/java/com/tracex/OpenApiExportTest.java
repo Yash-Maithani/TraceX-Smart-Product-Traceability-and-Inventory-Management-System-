@@ -108,8 +108,8 @@ public class OpenApiExportTest {
             }
         }
 
-        assertEquals(59, totalActiveMatrixRows, "Expected 59 total active matrix rows for phase <= 10 (58 /api/v1/** + 1 /actuator/health)");
-        assertEquals(58, matrixApiOperations.size(), "Expected 58 /api/v1/** matrix rows for phase <= 10");
+        assertEquals(66, totalActiveMatrixRows, "Expected 66 total active matrix rows for phase <= 10 (65 /api/v1/** + 1 /actuator/health)");
+        assertEquals(65, matrixApiOperations.size(), "Expected 65 /api/v1/** matrix rows for phase <= 10");
         assertEquals(matrixApiOperations, openApiOperations,
                 "OpenAPI operations must match active /api/v1/** rows in permission-matrix.csv 1-to-1 without test-only endpoints");
 

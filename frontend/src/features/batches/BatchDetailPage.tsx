@@ -40,6 +40,7 @@ import {
 import { formatBusinessDate, formatTimestamp } from '../../lib/dates';
 import { DispatchDialog } from './DispatchDialog';
 import { EMPTY_VALUE, formatDays } from '../../lib/format';
+import { RecordComments } from '../messages/RecordComments';
 
 const UNIT_OPTIONS = ['Kg', 'Units', 'Liters'] as const;
 
@@ -830,6 +831,20 @@ export function BatchDetailPage() {
                 </ul>
               )}
             </section>
+
+            {batch.id ? (
+              <section className={coreStyles.sectionCard} data-testid="batch-comments-section">
+                <div className={coreStyles.sectionHeader}>
+                  <div>
+                    <h2 className={coreStyles.sectionTitle}>Comments</h2>
+                    <p className={coreStyles.sectionSubtitle}>
+                      Why a decision was taken on this batch. Comments stay with the batch permanently.
+                    </p>
+                  </div>
+                </div>
+                <RecordComments refType="batch" refId={batch.id} />
+              </section>
+            ) : null}
           </div>
 
           <DispatchDialog

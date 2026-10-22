@@ -18,6 +18,7 @@ import {
   ImportPage,
   InspectionsPage,
   LoginPage,
+  MessagesPage,
   LegacyTracePage,
   NotFoundPage,
   NotificationsPage,
@@ -135,6 +136,7 @@ export function App({ queryClient = defaultQueryClient }: { queryClient?: QueryC
                     <Route path="/profile" element={<ProfilePage />} />
                     <Route path="/settings" element={<SettingsPage />} />
                     <Route path="/notifications" element={<NotificationsPage />} />
+                    <Route path="/messages" element={<MessagesPage />} />
                     <Route
                       path="/team"
                       element={

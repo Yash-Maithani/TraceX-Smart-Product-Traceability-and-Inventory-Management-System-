@@ -8,6 +8,7 @@ import {
   Home,
   LogOut,
   Menu,
+  MessageSquare,
   Settings,
   Shield,
   ShieldOff,
@@ -58,6 +59,8 @@ function renderNavIcon(iconName: NavRouteItem['iconName']) {
       return <Settings size={17} aria-hidden="true" />;
     case 'bell':
       return <Bell size={17} aria-hidden="true" />;
+    case 'message':
+      return <MessageSquare size={17} aria-hidden="true" />;
   }
 }
 

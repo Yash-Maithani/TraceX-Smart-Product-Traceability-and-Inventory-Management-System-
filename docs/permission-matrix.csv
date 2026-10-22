@@ -58,6 +58,13 @@ phase,method,path,super-admin,admin,manager,factory-manager,quality-inspector,di
 10,GET,/api/v1/notifications/stream,allow,allow,allow,allow,allow,allow,deny,SSE; authenticated
 10,PATCH,/api/v1/notifications/:id/read,allow,allow,allow,allow,allow,allow,deny,
 10,PATCH,/api/v1/notifications/read-all,allow,allow,allow,allow,allow,allow,deny,
+10,GET,/api/v1/messages/channels,allow,allow,allow,allow,allow,allow,deny,Phase 10.1; only channels the caller may open
+10,GET,/api/v1/messages/channel/:role,allow,allow,allow,allow,allow,allow,deny,Phase 10.1; own role channel only (super-admin all); others 403
+10,POST,/api/v1/messages/channel/:role,allow,allow,allow,allow,allow,allow,deny,Phase 10.1; own role channel only (super-admin all); 90-day retention
+10,GET,/api/v1/messages/record/:refType/:refId,allow,allow,allow,allow,allow,allow,deny,Phase 10.1; inspection threads follow GET /api/v1/inspections (dispatch-coordinator 403)
+10,POST,/api/v1/messages/record/:refType/:refId,allow,allow,allow,allow,allow,allow,deny,Phase 10.1; same record rule as GET; permanent
+10,PATCH,/api/v1/messages/:id,allow,allow,allow,allow,allow,allow,deny,Phase 10.1; author only; previous text kept
+10,DELETE,/api/v1/messages/:id,allow,allow,allow,allow,allow,allow,deny,Phase 10.1; author or admin/super-admin; soft delete
 11,POST,/api/v1/ai/dispatch-audit,allow,allow,allow,allow,allow,allow,deny,rate-limited 5/15min
 3,GET,/api/v1/products,allow,allow,allow,allow,allow,allow,deny,
 6,GET,/api/v1/dashboard/summary,allow,allow,allow,allow,allow,allow,deny,D-21 Proposed; pendingAccessRequests populated only for manager/admin/super-admin

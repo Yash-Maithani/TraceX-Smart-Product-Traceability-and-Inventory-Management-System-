@@ -19,7 +19,8 @@ export interface NavRouteItem {
     | 'settings'
     | 'archive'
     | 'upload'
-    | 'bell';
+    | 'bell'
+    | 'message';
   endpoint: {
     method: HttpMethod;
     path: string;
@@ -112,6 +113,15 @@ export const NAV_ROUTES: readonly NavRouteItem[] = [
     iconName: 'bell',
     endpoint: { method: 'GET', path: '/api/v1/notifications' },
     minRoles: getAllowedRolesForEndpoint('GET', '/api/v1/notifications'),
+    phase: 10,
+    enabled: true
+  },
+  {
+    path: '/messages',
+    label: 'Messages',
+    iconName: 'message',
+    endpoint: { method: 'GET', path: '/api/v1/messages/channels' },
+    minRoles: getAllowedRolesForEndpoint('GET', '/api/v1/messages/channels'),
     phase: 10,
     enabled: true
   },
