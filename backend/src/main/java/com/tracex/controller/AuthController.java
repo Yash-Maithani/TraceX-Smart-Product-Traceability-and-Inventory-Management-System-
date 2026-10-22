@@ -24,11 +24,14 @@ public class AuthController {
     private final UserService userService;
     private final AccessRequestService accessRequestService;
     private final RateLimiter rateLimiter;
+    private final com.tracex.service.NotificationService notificationService;
 
     public AuthController(AuthService authService,
                           UserService userService,
                           AccessRequestService accessRequestService,
-                          RateLimiter rateLimiter) {
+                          RateLimiter rateLimiter,
+                          com.tracex.service.NotificationService notificationService) {
+        this.notificationService = notificationService;
         this.authService = authService;
         this.userService = userService;
         this.accessRequestService = accessRequestService;
@@ -48,7 +51,9 @@ public class AuthController {
     public ResponseEntity<ApiResponse<Map<String, String>>> requestAccess(@Valid @RequestBody RequestAccessDto request,
                                                                           HttpServletRequest httpRequest) {
         String clientIp = rateLimiter.resolveClientIp(httpRequest);
-        accessRequestService.submitRequest(request, clientIp);
+        accessRequestService.submitRequest(request, clientIp)
+                .ifPresent(saved -> notificationService.accessRequestSubmitted(saved.getId(),
+                        saved.getRole() != null ? saved.getRole().getValue() : "a"));
         String requestId = RequestIdContext.getOrCreate();
         // Same body whether or not the email already exists (anti-enumeration)
         return ResponseEntity.ok(ApiResponse.ok(

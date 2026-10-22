@@ -18,7 +18,8 @@ export interface NavRouteItem {
     | 'users'
     | 'settings'
     | 'archive'
-    | 'upload';
+    | 'upload'
+    | 'bell';
   endpoint: {
     method: HttpMethod;
     path: string;
@@ -29,7 +30,7 @@ export interface NavRouteItem {
 }
 
 /**
- * Single source of truth for application navigation routes (Phase 6–9).
+ * Single source of truth for application navigation routes (Phase 6–10).
  * Permissions are derived directly from `src/auth/permissions.generated.ts` (`docs/permission-matrix.csv`).
  */
 export const NAV_ROUTES: readonly NavRouteItem[] = [
@@ -103,6 +104,15 @@ export const NAV_ROUTES: readonly NavRouteItem[] = [
     endpoint: { method: 'GET', path: '/api/v1/auth/users' },
     minRoles: getAllowedRolesForEndpoint('GET', '/api/v1/auth/users'),
     phase: 9,
+    enabled: true
+  },
+  {
+    path: '/notifications',
+    label: 'Notifications',
+    iconName: 'bell',
+    endpoint: { method: 'GET', path: '/api/v1/notifications' },
+    minRoles: getAllowedRolesForEndpoint('GET', '/api/v1/notifications'),
+    phase: 10,
     enabled: true
   },
   {

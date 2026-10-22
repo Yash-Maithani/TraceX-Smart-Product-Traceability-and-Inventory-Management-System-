@@ -14,6 +14,9 @@ import type {
   ChangePasswordDto,
   DeleteUserDto,
   LoginEventDto,
+  NotificationDto,
+  NotificationListDto,
+  ReadAllResultDto,
   RejectRequestDto,
   UpdateRoleDto,
   UpdateSettingsDto,
@@ -439,4 +442,23 @@ export async function resendAccessInvite(
 
 export async function deleteAccessRequest(id: string): Promise<void> {
   await apiRequest<null>(`/api/v1/auth/requests/${encodeURIComponent(id)}`, { method: 'DELETE' });
+}
+
+// ---------- Phase 10: notifications ----------
+
+export async function fetchNotifications(): Promise<NotificationListDto> {
+  const res = await apiRequest<NotificationListDto>('/api/v1/notifications', { method: 'GET' });
+  return res.data ?? { items: [], unreadCount: 0 };
+}
+
+export async function markNotificationRead(id: string): Promise<NotificationDto> {
+  const res = await apiRequest<NotificationDto>(`/api/v1/notifications/${encodeURIComponent(id)}/read`, {
+    method: 'PATCH'
+  });
+  return res.data;
+}
+
+export async function markAllNotificationsRead(): Promise<ReadAllResultDto> {
+  const res = await apiRequest<ReadAllResultDto>('/api/v1/notifications/read-all', { method: 'PATCH' });
+  return res.data;
 }

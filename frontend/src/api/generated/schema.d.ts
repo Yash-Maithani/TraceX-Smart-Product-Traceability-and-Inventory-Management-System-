@@ -324,6 +324,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/notifications/{id}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["markRead"];
+        trace?: never;
+    };
+    "/api/v1/notifications/read-all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["markAllRead"];
+        trace?: never;
+    };
     "/api/v1/batches/{id}/restore": {
         parameters: {
             query?: never;
@@ -492,6 +524,38 @@ export interface paths {
             cookie?: never;
         };
         get: operations["getProducts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications/stream": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["stream"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1273,6 +1337,40 @@ export interface components {
             error?: string;
             fieldErrors?: components["schemas"]["FieldErrorDto"][];
         };
+        ApiResponseNotificationDto: {
+            success?: boolean;
+            requestId?: string;
+            data?: components["schemas"]["NotificationDto"];
+            message?: string;
+            code?: string;
+            error?: string;
+            fieldErrors?: components["schemas"]["FieldErrorDto"][];
+        };
+        NotificationDto: {
+            id?: string;
+            type?: string;
+            title?: string;
+            message?: string;
+            refType?: string;
+            refId?: string;
+            triggeredByName?: string;
+            read?: boolean;
+            /** Format: date-time */
+            createdAt?: string;
+        };
+        ApiResponseReadAllResultDto: {
+            success?: boolean;
+            requestId?: string;
+            data?: components["schemas"]["ReadAllResultDto"];
+            message?: string;
+            code?: string;
+            error?: string;
+            fieldErrors?: components["schemas"]["FieldErrorDto"][];
+        };
+        ReadAllResultDto: {
+            /** Format: int64 */
+            marked?: number;
+        };
         BatchRawMaterialDto: {
             farmerName?: string;
             village?: string;
@@ -1384,6 +1482,24 @@ export interface components {
             createdAt?: string;
             /** Format: date-time */
             updatedAt?: string;
+        };
+        ApiResponseNotificationListDto: {
+            success?: boolean;
+            requestId?: string;
+            data?: components["schemas"]["NotificationListDto"];
+            message?: string;
+            code?: string;
+            error?: string;
+            fieldErrors?: components["schemas"]["FieldErrorDto"][];
+        };
+        NotificationListDto: {
+            items?: components["schemas"]["NotificationDto"][];
+            /** Format: int64 */
+            unreadCount?: number;
+        };
+        SseEmitter: {
+            /** Format: int64 */
+            timeout?: number;
         };
         ApiResponseInspectionPageResult: {
             success?: boolean;
@@ -2271,6 +2387,48 @@ export interface operations {
             };
         };
     };
+    markRead: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseNotificationDto"];
+                };
+            };
+        };
+    };
+    markAllRead: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseReadAllResultDto"];
+                };
+            };
+        };
+    };
     restoreBatch: {
         parameters: {
             query?: never;
@@ -2547,6 +2705,46 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApiResponseListProduct"];
+                };
+            };
+        };
+    };
+    list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseNotificationListDto"];
+                };
+            };
+        };
+    };
+    stream: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/event-stream": components["schemas"]["SseEmitter"];
                 };
             };
         };

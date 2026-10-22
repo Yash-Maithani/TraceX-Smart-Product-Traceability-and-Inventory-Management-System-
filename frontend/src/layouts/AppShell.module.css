@@ -215,3 +215,46 @@
     padding: var(--space-4);
   }
 }
+
+/* Phase 10: notification bell */
+.topBarRight {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.bellLink {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  background-color: var(--bg-surface);
+  transition: color 150ms ease, border-color 150ms ease;
+}
+
+.bellLink:hover,
+.bellLink:focus-visible {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.bellBadge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-sm);
+  background-color: var(--accent-primary);
+  color: var(--accent-on-primary);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  line-height: 18px;
+  text-align: center;
+}

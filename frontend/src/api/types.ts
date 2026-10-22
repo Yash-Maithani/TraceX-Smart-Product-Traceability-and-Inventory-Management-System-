@@ -140,3 +140,10 @@ export type LoginEventDto = components['schemas']['LoginEventDto'];
 export type UpdateRoleDto = components['schemas']['UpdateRoleDto'];
 export type DeleteUserDto = components['schemas']['DeleteUserDto'];
 export type RejectRequestDto = components['schemas']['RejectRequestDto'];
+
+// Phase 10: notifications
+export type NotificationDto = components['schemas']['NotificationDto'];
+export type NotificationListDto = Omit<components['schemas']['NotificationListDto'], 'items'> & {
+  items?: NotificationDto[];
+};
+export type ReadAllResultDto = components['schemas']['ReadAllResultDto'];

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import {
   Archive,
+  Bell,
   Boxes,
   ClipboardCheck,
   Home,
@@ -17,7 +18,9 @@ import {
 } from 'lucide-react';
 import styles from './AppShell.module.css';
 import { useAuth } from '../auth/AuthContext';
+import { useLiveUpdates } from '../hooks/useLiveUpdates';
 import { usePreferencesSync } from '../hooks/usePreferencesSync';
+import { NotificationBell } from './NotificationBell';
 import { getEnabledNavRoutes, type NavRouteItem } from '../routes/navConfig';
 import {
   Button,
@@ -53,12 +56,15 @@ function renderNavIcon(iconName: NavRouteItem['iconName']) {
       return <Users size={17} aria-hidden="true" />;
     case 'settings':
       return <Settings size={17} aria-hidden="true" />;
+    case 'bell':
+      return <Bell size={17} aria-hidden="true" />;
   }
 }
 
 export function AppShell() {
   const { user, logout, logoutAll } = useAuth();
   usePreferencesSync();
+  useLiveUpdates();
   const location = useLocation();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [confirmLogoutAllOpen, setConfirmLogoutAllOpen] = useState(false);
@@ -206,7 +212,10 @@ export function AppShell() {
               />
               <span className={styles.mobileBrand}>{STRINGS.app.name}</span>
             </div>
-            <ThemeToggle />
+            <div className={styles.topBarRight}>
+              <NotificationBell />
+              <ThemeToggle />
+            </div>
           </header>
 
           <main id="main-content" tabIndex={-1} className={styles.mainContent}>

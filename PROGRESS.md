@@ -1,5 +1,5 @@
 # TraceX — PROGRESS.md
-> Updated: 2026-10-22 (Phase 9 COMPLETE)
+> Updated: 2026-10-22 (Phase 10 COMPLETE)
 
 ---
 
@@ -32,7 +32,8 @@
 | 8.2 | Security fixes from the strict review (C1 to C3, H1 to H9) | COMPLETE | 2026-10-22 | [phase-08-2](docs/progress/phase-08-2.md) |
 | 8.3 | UI copy cleanup (spec codes and em dashes) | COMPLETE | 2026-10-22 | [phase-08-3](docs/progress/phase-08-3.md) |
 | 9 | Team admin UI, settings, login history | COMPLETE | 2026-10-22 | [phase-09](docs/progress/phase-09.md) |
-| 10 | Notifications, messages, live updates (SSE) | NOT STARTED | | |
+| 10 | Notifications and live updates (SSE) | COMPLETE | 2026-10-22 | [phase-10](docs/progress/phase-10.md) |
+| 10.1 | Role-channel messages and record comments (S-05) | NOT STARTED | | |
 | 11 | AI and Google OAuth (conditional on the audit) | NOT STARTED | | |
 | 12 | UI refinement, legal pages, favicon, documentation | NOT STARTED | | |
 | 13 | Testing and hardening | NOT STARTED | | |
@@ -409,3 +410,8 @@
 ### Phase 9 Team Admin UI, Settings, and Login History
 - **Backend**: Added `LoginEvent.java` (`loginevents`, 30-day TTL), `LoginEventRepository.java`, `UserAgentParser.java` (shared with QR scan analytics), `UpdateSettingsDto.java` and `LoginEventDto.java`; `User.preferences`; `AuthService.login` records each successful sign-in; `PATCH /api/v1/auth/me/settings` and `GET /api/v1/auth/me/login-history`. Phase 9 matrix rows are now active in `RbacMatrixTest` (`371 -> 385`), `RouteCoverageTest` and `OpenApiExportTest` (`55` active rows). Added `SettingsAndLoginHistoryTests.java` (`7` tests). Backend total: **`582` tests, `0` failures**.
 - **Frontend**: `/team` (`TeamPage.tsx`: Users, Access Requests, and super-admin Recycle Bin tabs; actions hidden where the server would refuse them), `/settings` (`SettingsPage.tsx`: display settings and recent sign-ins), `usePreferencesSync.ts` (saved settings applied at sign-in, later changes saved automatically), navigation entries for Team & Access and Settings, and `TeamAndSettings.test.tsx` (`8` tests). Frontend unit total: **`98` tests in `16` files**. Added `e2e/phase09.spec.ts` (`4` tests); Playwright E2E total: **`43` passed across `6` files**. Full log in [docs/progress/phase-09.md](docs/progress/phase-09.md).
+
+### Phase 10 Notifications and Live Updates (M-09)
+- **Backend**: Added `Notification.java` (`notifications`, 7-day TTL, per-user `readBy`), `NotificationDto.java`, `NotificationService.java`, `NotificationStreamRegistry.java` (SSE connections with a heartbeat that closes revoked sessions) and `NotificationController.java` (`GET /api/v1/notifications`, `GET /stream`, `PATCH /:id/read`, `PATCH /read-all`). Batch create, dispatch, inspection create, final import commit and new access requests now raise notifications; note, raw-material, archive, restore and import rollback push live-only `batch:updated` events. `SecurityConfig` permits the async dispatch that ends an SSE response. Phase 10 matrix rows are active (`RbacMatrixTest` `385 -> 413`, `59` active rows). Added `NotificationTests.java` (`8` tests, including `TEST-M-09`). Backend total: **`618` tests, `0` failures**.
+- **Frontend**: `src/lib/eventStream.ts` (fetch-based SSE reader with backoff), `openAuthorizedStream` in `src/api/client.ts`, `useLiveUpdates.ts` (refreshes lists, the bell and the dashboard; toasts for stored notifications), `NotificationBell.tsx` in the top bar, `/notifications` (`NotificationsPage.tsx`) and a Notifications nav entry. Added `Notifications.test.tsx` (`6` tests). Frontend unit total: **`104` tests in `17` files**. Added `e2e/phase10.spec.ts` (`2` tests); Playwright E2E total: **`45` passed across `7` files**.
+- **Correction**: `docs/progress/phase-08.md` decision 9 claimed an import `Notification` and `IMPORT_COMMITTED` / `IMPORT_FAILED` audit entries; neither existed. The log now says so, and Phase 10 adds the notification. Messages and record comments (S-05) moved to Phase 10.1. Full log in [docs/progress/phase-10.md](docs/progress/phase-10.md).

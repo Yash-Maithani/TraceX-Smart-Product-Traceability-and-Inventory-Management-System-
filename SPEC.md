@@ -466,6 +466,8 @@ Fields (confirmed from `Notification.model.js`):
 
 TTL: 7 days. Source: `Notification.model.js` line 60.
 
+**Phase 10 build**: `Notification.java` replaces the single `recipientRole` with `recipientRoles[]` (one notification can reach several roles) and the shared `read` flag with a per-user `readBy[]`: in the reference, one person reading a role notification marked it read for the whole role. A super-admin also receives anything addressed to `admin`, and role broadcasts are never shown to the user who triggered them. Types in use: `batch_created`, `batch_imported`, `import_finished` (to the importer only), `batch_dispatched`, `inspection_completed` (a `FAILED` verdict says the batch is on quality hold), and `admin_action` (new access request). Messages carry batch codes, product names and counts only, never `farmerName` (D-9). Index names: `createdAt_ttl_idx` (604,800 s), `recipientRoles_createdAt_desc_idx`, `recipientUserId_createdAt_desc_idx`.
+
 Indexes: `recipientRole`, `recipientUserId`, `recipientRole+read+createdAt desc`.
 
 #### `scanevents`
@@ -792,10 +794,10 @@ Fields explicitly omitted: `farmerName`, `qrCodeDataUrl`, `priorityScore`, `trac
 
 | Method | Path | Auth | Min Role | Notes |
 |--------|------|------|----------|-------|
-| GET | /api/v1/notifications | Bearer | any | |
+| GET | /api/v1/notifications | Bearer | any | `{ items, unreadCount }`: the caller's own notifications, newest first, at most 50 |
 | GET | /api/v1/notifications/stream | Bearer | any | SSE endpoint (D-4) |
-| PATCH | /api/v1/notifications/:id/read | Bearer | any | |
-| PATCH | /api/v1/notifications/read-all | Bearer | any | |
+| PATCH | /api/v1/notifications/:id/read | Bearer | any | Marks it read for the caller only; `404 NOT_FOUND` if it is not addressed to the caller |
+| PATCH | /api/v1/notifications/read-all | Bearer | any | Returns `{ marked }` |
 
 #### AI Audit
 
@@ -964,7 +966,8 @@ New database: **`tracex_fresh`** (D-8). Avoids MongoDB error 13297 (`DatabaseDif
 - Authenticated like a REST endpoint (Authorization header on the initial request).
 - Connection is long-lived; server sends `data: <json>\n\n` frames for each notification event.
 - Client uses the browser `EventSource` API (or a fetch-based stream reader for auth header support, since `EventSource` does not support custom headers).
-- Events: `batch:created`, `batch:updated`, `batch:dispatched`, `import:finished`, `inspection:created`.
+- Events: `batch:created`, `batch:updated`, `batch:dispatched`, `import:finished`, `inspection:created`, plus `access-request:created` (admins) and a first `ready` frame (Phase 10).
+- **Phase 10 build**: `NotificationStreamRegistry` holds one `SseEmitter` per open connection (30-minute timeout; the client reconnects with backoff from 1 s to 30 s). A heartbeat every 25 s re-reads the user and closes the stream once they are deactivated, deleted, or their `tokenVersion` changes, so a live stream never outlives its session. `batch:updated` is live-only (note, raw-material correction, archive, restore, import rollback) and stores no notification. The browser reads the stream with `fetch` through `openAuthorizedStream` in `src/api/client.ts` (`EventSource` cannot send the Authorization header).
 - No Socket.IO in the new build.
 
 ---

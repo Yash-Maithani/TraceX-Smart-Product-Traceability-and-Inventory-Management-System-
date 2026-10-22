@@ -3,7 +3,7 @@ info:
   title: OpenAPI definition
   version: v0
 servers:
-- url: http://localhost:63023
+- url: http://localhost:51437
   description: Generated server url
 paths:
   /api/v1/qr/scan:
@@ -438,6 +438,36 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/ApiResponseMapStringObject'
+  /api/v1/notifications/{id}/read:
+    patch:
+      tags:
+      - notification-controller
+      operationId: markRead
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseNotificationDto'
+  /api/v1/notifications/read-all:
+    patch:
+      tags:
+      - notification-controller
+      operationId: markAllRead
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseReadAllResultDto'
   /api/v1/batches/{id}/restore:
     patch:
       tags:
@@ -663,6 +693,30 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/ApiResponseListProduct'
+  /api/v1/notifications:
+    get:
+      tags:
+      - notification-controller
+      operationId: list
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseNotificationListDto'
+  /api/v1/notifications/stream:
+    get:
+      tags:
+      - notification-controller
+      operationId: stream
+      responses:
+        "200":
+          description: OK
+          content:
+            text/event-stream:
+              schema:
+                $ref: '#/components/schemas/SseEmitter'
   /api/v1/inspections/{id}:
     get:
       tags:
@@ -1895,6 +1949,72 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FieldErrorDto'
+    ApiResponseNotificationDto:
+      type: object
+      properties:
+        success:
+          type: boolean
+        requestId:
+          type: string
+        data:
+          $ref: '#/components/schemas/NotificationDto'
+        message:
+          type: string
+        code:
+          type: string
+        error:
+          type: string
+        fieldErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldErrorDto'
+    NotificationDto:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        title:
+          type: string
+        message:
+          type: string
+        refType:
+          type: string
+        refId:
+          type: string
+        triggeredByName:
+          type: string
+        read:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+    ApiResponseReadAllResultDto:
+      type: object
+      properties:
+        success:
+          type: boolean
+        requestId:
+          type: string
+        data:
+          $ref: '#/components/schemas/ReadAllResultDto'
+        message:
+          type: string
+        code:
+          type: string
+        error:
+          type: string
+        fieldErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldErrorDto'
+    ReadAllResultDto:
+      type: object
+      properties:
+        marked:
+          type: integer
+          format: int64
     BatchRawMaterialDto:
       type: object
       properties:
@@ -2123,6 +2243,41 @@ components:
         updatedAt:
           type: string
           format: date-time
+    ApiResponseNotificationListDto:
+      type: object
+      properties:
+        success:
+          type: boolean
+        requestId:
+          type: string
+        data:
+          $ref: '#/components/schemas/NotificationListDto'
+        message:
+          type: string
+        code:
+          type: string
+        error:
+          type: string
+        fieldErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldErrorDto'
+    NotificationListDto:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationDto'
+        unreadCount:
+          type: integer
+          format: int64
+    SseEmitter:
+      type: object
+      properties:
+        timeout:
+          type: integer
+          format: int64
     ApiResponseInspectionPageResult:
       type: object
       properties:

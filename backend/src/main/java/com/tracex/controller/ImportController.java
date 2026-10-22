@@ -17,8 +17,10 @@ import java.util.List;
 public class ImportController {
 
     private final ImportService importService;
+    private final com.tracex.service.NotificationService notificationService;
 
-    public ImportController(ImportService importService) {
+    public ImportController(ImportService importService, com.tracex.service.NotificationService notificationService) {
+        this.notificationService = notificationService;
         this.importService = importService;
     }
 
@@ -68,7 +70,14 @@ public class ImportController {
     ) {
         checkImporterPermission(principal);
         String requestId = RequestIdContext.getOrCreate();
-        return ApiResponse.ok(importService.commit(body, principal.getUser(), requestId), requestId);
+        ImportCommitResponseDto resp = importService.commit(body, principal.getUser(), requestId);
+        // Only the final chunk finishes a job; earlier chunks keep it "running"
+        if ("done".equals(resp.getStatus()) || "failed".equals(resp.getStatus())) {
+            ImportCommitTotalsDto t = resp.getTotals();
+            notificationService.importFinished(principal.getUser(), resp.getJobId(), resp.getStatus(),
+                    t != null ? t.getInserted() : 0, t != null ? t.getSkipped() : 0, t != null ? t.getErrored() : 0);
+        }
+        return ApiResponse.ok(resp, requestId);
     }
 
     @GetMapping
@@ -93,6 +102,8 @@ public class ImportController {
     ) {
         checkImporterPermission(principal);
         String requestId = RequestIdContext.getOrCreate();
-        return ApiResponse.ok(importService.rollback(id, principal.getUser(), requestId), requestId);
+        ImportRollbackResponseDto result = importService.rollback(id, principal.getUser(), requestId);
+        notificationService.broadcastChange("batch:updated", null);
+        return ApiResponse.ok(result, requestId);
     }
 }

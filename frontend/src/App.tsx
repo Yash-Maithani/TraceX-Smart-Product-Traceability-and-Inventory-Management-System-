@@ -20,6 +20,7 @@ import {
   LoginPage,
   LegacyTracePage,
   NotFoundPage,
+  NotificationsPage,
   PrivacyPage,
   ProfilePage,
   PublicTracePage,
@@ -133,6 +134,7 @@ export function App({ queryClient = defaultQueryClient }: { queryClient?: QueryC
                     />
                     <Route path="/profile" element={<ProfilePage />} />
                     <Route path="/settings" element={<SettingsPage />} />
+                    <Route path="/notifications" element={<NotificationsPage />} />
                     <Route
                       path="/team"
                       element={

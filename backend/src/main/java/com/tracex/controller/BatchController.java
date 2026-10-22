@@ -20,8 +20,11 @@ public class BatchController {
 
     private final BatchService batchService;
     private final com.tracex.service.QrService qrService;
+    private final com.tracex.service.NotificationService notificationService;
 
-    public BatchController(BatchService batchService, com.tracex.service.QrService qrService) {
+    public BatchController(BatchService batchService, com.tracex.service.QrService qrService,
+                           com.tracex.service.NotificationService notificationService) {
+        this.notificationService = notificationService;
         this.batchService = batchService;
         this.qrService = qrService;
     }
@@ -70,6 +73,7 @@ public class BatchController {
             @AuthenticationPrincipal UserPrincipal principal) {
         checkCreateEditPermission(principal);
         BatchDetailDto created = batchService.createBatch(dto, principal.getUsername(), RequestIdContext.getOrCreate());
+        notificationService.batchCreated(principal.getUser(), created.getId(), created.getBatchCode(), created.getProductName());
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(created, RequestIdContext.getOrCreate()));
     }
 
@@ -92,6 +96,10 @@ public class BatchController {
         checkDispatchPermission(principal);
         String requestId = RequestIdContext.getOrCreate();
         BatchDetailDto dispatched = batchService.dispatchBatch(id, dto, principal.getUser(), requestId);
+        List<com.tracex.model.Batch.DispatchHistoryEntry> history = dispatched.getDispatchHistory();
+        boolean outOfOrder = history != null && !history.isEmpty() && history.get(history.size() - 1).isOutOfOrder();
+        notificationService.batchDispatched(principal.getUser(), dispatched.getId(), dispatched.getBatchCode(),
+                dispatched.getBuyerName(), outOfOrder);
         if (dispatched.getWarning() != null) {
             return ApiResponse.ok(dispatched, dispatched.getWarning(), requestId);
         }
@@ -104,7 +112,9 @@ public class BatchController {
             @Valid @RequestBody BatchNoteDto dto,
             @AuthenticationPrincipal UserPrincipal principal) {
         checkCreateEditPermission(principal);
-        return ApiResponse.ok(batchService.updateNote(id, dto.getNote(), principal.getUsername(), RequestIdContext.getOrCreate()), RequestIdContext.getOrCreate());
+        BatchDetailDto updated = batchService.updateNote(id, dto.getNote(), principal.getUsername(), RequestIdContext.getOrCreate());
+        notificationService.broadcastChange("batch:updated", id);
+        return ApiResponse.ok(updated, RequestIdContext.getOrCreate());
     }
 
     @PatchMapping("/{id}/raw-material")
@@ -113,7 +123,9 @@ public class BatchController {
             @Valid @RequestBody BatchRawMaterialDto dto,
             @AuthenticationPrincipal UserPrincipal principal) {
         checkCreateEditPermission(principal);
-        return ApiResponse.ok(batchService.updateRawMaterial(id, dto, principal.getUsername(), RequestIdContext.getOrCreate()), RequestIdContext.getOrCreate());
+        BatchDetailDto updated = batchService.updateRawMaterial(id, dto, principal.getUsername(), RequestIdContext.getOrCreate());
+        notificationService.broadcastChange("batch:updated", id);
+        return ApiResponse.ok(updated, RequestIdContext.getOrCreate());
     }
 
     @DeleteMapping("/{id}")
@@ -124,7 +136,9 @@ public class BatchController {
         checkAdminPermission(principal);
         String reason = body != null ? body.get("reason") : null;
         try {
-            return ResponseEntity.ok(ApiResponse.ok(batchService.archiveBatch(id, reason, principal.getUsername(), RequestIdContext.getOrCreate()), RequestIdContext.getOrCreate()));
+            BatchDetailDto archived = batchService.archiveBatch(id, reason, principal.getUsername(), RequestIdContext.getOrCreate());
+            notificationService.broadcastChange("batch:updated", id);
+            return ResponseEntity.ok(ApiResponse.ok(archived, RequestIdContext.getOrCreate()));
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponse.error(ErrorCode.CONFLICT, e.getMessage(), RequestIdContext.getOrCreate()));
         }
@@ -136,7 +150,9 @@ public class BatchController {
             @AuthenticationPrincipal UserPrincipal principal) {
         checkAdminPermission(principal);
         try {
-            return ResponseEntity.ok(ApiResponse.ok(batchService.restoreBatch(id, principal.getUsername(), RequestIdContext.getOrCreate()), RequestIdContext.getOrCreate()));
+            BatchDetailDto restored = batchService.restoreBatch(id, principal.getUsername(), RequestIdContext.getOrCreate());
+            notificationService.broadcastChange("batch:updated", id);
+            return ResponseEntity.ok(ApiResponse.ok(restored, RequestIdContext.getOrCreate()));
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponse.error(ErrorCode.CONFLICT, e.getMessage(), RequestIdContext.getOrCreate()));
         }

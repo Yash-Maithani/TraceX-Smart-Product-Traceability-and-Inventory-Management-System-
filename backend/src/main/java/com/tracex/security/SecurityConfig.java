@@ -53,6 +53,9 @@ public class SecurityConfig {
                         .accessDeniedHandler(accessDeniedHandler)
                 )
                 .authorizeHttpRequests(auth -> auth
+                        // The SSE stream (Phase 10) finishes on an async dispatch after the original,
+                        // already-authenticated request; re-checking it there would reject a closed stream
+                        .dispatcherTypeMatchers(jakarta.servlet.DispatcherType.ASYNC).permitAll()
                         .requestMatchers(
                                 "/api/v1/auth/login",
                                 "/api/v1/auth/request-access",

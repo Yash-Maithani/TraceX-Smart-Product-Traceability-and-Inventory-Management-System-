@@ -20,8 +20,11 @@ import java.util.List;
 public class InspectionController {
 
     private final InspectionService inspectionService;
+    private final com.tracex.service.NotificationService notificationService;
 
-    public InspectionController(InspectionService inspectionService) {
+    public InspectionController(InspectionService inspectionService,
+                                com.tracex.service.NotificationService notificationService) {
+        this.notificationService = notificationService;
         this.inspectionService = inspectionService;
     }
 
@@ -70,6 +73,8 @@ public class InspectionController {
             @AuthenticationPrincipal UserPrincipal principal) {
         checkCreatePermission(principal);
         Inspection created = inspectionService.createInspection(dto, principal.getUser());
+        notificationService.inspectionCompleted(principal.getUser(), created.getId(), created.getBatchId(),
+                created.getBatchCode(), created.getStatus());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.ok(created, "Inspection submitted", RequestIdContext.getOrCreate()));
     }

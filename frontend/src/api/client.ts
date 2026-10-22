@@ -179,3 +179,17 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
   const envelope = parsedBody as ApiSuccessEnvelope<T>;
   return envelope;
 }
+
+/**
+ * Opens a long-lived authenticated text/event-stream response (Phase 10 live updates).
+ * Kept here so every network call still goes through this module. Returns null when signed out.
+ */
+export async function openAuthorizedStream(path: string, signal: AbortSignal): Promise<Response | null> {
+  const token = getToken();
+  if (!token) return null;
+  return fetch(`${getApiBaseUrl()}${path}`, {
+    headers: { Authorization: `Bearer ${token}`, Accept: 'text/event-stream' },
+    signal,
+    cache: 'no-store'
+  });
+}

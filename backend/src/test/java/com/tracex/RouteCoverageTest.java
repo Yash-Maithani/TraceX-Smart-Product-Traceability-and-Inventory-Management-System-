@@ -59,7 +59,7 @@ public class RouteCoverageTest {
                 String key = method + " " + path;
                 allMatrixEndpoints.add(key);
 
-                if (phase <= 9) {
+                if (phase <= 10) {
                     phaseLeq4MatrixEndpoints.add(key);
                 } else {
                     pendingLaterPhaseEndpoints.add(String.format("Phase %d: %s", phase, key));
@@ -120,7 +120,7 @@ public class RouteCoverageTest {
                 .withFailMessage("The following mapped Spring endpoints have no corresponding entry in docs/permission-matrix.csv:\n" + String.join("\n", unmappedRoutes))
                 .isEmpty();
 
-        // Direction 2: Every matrix row with phase <= 9 must map to a real Spring endpoint (actuator health is handled by Actuator)
+        // Direction 2: Every matrix row with phase <= 10 must map to a real Spring endpoint (actuator health is handled by Actuator)
         List<String> missingPhaseLeq4Routes = new ArrayList<>();
         for (String expectedRoute : phaseLeq4MatrixEndpoints) {
             if (expectedRoute.equals("GET /actuator/health")) {
@@ -132,11 +132,11 @@ public class RouteCoverageTest {
         }
 
         assertThat(missingPhaseLeq4Routes)
-                .withFailMessage("The following Phase <= 9 routes from permission-matrix.csv are not mapped in Spring Boot controllers:\n" + String.join("\n", missingPhaseLeq4Routes))
+                .withFailMessage("The following Phase <= 10 routes from permission-matrix.csv are not mapped in Spring Boot controllers:\n" + String.join("\n", missingPhaseLeq4Routes))
                 .isEmpty();
 
-        assertThat(phaseLeq4MatrixEndpoints).hasSize(55);
-        log.info("Two-way route coverage confirmed for Phase <= 9 ({} active endpoints). {} endpoints pending for later phases.",
+        assertThat(phaseLeq4MatrixEndpoints).hasSize(59);
+        log.info("Two-way route coverage confirmed for Phase <= 10 ({} active endpoints). {} endpoints pending for later phases.",
                 phaseLeq4MatrixEndpoints.size(), pendingLaterPhaseEndpoints.size());
     }
 
