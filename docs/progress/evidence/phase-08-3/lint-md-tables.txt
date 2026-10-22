@@ -1,0 +1,9 @@
+﻿=== Markdown Table Linter ===
+Scanning 39 Markdown files...
+
+
+=== Summary ===
+Files checked: 39
+Errors: 0
+Warnings: 0
+STATUS: PASSED (Zero problems found)

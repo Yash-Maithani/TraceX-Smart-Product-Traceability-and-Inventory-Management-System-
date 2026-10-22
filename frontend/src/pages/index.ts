@@ -14,8 +14,7 @@ export { ProfilePage } from '../features/profile/ProfilePage';
 export {
   NotFoundPage,
   PrivacyPage,
-  TermsPage,
-  TracePlaceholderPage
+  TermsPage
 } from '../features/public/PublicPages';
 export { PublicTracePage } from '../features/public/PublicTracePage';
 export { LegacyTracePage } from '../features/public/LegacyTracePage';

@@ -119,6 +119,21 @@ export function scanDirectoryForBannedPatterns(baseDir = rootDir) {
         violations.push(`${relPath}:${lineNum} - Banned 'console.*' usage outside src/lib/logger.ts`);
       }
 
+      // 10. Em dashes are banned in user-visible text (use "Not recorded" from src/lib/format.ts
+      //     for empty values, or a colon or parentheses as a separator)
+      if (/\.(ts|tsx|html)$/.test(relPath) && !isTestFile && line.includes('\u2014')) {
+        violations.push(`${relPath}:${lineNum} - Banned em dash in user-visible text`);
+      }
+
+      // 11. Internal spec references (D-12, SPEC §7) must not appear in user-visible text
+      if (
+        /\.(ts|tsx)$/.test(relPath) &&
+        !isTestFile &&
+        (/\((?:SPEC\s*§|D-\d)/.test(line) || /\bper D-\d/.test(line) || /\bD-\d+\/D-\d/.test(line))
+      ) {
+        violations.push(`${relPath}:${lineNum} - Internal spec reference in user-visible text`);
+      }
+
       // 10. Hardcoded http://localhost is banned in src/
       if (/http:\/\/localhost\b/i.test(line) && !isTestFile) {
         violations.push(`${relPath}:${lineNum} - Banned hardcoded 'http://localhost' in source code`);

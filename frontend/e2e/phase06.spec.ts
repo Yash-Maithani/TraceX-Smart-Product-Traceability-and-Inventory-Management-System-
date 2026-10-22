@@ -237,7 +237,7 @@ test.describe('Phase 6 E2E Verification Suite (Core Feature UI & Checks 6, 8, 9)
     await page.getByTestId('view-created-batch-btn').click();
     await expect(page).toHaveURL(/\/batches\/[a-f0-9]+$/i);
     await expect(page.getByTestId('detail-batch-code')).toHaveText(allocatedCode);
-    await expect(page.getByTestId('detail-farmer-village')).toHaveText('Kundan Bisht — Almora');
+    await expect(page.getByTestId('detail-farmer-village')).toHaveText('Kundan Bisht, Almora');
 
     // Add / update traceability note
     await page.getByTestId('batch-note-input').fill('Updated E2E note after moisture check');
@@ -259,7 +259,7 @@ test.describe('Phase 6 E2E Verification Suite (Core Feature UI & Checks 6, 8, 9)
     await page.getByTestId('save-raw-material-btn').click();
 
     await expect(page.getByTestId('detail-farmer-village')).toHaveText(
-      'Kundan Singh Bisht — Ranikhet'
+      'Kundan Singh Bisht, Ranikhet'
     );
     await expect(page.getByTestId('detail-quantity')).toContainText('195 Kg');
   });

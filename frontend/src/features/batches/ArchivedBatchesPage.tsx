@@ -20,6 +20,7 @@ import {
   type TableColumn
 } from '../../components/ui';
 import { formatBusinessDate, formatTimestamp } from '../../lib/dates';
+import { EMPTY_VALUE } from '../../lib/format';
 
 export function ArchivedBatchesPage() {
   const { user } = useAuth();
@@ -99,9 +100,9 @@ export function ArchivedBatchesPage() {
       header: 'Archived By / Reason',
       render: (row) => (
         <div>
-          <div>{row.deleteNote ?? '—'}</div>
+          <div>{row.deleteNote ?? EMPTY_VALUE}</div>
           <div className={coreStyles.metaLabel}>
-            {row.deletedBy ?? '—'} • {formatTimestamp(row.deletedAt)}
+            {row.deletedBy ?? EMPTY_VALUE} • {formatTimestamp(row.deletedAt)}
           </div>
         </div>
       )
@@ -197,7 +198,7 @@ export function ArchivedBatchesPage() {
                 </div>
                 <div className={coreStyles.metaItem}>
                   <span className={coreStyles.metaLabel}>Archive Note</span>
-                  <span className={coreStyles.metaValue}>{row.deleteNote ?? '—'}</span>
+                  <span className={coreStyles.metaValue}>{row.deleteNote ?? EMPTY_VALUE}</span>
                 </div>
                 {allowRestore && row.id ? (
                   <div>

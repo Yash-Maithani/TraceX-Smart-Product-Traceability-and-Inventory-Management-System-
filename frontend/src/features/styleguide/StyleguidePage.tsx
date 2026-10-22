@@ -311,7 +311,7 @@ export default function StyleguidePage() {
                   testId={`sg-backdrop-banner-${key}`}
                 >
                   <div>
-                    <div className={styles.bannerPreviewTitle}>{`${key} — Banner`}</div>
+                    <div className={styles.bannerPreviewTitle}>{`${key}: Banner`}</div>
                     <p className={styles.bannerPreviewSubtitle}>
                       {`Routes: ${BACKDROP_KEY_ROUTES[key].join(', ')}`}
                     </p>
@@ -333,7 +333,7 @@ export default function StyleguidePage() {
                   testId={`sg-backdrop-side-${key}`}
                 >
                   <div className={styles.sidePreviewBody}>
-                    <div className={styles.previewPanelTitle}>{`${key} — Side`}</div>
+                    <div className={styles.previewPanelTitle}>{`${key}: Side`}</div>
                     <p className={styles.previewPanelSubtitle}>
                       {`Routes: ${BACKDROP_KEY_ROUTES[key].join(', ')}`}
                     </p>
@@ -355,7 +355,7 @@ export default function StyleguidePage() {
                   testId={`sg-backdrop-full-${key}`}
                 >
                   <div>
-                    <div className={styles.previewPanelTitle}>{`${key} — Full`}</div>
+                    <div className={styles.previewPanelTitle}>{`${key}: Full`}</div>
                     <p className={styles.previewPanelSubtitle}>
                       {`Routes: ${BACKDROP_KEY_ROUTES[key].join(', ')}`}
                     </p>

@@ -1,5 +1,5 @@
 # TraceX — PROGRESS.md
-> Updated: 2026-10-22 (Phase 8.2 COMPLETE)
+> Updated: 2026-10-22 (Phase 8.3 COMPLETE)
 
 ---
 
@@ -30,6 +30,7 @@
 | 8 | Import | COMPLETE | 2026-10-06 | [phase-08](docs/progress/phase-08.md) |
 | 8.1 | Phase 8 import corrections | COMPLETE | 2026-10-22 | [phase-08-1](docs/progress/phase-08-1.md) |
 | 8.2 | Security fixes from the strict review (C1 to C3, H1 to H9) | COMPLETE | 2026-10-22 | [phase-08-2](docs/progress/phase-08-2.md) |
+| 8.3 | UI copy cleanup (spec codes and em dashes) | COMPLETE | 2026-10-22 | [phase-08-3](docs/progress/phase-08-3.md) |
 | 9 | Team admin UI, settings, login history | NOT STARTED | | |
 | 10 | Notifications, messages, live updates (SSE) | NOT STARTED | | |
 | 11 | AI and Google OAuth (conditional on the audit) | NOT STARTED | | |
@@ -401,3 +402,6 @@
 - **C1 to C3 and H1 to H7 (backend)**: OTPs now carry a purpose (`ACTIVATION` or `PASSWORD_RESET`) and `/verify-otp` only accepts a pending activation, so a reset code can no longer reactivate a deactivated account; deactivation clears outstanding codes. Rejecting a request revokes its invite and activation requires `APPROVED`. No default Spring profile, no hard-coded JWT or trace secret, real SMTP unless a local profile enables the mail sink, and the Docker image sets `prod`. Admin-only endpoints accept `SUPER_ADMIN`. `request-access` answers duplicates with the same generic 200. OTP guesses are reserved atomically, a new code no longer resets the counter, lockout lasts 15 minutes, and both verify endpoints are rate-limited per IP. Changing the profile email needs the current password. Login checks the password before account status. Raw material is frozen after dispatch, `expiryDate` must follow `packDate`, and corrections record old and new values (`farmerName` redacted in `audit_logs`). Import rollback is limited to the job's owner or an admin.
 - **H8 and H9 (docs)**: `SPEC.md` names `docs/permission-matrix.csv` plus `RbacMatrixTest` and the Admin-vs-Admin table plus `AdminVsAdminRulesTest` as the RBAC source of truth and corrects the three contradictions. `docs/traceability.md` now cites only test methods that exist (`16` made-up names replaced) and gains `S-02` and `SEC-8.2` rows. Remaining review findings are tracked as `OI-12`.
 - **Totals**: backend **`561` tests, `0` failures** (`+19` in `SecurityFixesTests`); frontend unit **`89` tests in `15` files** (`+1`); Playwright E2E **`39` passed across `5` files**. Full log in [docs/progress/phase-08-2.md](docs/progress/phase-08-2.md).
+
+### Phase 8.3 UI Copy Cleanup (No New Features)
+- **Parts A to C**: Removed internal spec codes (`SPEC §7`, `D-5`, `D-9`, `D-12`, `D-13`, `D-14`, `D-15`, `D-18`) and developer phrasing from user-visible text, deleted unused placeholder strings and the unrouted `TracePlaceholderPage`, replaced every visible em dash (empty values now read "Not recorded" via `src/lib/format.ts`), and added banned-pattern rules 10 and 11 so neither can return. Frontend unit: **`90` tests in `15` files, `0` failures**. Full log in [docs/progress/phase-08-3.md](docs/progress/phase-08-3.md).

@@ -23,6 +23,7 @@ import {
 } from '../../components/ui';
 import { formatBusinessDate } from '../../lib/dates';
 import { DispatchDialog } from '../batches/DispatchDialog';
+import { EMPTY_VALUE, formatDays } from '../../lib/format';
 
 export function FefoPage() {
   const { user } = useAuth();
@@ -105,7 +106,7 @@ export function FefoPage() {
     {
       key: 'status',
       header: 'Freshness Tier',
-      render: (row) => (row.status ? <StatusBadge status={row.status} /> : <span>—</span>)
+      render: (row) => (row.status ? <StatusBadge status={row.status} /> : <span>{EMPTY_VALUE}</span>)
     },
     {
       key: 'expiryDate',
@@ -114,7 +115,7 @@ export function FefoPage() {
         <div>
           <div>{formatBusinessDate(row.expiryDate)}</div>
           <div className={coreStyles.metaLabel}>
-            {row.daysUntilExpiry ?? '—'} days remaining
+            {formatDays(row.daysUntilExpiry, ' days remaining')}
           </div>
         </div>
       )
@@ -193,7 +194,7 @@ export function FefoPage() {
             <option value="">All SKUs</option>
             {(productsQuery.data ?? []).map((p) => (
               <option key={p.sku} value={p.sku}>
-                {p.sku} — {p.productName}
+                {p.sku} · {p.productName}
               </option>
             ))}
           </Select>
@@ -283,7 +284,7 @@ export function FefoPage() {
                         <div className={coreStyles.metaItem}>
                           <span className={coreStyles.metaLabel}>Expiry Date</span>
                           <span className={coreStyles.metaValue}>
-                            {formatBusinessDate(row.expiryDate)} ({row.daysUntilExpiry ?? '—'}d)
+                            {formatBusinessDate(row.expiryDate)} ({formatDays(row.daysUntilExpiry, 'd')})
                           </span>
                         </div>
                         <div className={coreStyles.metaItem}>
@@ -316,11 +317,10 @@ export function FefoPage() {
             <div className={coreStyles.sectionHeader}>
               <div>
                 <h2 className={coreStyles.sectionTitle}>
-                  2. Expired Batches — Blocked from Dispatch ({expired.length})
+                  2. Expired Batches: Blocked from Dispatch ({expired.length})
                 </h2>
                 <p className={coreStyles.sectionSubtitle}>
-                  Excluded from the dispatchable FEFO queue per D-12. Attempting to dispatch returns
-                  HTTP 409 BATCH_EXPIRED.
+                  These batches have passed their expiry date and cannot be dispatched.
                 </p>
               </div>
             </div>
@@ -348,7 +348,7 @@ export function FefoPage() {
                     </div>
                     <div className={coreStyles.timelineHeader}>
                       <span>Expiry: {formatBusinessDate(item.expiryDate)}</span>
-                      <span>Days: {item.daysUntilExpiry ?? '—'}</span>
+                      <span>Days: {item.daysUntilExpiry ?? EMPTY_VALUE}</span>
                     </div>
                   </li>
                 ))}
@@ -360,7 +360,7 @@ export function FefoPage() {
             <div className={coreStyles.sectionHeader}>
               <div>
                 <h2 className={coreStyles.sectionTitle}>
-                  3. Data Exceptions — Missing or Corrupted Expiry ({exceptions.length})
+                  3. Data Exceptions: Missing or Corrupted Expiry ({exceptions.length})
                 </h2>
                 <p className={coreStyles.sectionSubtitle}>
                   Batches with missing, null, or unparseable expiry dates are isolated here until

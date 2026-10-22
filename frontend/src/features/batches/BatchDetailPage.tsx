@@ -39,6 +39,7 @@ import {
 } from '../../components/ui';
 import { formatBusinessDate, formatTimestamp } from '../../lib/dates';
 import { DispatchDialog } from './DispatchDialog';
+import { EMPTY_VALUE, formatDays } from '../../lib/format';
 
 const UNIT_OPTIONS = ['Kg', 'Units', 'Liters'] as const;
 
@@ -360,7 +361,7 @@ export function BatchDetailPage() {
               <div>
                 <h2 className={coreStyles.sectionTitle}>Provenance & Freshness Summary</h2>
                 <p className={coreStyles.sectionSubtitle}>
-                  Server-computed freshness status and raw-material origin metadata
+                  Freshness status and where the raw material came from
                 </p>
               </div>
               <div className={coreStyles.inlineRow}>
@@ -400,8 +401,8 @@ export function BatchDetailPage() {
                 <span className={coreStyles.metaLabel}>Days Until Expiry</span>
                 <span className={coreStyles.metaValue} data-testid="detail-days-until-expiry">
                   {batch.status === 'EXCEPTION'
-                    ? '— (Exception)'
-                    : `${batch.daysUntilExpiry ?? '—'} days`}
+                    ? 'Exception'
+                    : formatDays(batch.daysUntilExpiry, ' days')}
                 </span>
               </div>
               <div className={coreStyles.metaItem}>
@@ -419,7 +420,7 @@ export function BatchDetailPage() {
               <div className={coreStyles.metaItem}>
                 <span className={coreStyles.metaLabel}>Farmer & Village</span>
                 <span className={coreStyles.metaValue} data-testid="detail-farmer-village">
-                  {batch.farmerName} — {batch.village}
+                  {batch.farmerName}, {batch.village}
                 </span>
               </div>
               <div className={coreStyles.metaItem}>
@@ -812,7 +813,7 @@ export function BatchDetailPage() {
                         </span>
                       </div>
                       <div className={coreStyles.metaLabel}>
-                        Inspector: {insp.inspectedBy?.name ?? insp.inspectedBy?.username ?? '—'}
+                        Inspector: {insp.inspectedBy?.name ?? insp.inspectedBy?.username ?? EMPTY_VALUE}
                       </div>
                       {insp.findings ? (
                         <div>
@@ -860,7 +861,7 @@ export function BatchDetailPage() {
             onClose={() => {
               if (!rawMaterialMutation.isPending) setRawMaterialOpen(false);
             }}
-            title={`Correct Raw Material — ${batch.batchCode ?? ''}`}
+            title={`Correct Raw Material: ${batch.batchCode ?? ''}`}
             description="Update provenance or date fields with an audited correction reason."
             actions={
               <>

@@ -192,7 +192,7 @@ export function ResetPasswordPage() {
             <Field
               label={STRINGS.auth.newPasswordLabel}
               required
-              helpText="Minimum 8 characters (SPEC §7)."
+              helpText="Minimum 8 characters."
               error={passwordForm.formState.errors.newPassword?.message}
             >
               <PasswordInput

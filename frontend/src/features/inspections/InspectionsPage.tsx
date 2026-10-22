@@ -32,6 +32,7 @@ import {
   type TableColumn
 } from '../../components/ui';
 import { formatTimestamp } from '../../lib/dates';
+import { EMPTY_VALUE } from '../../lib/format';
 
 export const FIXED_CHECKLIST_LABELS: readonly string[] = [
   'Packaging integrity',
@@ -227,7 +228,7 @@ export function InspectionsPage() {
         row.status ? (
           <StatusBadge status={row.status as StatusBadgeValue} />
         ) : (
-          <span>—</span>
+          <span>{EMPTY_VALUE}</span>
         )
     },
     {
@@ -239,7 +240,7 @@ export function InspectionsPage() {
       key: 'inspector',
       header: 'Inspector',
       render: (row) => (
-        <span>{row.inspectedBy?.name ?? row.inspectedBy?.username ?? '—'}</span>
+        <span>{row.inspectedBy?.name ?? row.inspectedBy?.username ?? EMPTY_VALUE}</span>
       )
     },
     {
@@ -268,7 +269,7 @@ export function InspectionsPage() {
     <div className={coreStyles.pageStack} data-testid="inspections-page">
       <PageHeader
         title="Quality Inspections"
-        subtitle="Permanent, append-only 8-point quality inspection records (D-13, D-15)."
+        subtitle="8-point quality inspection records. Every inspection is kept permanently."
         backdropKey="inspections"
         priority
         actions={
@@ -380,10 +381,10 @@ export function InspectionsPage() {
                   ) : null}
                 </div>
                 <div>
-                  <strong>{row.productName}</strong> ({row.sku}) — Rating: {row.rating}/5
+                  <strong>{row.productName}</strong> ({row.sku}), Rating: {row.rating}/5
                 </div>
                 <div className={coreStyles.metaLabel}>
-                  {row.inspectedBy?.name ?? '—'} • {formatTimestamp(row.createdAt)}
+                  {row.inspectedBy?.name ?? EMPTY_VALUE} • {formatTimestamp(row.createdAt)}
                 </div>
                 <div>
                   <Button
@@ -472,7 +473,7 @@ export function InspectionsPage() {
               <option value="">Select a batch…</option>
               {(batchesForSelectQuery.data?.data ?? []).map((b) => (
                 <option key={b.id} value={b.id}>
-                  {b.batchCode} — {b.productName} ({b.sku})
+                  {b.batchCode} · {b.productName} ({b.sku})
                 </option>
               ))}
             </Select>
@@ -488,9 +489,9 @@ export function InspectionsPage() {
                 disabled={createMutation.isPending}
                 data-testid="inspection-verdict-select"
               >
-                <option value="PASSED">PASSED — Cleared for dispatch</option>
-                <option value="FLAGGED">FLAGGED — Dispatch permitted with advisory</option>
-                <option value="FAILED">FAILED — Place batch on Quality Hold</option>
+                <option value="PASSED">PASSED (cleared for dispatch)</option>
+                <option value="FLAGGED">FLAGGED (dispatch allowed with a warning)</option>
+                <option value="FAILED">FAILED (batch goes on quality hold)</option>
               </Select>
             </Field>
 
@@ -501,11 +502,11 @@ export function InspectionsPage() {
                 disabled={createMutation.isPending}
                 data-testid="inspection-rating-select"
               >
-                <option value="5">5 — Excellent</option>
-                <option value="4">4 — Good</option>
-                <option value="3">3 — Acceptable</option>
-                <option value="2">2 — Substandard</option>
-                <option value="1">1 — Critical Failure</option>
+                <option value="5">5: Excellent</option>
+                <option value="4">4: Good</option>
+                <option value="3">3: Acceptable</option>
+                <option value="2">2: Substandard</option>
+                <option value="1">1: Critical Failure</option>
               </Select>
             </Field>
           </div>
@@ -608,8 +609,8 @@ export function InspectionsPage() {
       <Dialog
         open={Boolean(selectedInspection)}
         onClose={() => setSelectedInspection(null)}
-        title={`Inspection Record — ${selectedInspection?.batchCode ?? ''}`}
-        description="Read-only permanent quality record (D-15). Inspections cannot be modified or deleted after creation."
+        title={`Inspection Record: ${selectedInspection?.batchCode ?? ''}`}
+        description="Read-only quality record. Inspections cannot be changed or deleted after they are saved."
         actions={
           <Button variant="secondary" onClick={() => setSelectedInspection(null)}>
             Close
@@ -625,7 +626,7 @@ export function InspectionsPage() {
                   {selectedInspection.status ? (
                     <StatusBadge status={selectedInspection.status as StatusBadgeValue} />
                   ) : (
-                    '—'
+                    EMPTY_VALUE
                   )}
                 </span>
               </div>
@@ -640,7 +641,7 @@ export function InspectionsPage() {
                 <span className={coreStyles.metaValue}>
                   {selectedInspection.inspectedBy?.name ??
                     selectedInspection.inspectedBy?.username ??
-                    '—'}
+                    EMPTY_VALUE}
                 </span>
               </div>
               <div className={coreStyles.metaItem}>

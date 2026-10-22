@@ -1,3 +1,4 @@
+import { EMPTY_VALUE } from './format';
 /**
  * Date formatting utilities (SPEC §3.1, D-17, Phase 5 Part A).
  *
@@ -63,7 +64,7 @@ export function formatBusinessDate(
   style: 'short' | 'long' | 'iso' = 'short'
 ): string {
   if (dateStr === null || dateStr === undefined || dateStr.trim() === '') {
-    return '—';
+    return EMPTY_VALUE;
   }
   const parts = parseBusinessDateParts(dateStr);
   if (!parts) {
@@ -84,7 +85,7 @@ export function formatBusinessDate(
  */
 export function formatTimestamp(isoInstant: string | null | undefined): string {
   if (isoInstant === null || isoInstant === undefined || isoInstant.trim() === '') {
-    return '—';
+    return EMPTY_VALUE;
   }
   const date = new Date(isoInstant);
   if (Number.isNaN(date.getTime())) {

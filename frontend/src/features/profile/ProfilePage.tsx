@@ -16,6 +16,7 @@ import {
   useToast
 } from '../../components/ui';
 import { STRINGS } from '../../strings/en';
+import { EMPTY_VALUE } from '../../lib/format';
 
 export function ProfilePage() {
   const { user, setAuthenticatedSession, logoutAll, refreshSession } = useAuth();
@@ -135,7 +136,7 @@ export function ProfilePage() {
     passwordMutation.mutate();
   };
 
-  const roleLabel = user?.role ? (STRINGS.roles[user.role] ?? user.role) : '—';
+  const roleLabel = user?.role ? (STRINGS.roles[user.role] ?? user.role) : EMPTY_VALUE;
 
   return (
     <div className={coreStyles.pageStack} data-testid="profile-page">

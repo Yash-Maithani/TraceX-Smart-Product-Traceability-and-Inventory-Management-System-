@@ -178,7 +178,7 @@ export function CreateBatchDialog({ open, onClose, onCreated }: CreateBatchDialo
             </strong>
           </div>
           <div>
-            Product: <strong>{createdBatch.productName}</strong> ({createdBatch.sku}) — Expiry:{' '}
+            Product: <strong>{createdBatch.productName}</strong> ({createdBatch.sku}), Expiry:{' '}
             <strong>{createdBatch.expiryDate}</strong>
           </div>
         </div>

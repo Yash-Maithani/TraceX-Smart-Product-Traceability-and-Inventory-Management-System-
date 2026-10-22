@@ -96,7 +96,7 @@ export function ActivatePage() {
         <Field
           label={STRINGS.auth.newPasswordLabel}
           required
-          helpText="Minimum 8 characters (SPEC §7)."
+          helpText="Minimum 8 characters."
           error={errors.password?.message}
         >
           <PasswordInput

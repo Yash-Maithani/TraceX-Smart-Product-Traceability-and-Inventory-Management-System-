@@ -259,7 +259,7 @@ export function DispatchDialog({
           <Field
             label="FEFO Out-of-Order Override Reason"
             required
-            hint="Required by D-14/D-18 because an earlier-expiring batch of the same SKU is in the queue. This override is recorded in the audit log."
+            hint="Required because an earlier-expiring batch of the same SKU is still in the queue. The reason is recorded in the audit log."
             error={fieldErrors.overrideReason}
           >
             <Textarea

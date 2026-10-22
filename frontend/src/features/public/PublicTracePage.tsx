@@ -19,6 +19,7 @@ import {
 import { formatBusinessDate, formatTimestamp } from '../../lib/dates';
 import { logger } from '../../lib/logger';
 import { STRINGS } from '../../strings/en';
+import { EMPTY_VALUE } from '../../lib/format';
 
 export function PublicTracePage() {
   const { token = '' } = useParams<{ token: string }>();
@@ -148,14 +149,14 @@ export function PublicTracePage() {
                   <div className={publicStyles.fieldItem}>
                     <span className={publicStyles.fieldLabel}>Pack Date</span>
                     <span className={publicStyles.fieldValue} data-testid="trace-pack-date">
-                      {traceData.packDate ? formatBusinessDate(traceData.packDate) : '—'}
+                      {traceData.packDate ? formatBusinessDate(traceData.packDate) : EMPTY_VALUE}
                     </span>
                   </div>
 
                   <div className={publicStyles.fieldItem}>
                     <span className={publicStyles.fieldLabel}>Expiry Date</span>
                     <span className={publicStyles.fieldValue} data-testid="trace-expiry-date">
-                      {traceData.expiryDate ? formatBusinessDate(traceData.expiryDate) : '—'}
+                      {traceData.expiryDate ? formatBusinessDate(traceData.expiryDate) : EMPTY_VALUE}
                     </span>
                   </div>
                 </div>

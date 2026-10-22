@@ -51,6 +51,7 @@ import {
   toErrorReportCsv,
   type CsvRowObject
 } from './csvParser';
+import { EMPTY_VALUE } from '../../lib/format';
 
 export type ImportWizardStep = 'upload' | 'map' | 'preview' | 'commit' | 'result';
 type PreviewFilter = 'all' | 'insert' | 'skip' | 'error';
@@ -608,7 +609,7 @@ export function ImportPage() {
               <p className={coreStyles.sectionSubtitle}>
                 Supports comma, semicolon, and tab delimiters up to{' '}
                 {MAX_IMPORT_ROWS.toLocaleString()} rows per job (chunked at {CHUNK_SIZE} rows per
-                request). Excel (.xls / .xlsx) files are not accepted (D-5).
+                request). Excel (.xls / .xlsx) files are not accepted.
               </p>
             </div>
           </div>
@@ -751,7 +752,7 @@ export function ImportPage() {
                         }}
                         data-testid={`map-select-${colKey}`}
                       >
-                        <option value="">— Ignore —</option>
+                        <option value="">Ignore this column</option>
                         {headers.map((h) => (
                           <option key={h} value={h}>
                             {h}
@@ -797,8 +798,8 @@ export function ImportPage() {
             <div>
               <h2 className={coreStyles.sectionTitle}>Validation Preview</h2>
               <p className={coreStyles.sectionSubtitle}>
-                Review row verdicts before committing. Personal supplier data (Farmer Name) is
-                redacted from preview and logs per D-9.
+                Review row verdicts before committing. Farmer names are hidden from the preview
+                and never written to logs.
               </p>
             </div>
             <div className={styles.actionGroup}>
@@ -893,7 +894,7 @@ export function ImportPage() {
                     key={pRow.rowNumber ?? idx}
                     data-testid={`preview-row-${pRow.rowNumber ?? idx}`}
                   >
-                    <td className={coreStyles.monoCode}>{pRow.rowNumber ?? '—'}</td>
+                    <td className={coreStyles.monoCode}>{pRow.rowNumber ?? EMPTY_VALUE}</td>
                     <td>
                       {pRow.verdict === 'insert' ? (
                         <span className={`${styles.verdictTag} ${styles.verdictInsert}`}>
@@ -910,11 +911,11 @@ export function ImportPage() {
                       )}
                     </td>
                     <td className={coreStyles.monoCode}>
-                      {pRow.sourceLotCode ?? '—'}
+                      {pRow.sourceLotCode ?? EMPTY_VALUE}
                     </td>
                     <td>
                       <div className={coreStyles.monoCode}>
-                        {pRow.product?.sku ?? '—'}
+                        {pRow.product?.sku ?? EMPTY_VALUE}
                       </div>
                       {pRow.product?.productName ? (
                         <div className={coreStyles.metaLabel}>
@@ -922,12 +923,12 @@ export function ImportPage() {
                         </div>
                       ) : null}
                     </td>
-                    <td>{pRow.packDate ?? '—'}</td>
-                    <td>{pRow.village ?? '—'}</td>
+                    <td>{pRow.packDate ?? EMPTY_VALUE}</td>
+                    <td>{pRow.village ?? EMPTY_VALUE}</td>
                     <td>
                       {pRow.quantityProduced !== null && pRow.quantityProduced !== undefined
                         ? `${pRow.quantityProduced} ${pRow.unit ?? ''}`
-                        : '—'}
+                        : EMPTY_VALUE}
                     </td>
                     <td>
                       {pRow.verdict === 'skip' ? (
@@ -1115,8 +1116,8 @@ export function ImportPage() {
                 <tbody>
                   {resultRowErrors.map((err, idx) => (
                     <tr key={`${err.rowNumber}-${err.field}-${idx}`}>
-                      <td className={coreStyles.monoCode}>{err.rowNumber ?? '—'}</td>
-                      <td className={coreStyles.monoCode}>{err.sourceLotCode ?? '—'}</td>
+                      <td className={coreStyles.monoCode}>{err.rowNumber ?? EMPTY_VALUE}</td>
+                      <td className={coreStyles.monoCode}>{err.sourceLotCode ?? EMPTY_VALUE}</td>
                       <td className={coreStyles.monoCode}>{err.field}</td>
                       <td>{err.message}</td>
                     </tr>
@@ -1296,8 +1297,8 @@ export function ImportPage() {
                   <tbody>
                     {jobDetailQuery.data.rowErrors.map((err, idx) => (
                       <tr key={`${err.rowNumber}-${err.field}-${idx}`}>
-                        <td className={coreStyles.monoCode}>{err.rowNumber ?? '—'}</td>
-                        <td className={coreStyles.monoCode}>{err.sourceLotCode ?? '—'}</td>
+                        <td className={coreStyles.monoCode}>{err.rowNumber ?? EMPTY_VALUE}</td>
+                        <td className={coreStyles.monoCode}>{err.sourceLotCode ?? EMPTY_VALUE}</td>
                         <td className={coreStyles.monoCode}>{err.field}</td>
                         <td>{err.message}</td>
                       </tr>

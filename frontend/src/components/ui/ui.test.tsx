@@ -386,4 +386,29 @@ describe('Design System UI Components & Accessibility (Part B & Part C)', () => 
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }
   });
+
+  it('flags em dashes and internal spec references in user-visible text, but not in comments', () => {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tracex-banned-test-'));
+    const tmpSrc = path.join(tmpDir, 'src');
+    fs.mkdirSync(tmpSrc, { recursive: true });
+    fs.writeFileSync(
+      path.join(tmpSrc, 'CopySample.tsx'),
+      [
+        '// A comment may mention D-12 and use — freely',
+        'export const empty = "—";',
+        'export const hint = "Blocked per D-12.";',
+        'export const rule = "Minimum 8 characters (SPEC §7).";'
+      ].join('\n'),
+      'utf8'
+    );
+
+    try {
+      const violations = scanDirectoryForBannedPatterns(tmpDir) as string[];
+      expect(violations.filter((v) => v.includes('em dash'))).toHaveLength(1);
+      expect(violations.filter((v) => v.includes('Internal spec reference'))).toHaveLength(2);
+      expect(violations.some((v) => v.includes(':1 '))).toBe(false);
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
 });

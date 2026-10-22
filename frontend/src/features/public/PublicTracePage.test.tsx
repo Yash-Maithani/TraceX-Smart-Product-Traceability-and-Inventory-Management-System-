@@ -116,7 +116,7 @@ describe('PublicTracePage & LegacyTracePage (Phase 7 Part C & D)', () => {
     expect(results).toHaveNoViolations();
   });
 
-  it('renders success for READY, DISPATCHED, and EXCEPTION (expiry shown as dash, no crash)', async () => {
+  it('renders success for READY, DISPATCHED, and EXCEPTION (expiry shown as Not recorded, no crash)', async () => {
     // 1. DISPATCHED batch
     const dispatchedBatch: PublicTraceDto = {
       ...SAMPLE_PUBLIC_TRACE,
@@ -147,8 +147,8 @@ describe('PublicTracePage & LegacyTracePage (Phase 7 Part C & D)', () => {
       expect(screen.getByTestId('trace-batch-code')).toHaveTextContent('TX-EXCEPTION-001');
     });
     expect(screen.getByTestId('trace-status-badge')).toHaveTextContent(/Exception/i);
-    // Expiry date rendered as a dash
-    expect(screen.getByTestId('trace-expiry-date')).toHaveTextContent('—');
+    // Expiry date rendered as the empty-value text
+    expect(screen.getByTestId('trace-expiry-date')).toHaveTextContent('Not recorded');
     u2();
   });
 

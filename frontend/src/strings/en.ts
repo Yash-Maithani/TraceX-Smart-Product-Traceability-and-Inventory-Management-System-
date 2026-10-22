@@ -99,14 +99,6 @@ export const STRINGS = {
     resetPasswordBtn: 'Reset Password',
     resetPasswordSuccess: 'Your password has been reset and existing sessions have been revoked. You can now sign in.'
   },
-  home: {
-    welcomePrefix: 'Signed in',
-    phase5PlaceholderNotice: 'Phase 5 signed-in home placeholder. This view will be replaced by the operational dashboard in Phase 6.',
-    currentRoleLabel: 'Assigned Role',
-    roleGuardDemoLink: 'Open Admin Guard Demo (/admin-check)',
-    roleGuardDemoTitle: 'Admin Guard Demonstration',
-    roleGuardDemoBody: 'This route is protected by RequireRole for the admin role so client-side RBAC and the 403 ForbiddenState can be verified.'
-  },
   states: {
     emptyDefaultTitle: 'No records found',
     emptyDefaultBody: 'There are no items matching the current criteria.',
@@ -119,8 +111,6 @@ export const STRINGS = {
     backToHome: 'Back to overview'
   },
   publicPages: {
-    tracePlaceholderTitle: 'Public Batch Traceability',
-    tracePlaceholderBody: 'Public QR batch traceability lookup screen placeholder (scheduled for Phase 10).',
     privacyTitle: 'Privacy Policy',
     privacyBody: 'TraceX stores operational batch, inspection, dispatch, and user account records required for food supply chain traceability.',
     termsTitle: 'Terms of Use',

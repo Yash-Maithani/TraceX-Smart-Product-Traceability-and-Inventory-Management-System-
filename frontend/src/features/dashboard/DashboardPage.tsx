@@ -17,6 +17,7 @@ import {
 } from '../../components/ui';
 import { formatBusinessDate } from '../../lib/dates';
 import { STRINGS } from '../../strings/en';
+import { formatDays } from '../../lib/format';
 
 const STATUS_CARDS: readonly {
   tier: StatusBadgeValue;
@@ -79,8 +80,8 @@ export function DashboardPage() {
         title="Operations Dashboard"
         subtitle={
           summary?.businessDate
-            ? `Server-computed freshness tiers and FEFO queue as of business date ${formatBusinessDate(summary.businessDate)}`
-            : 'Server-computed freshness tiers, inspection verdicts, and FEFO queue overview'
+            ? `Freshness and dispatch queue as of ${formatBusinessDate(summary.businessDate)}`
+            : 'Freshness, inspection results, and the dispatch queue at a glance'
         }
         backdropKey="dashboard"
         priority
@@ -320,7 +321,7 @@ export function DashboardPage() {
                     <div className={coreStyles.timelineHeader}>
                       <span>
                         Expiry: <strong>{formatBusinessDate(item.expiryDate)}</strong> (
-                        {item.daysUntilExpiry ?? '—'} days remaining)
+                        {formatDays(item.daysUntilExpiry, ' days remaining')})
                       </span>
                       <span>
                         Qty: {item.quantityProduced} {item.unit}

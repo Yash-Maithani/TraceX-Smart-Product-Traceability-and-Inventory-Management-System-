@@ -46,14 +46,14 @@ describe('src/lib/dates.ts — Business Date & Timestamp Formatting (D-17, Part 
   );
 
   it('returns fallback for missing or corrupted business dates', () => {
-    expect(formatBusinessDate(null)).toBe('—');
-    expect(formatBusinessDate(undefined)).toBe('—');
+    expect(formatBusinessDate(null)).toBe('Not recorded');
+    expect(formatBusinessDate(undefined)).toBe('Not recorded');
     expect(formatBusinessDate('not-a-date')).toBe('Invalid date');
   });
 
   it('formats ISO timestamps and handles missing/invalid values gracefully', () => {
     expect(formatTimestamp('2026-10-05T04:00:00Z')).toContain('2026');
-    expect(formatTimestamp(null)).toBe('—');
+    expect(formatTimestamp(null)).toBe('Not recorded');
     expect(formatTimestamp('corrupted-instant')).toBe('Invalid timestamp');
   });
 });

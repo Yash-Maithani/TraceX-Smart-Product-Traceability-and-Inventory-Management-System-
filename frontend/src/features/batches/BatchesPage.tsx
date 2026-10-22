@@ -28,6 +28,7 @@ import {
 } from '../../components/ui';
 import { formatBusinessDate } from '../../lib/dates';
 import { CreateBatchDialog } from './CreateBatchDialog';
+import { EMPTY_VALUE, formatDays } from '../../lib/format';
 
 const STATUS_OPTIONS: readonly { value: string; label: string }[] = [
   { value: '', label: 'All Freshness & Lifecycle Tiers' },
@@ -137,7 +138,7 @@ export function BatchesPage({ openCreateInitially = false }: { openCreateInitial
         row.status ? (
           <StatusBadge status={row.status} />
         ) : (
-          <span>—</span>
+          <span>{EMPTY_VALUE}</span>
         )
     },
     {
@@ -151,7 +152,7 @@ export function BatchesPage({ openCreateInitially = false }: { openCreateInitial
           <div className={coreStyles.metaLabel}>
             {row.status === 'EXCEPTION'
               ? (row.exceptionReason ?? 'Invalid expiry')
-              : `${row.daysUntilExpiry ?? '—'}d`}
+              : formatDays(row.daysUntilExpiry, 'd')}
           </div>
         </div>
       )
@@ -254,7 +255,7 @@ export function BatchesPage({ openCreateInitially = false }: { openCreateInitial
             <option value="">All SKUs</option>
             {(productsQuery.data ?? []).map((p) => (
               <option key={p.sku} value={p.sku}>
-                {p.sku} — {p.productName}
+                {p.sku} · {p.productName}
               </option>
             ))}
           </Select>

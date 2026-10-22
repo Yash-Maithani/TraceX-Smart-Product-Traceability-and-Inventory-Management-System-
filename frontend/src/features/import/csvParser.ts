@@ -187,7 +187,7 @@ export function validateCsvFileName(fileName: string): { valid: boolean; error?:
     return {
       valid: false,
       error:
-        'Excel files (.xls, .xlsx) are not supported (D-5). Please save your spreadsheet as a UTF-8 .csv file and try again.'
+        'Excel files (.xls, .xlsx) are not supported. Please save your spreadsheet as a UTF-8 .csv file and try again.'
     };
   }
   if (!lower.endsWith('.csv')) {
