@@ -2,11 +2,11 @@ package com.tracex.controller;
 
 import com.tracex.dto.ApiResponse;
 import com.tracex.dto.ImportDtos.*;
-import com.tracex.exception.ErrorCode;
+import com.tracex.security.Roles;
 import com.tracex.security.UserPrincipal;
 import com.tracex.service.ImportService;
 import com.tracex.util.RequestIdContext;
-import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,51 +24,37 @@ public class ImportController {
         this.importService = importService;
     }
 
-    private void checkImporterPermission(UserPrincipal principal) {
-        if (principal == null || principal.getUser() == null) {
-            throw new AccessDeniedException(ErrorCode.RBAC_INSUFFICIENT.name());
-        }
-        String role = principal.getUser().getRole().name();
-        if (principal.getUser().isSuperAdmin()
-                || "ADMIN".equals(role)
-                || "MANAGER".equals(role)
-                || "FACTORY_MANAGER".equals(role)) {
-            return;
-        }
-        throw new AccessDeniedException(ErrorCode.RBAC_INSUFFICIENT.name());
-    }
-
+    @PreAuthorize(Roles.IMPORTERS)
     @GetMapping("/schema")
     public ApiResponse<ImportSchemaDto> getImportSchema(@AuthenticationPrincipal UserPrincipal principal) {
-        checkImporterPermission(principal);
         return ApiResponse.ok(importService.getSchema(), RequestIdContext.getOrCreate());
     }
 
+    @PreAuthorize(Roles.IMPORTERS)
     @PostMapping("/map-headers")
     public ApiResponse<ImportMapHeadersResponseDto> mapHeaders(
             @RequestBody(required = false) ImportMapHeadersRequestDto body,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
-        checkImporterPermission(principal);
         List<String> headers = body != null ? body.getHeaders() : List.of();
         return ApiResponse.ok(importService.mapHeaders(headers), RequestIdContext.getOrCreate());
     }
 
+    @PreAuthorize(Roles.IMPORTERS)
     @PostMapping("/validate")
     public ApiResponse<ImportValidateResponseDto> validateImport(
             @RequestBody(required = false) ImportValidateRequestDto body,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
-        checkImporterPermission(principal);
         return ApiResponse.ok(importService.validate(body), RequestIdContext.getOrCreate());
     }
 
+    @PreAuthorize(Roles.IMPORTERS)
     @PostMapping("/commit")
     public ApiResponse<ImportCommitResponseDto> commitImport(
             @RequestBody(required = false) ImportCommitRequestDto body,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
-        checkImporterPermission(principal);
         String requestId = RequestIdContext.getOrCreate();
         ImportCommitResponseDto resp = importService.commit(body, principal.getUser(), requestId);
         // Only the final chunk finishes a job; earlier chunks keep it "running"
@@ -80,27 +66,27 @@ public class ImportController {
         return ApiResponse.ok(resp, requestId);
     }
 
+    @PreAuthorize(Roles.IMPORTERS)
     @GetMapping
     public ApiResponse<List<ImportJobSummaryDto>> listImportJobs(@AuthenticationPrincipal UserPrincipal principal) {
-        checkImporterPermission(principal);
         return ApiResponse.ok(importService.listJobs(), RequestIdContext.getOrCreate());
     }
 
+    @PreAuthorize(Roles.IMPORTERS)
     @GetMapping("/{id}")
     public ApiResponse<ImportJobDetailDto> getImportJob(
             @PathVariable String id,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
-        checkImporterPermission(principal);
         return ApiResponse.ok(importService.getJobDetail(id), RequestIdContext.getOrCreate());
     }
 
+    @PreAuthorize(Roles.IMPORTERS)
     @PostMapping("/{id}/rollback")
     public ApiResponse<ImportRollbackResponseDto> rollbackImport(
             @PathVariable String id,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
-        checkImporterPermission(principal);
         String requestId = RequestIdContext.getOrCreate();
         ImportRollbackResponseDto result = importService.rollback(id, principal.getUser(), requestId);
         notificationService.broadcastChange("batch:updated", null);

@@ -13,7 +13,9 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -105,9 +107,24 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(OptimisticLockingFailureException.class)
     public ResponseEntity<ApiResponse<Void>> handleOptimisticLockingFailureException(OptimisticLockingFailureException ex) {
-        System.out.println("Optimistic locking failure: " + ex.getMessage());
+        log.info("Optimistic locking conflict: {}", ex.getClass().getSimpleName());
         return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(ApiResponse.error(ErrorCode.CONFLICT, "Resource was modified concurrently. Please retry.", com.tracex.util.RequestIdContext.getOrCreate()));
+                .body(ApiResponse.error(ErrorCode.CONFLICT, "Resource was modified concurrently. Please retry.", RequestIdContext.getOrCreate()));
+    }
+
+    /** M3 (Phase 13): a unique index refused the write, e.g. two requests creating the same thing at once. */
+    @ExceptionHandler(DuplicateKeyException.class)
+    public ResponseEntity<ApiResponse<Void>> handleDuplicateKey(DuplicateKeyException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiResponse.error(ErrorCode.CONFLICT, "This record already exists.", RequestIdContext.getOrCreate()));
+    }
+
+    /** M3 (Phase 13): a query or path parameter of the wrong type, e.g. ?page=abc, is the client's error. */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiResponse<Void>> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        List<FieldErrorDto> fieldErrors = List.of(new FieldErrorDto(ex.getName(), "Invalid value for " + ex.getName()));
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(ApiResponse.error(ErrorCode.VALIDATION_ERROR, "Validation failed", fieldErrors, RequestIdContext.getOrCreate()));
     }
 
 }

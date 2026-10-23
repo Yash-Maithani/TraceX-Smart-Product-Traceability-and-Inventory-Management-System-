@@ -36,7 +36,7 @@
 | 10.1 | Role-channel messages and record comments (S-05) | COMPLETE | 2026-10-22 | [phase-10-1](docs/progress/phase-10-1.md) |
 | 11 | AI and Google OAuth (switched on by keys) | COMPLETE | 2026-10-23 | [phase-11](docs/progress/phase-11.md) |
 | 12 | UI refinement, legal pages, favicon, documentation | COMPLETE | 2026-10-23 | [phase-12](docs/progress/phase-12.md) |
-| 13 | Testing and hardening | NOT STARTED | | |
+| 13 | Testing and hardening | COMPLETE (awaiting review) | 2026-10-23 | [phase-13](docs/progress/phase-13.md) |
 | 14 | Production preparation and deployment | NOT STARTED | | |
 
 ---
@@ -87,13 +87,13 @@
 | OI-09 | HANDOFF.md uses `TX-` prefix; source code uses `HS-` prefix — resolved to `TX-` | LOW | Closed | `backend/src/utils/batchCodeGenerator.js` line 8 | SPEC §3.2 (D-11 resolved: `TX-` prefix adopted) (Phase 3) |
 | OI-10 | `.git` directory presence in reference — confirmed absent via `Test-Path` (downloaded zip, not cloned git repo) | INFO | Closed | Reference workspace root | Resolved / Closed in Audit |
 | OI-11 | All placeholder backdrops (`placeholder: true` in `design-assets/backdrops.json`) must be replaced with real licensed team-approved photos before launch | MEDIUM | Open | `design-assets/backdrops.json` | SPEC §5.2, §11 (Phase 14 launch gate) |
-| OI-12 | Strict review (19 Oct) findings not fixed in Phase 8.2: H10 (tests need a local MongoDB, no Testcontainers, CI or coverage tool), H11 (no CSP headers yet; OI-03 relies on them), and M1 to M14 (dispatch-check race, other check-then-act races, 500s for bad query params, pagination envelope, global rate limit, archived-batch reads, FEFO loads all batches, audit actorId and clock, forgeable scan source, two authorization styles, unchecked X-Request-Id, in-process inspection lock, JWT parsed three times, `.env.example` forward-headers advice) | MEDIUM | Open | Strict PBL review, 19 Oct 2026 (team copy outside the repo), sections 4 and 5 | Phase 13 (hardening); H11 in Phase 14 |
+| OI-12 | Strict review (19 Oct) findings not fixed in Phase 8.2: H10 (tests need a local MongoDB, no Testcontainers, CI or coverage tool), H11 (no CSP headers yet; OI-03 relies on them), and M1 to M14 (dispatch-check race, other check-then-act races, 500s for bad query params, pagination envelope, global rate limit, archived-batch reads, FEFO loads all batches, audit actorId and clock, forgeable scan source, two authorization styles, unchecked X-Request-Id, in-process inspection lock, JWT parsed three times, `.env.example` forward-headers advice) | MEDIUM | Mostly closed in Phase 13: M1 to M14 and H10 done (M4 and M12 documented); the database-level unique email index is deferred (see phase-13.md); H11 open | Strict PBL review, 19 Oct 2026 (team copy outside the repo), sections 4 and 5 | Phase 13 (hardening); H11 in Phase 14 |
 
 ---
 
 ## Known Limitations
 
-- **Future `packDate` acceptance (`KL-01`)**: A future `packDate` is accepted by both `POST /api/v1/batches` and bulk import (`POST /api/v1/import/validate` and `POST /api/v1/import/commit`), kept consistent per `D-23` so both paths share the same validation rules. To be revisited in Phase 13 hardening.
+- **Future `packDate` acceptance (`KL-01`)**: A future `packDate` is accepted by both `POST /api/v1/batches` and bulk import (`POST /api/v1/import/validate` and `POST /api/v1/import/commit`), kept consistent per `D-23` so both paths share the same validation rules. Reviewed in Phase 13 and kept; the team can still decide to refuse future dates.
 - **Browser closed mid-import (`KL-02`)**: A browser closed mid-import leaves an `ImportJob` in `"running"` status until the stale window (`tracex.import.stale-running-minutes`, default `15` min) passes, after which it lazily transitions to `"failed"` (with `finishedAt` set) and can be rolled back via `POST /api/v1/import/{id}/rollback`.
 
 ---
@@ -431,3 +431,8 @@
 - **Icons**: `public/favicon.svg`, `favicon.ico`, `apple-touch-icon.png` (`scripts/generate-icons.mjs`), linked from `index.html`.
 - **Docs**: new [docs/project-guide.md](docs/project-guide.md) for team members; README prerequisites and browser-test steps; `docs/BRIEF.md` and `docs/HANDOFF.md` marked historical.
 - **Totals**: frontend unit **`116` tests in `20` files** (`+3`); backend unchanged (`723`); Playwright E2E **`48` passed across `9` files** after repairing `P51-E2E-05`. Full log in [docs/progress/phase-12.md](docs/progress/phase-12.md).
+
+### Phase 13 Testing and Hardening (OI-12)
+- **Fixes**: atomic quality-hold check on dispatch (`M1`); one-time invitation claim, duplicate email refused at activation and one import chunk at a time (`M2`); `422` for bad `page`, `limit` and parameter types (`M3`); SPEC paging shape corrected (`M4`); global rate limit of 500 per address per 15 minutes and idle-bucket cleanup (`M5`); archived batches admin-only by id (`M6`); FEFO filters in the database query (`M7`); audit actor id and clock (`M8`); public scans always `buyer`, purpose-derived IP hash key (`M9`); one `@PreAuthorize` style with `security/Roles.java` (`M10`); safe request ids only (`M11`); inspection lock documented (`M12`); one JWT parse per request (`M13`); forwarded-headers advice (`M14`).
+- **CI and coverage (`H10`)**: `.github/workflows/ci.yml` (backend with a MongoDB service, frontend checks and unit tests) and JaCoCo (`87.7%` of lines on the first report).
+- **Totals**: backend **`735` tests, `0` failures** (`+12` in `HardeningTests`); frontend unit **`116` tests in `20` files**; Playwright E2E **`48` passed across `9` files**. Full log in [docs/progress/phase-13.md](docs/progress/phase-13.md).

@@ -56,6 +56,9 @@ public class ImportJob {
 
     private String rolledBackBy;
 
+    /** Set while one chunk of this job is being processed (M2, Phase 13); null when idle. */
+    private Instant chunkLockedAt;
+
     public static class RowError {
         private int rowNumber;
         private String field;
@@ -263,5 +266,13 @@ public class ImportJob {
 
     public void setRolledBackBy(String rolledBackBy) {
         this.rolledBackBy = rolledBackBy;
+    }
+
+    public Instant getChunkLockedAt() {
+        return chunkLockedAt;
+    }
+
+    public void setChunkLockedAt(Instant chunkLockedAt) {
+        this.chunkLockedAt = chunkLockedAt;
     }
 }

@@ -369,6 +369,7 @@ public class ImportService {
             if (job.getProcessedRows() + rows.size() > MAX_JOB_ROWS) {
                 throw new ValidationException("rows", "Import job exceeds the maximum of 10,000 rows per job");
             }
+            job = claimChunk(job.getId());
         } else {
             Instant now = clock.instant();
             job = new ImportJob();
@@ -458,6 +459,7 @@ public class ImportService {
 
         Instant now = clock.instant();
         job.setUpdatedAt(now);
+        job.setChunkLockedAt(null);
 
         if (isFinal) {
             // Part A.5: Final status is "failed" only when inserted == 0 and errored > 0.
@@ -606,6 +608,32 @@ public class ImportService {
                 job.getRolledBackAt(),
                 job.getRolledBackBy()
         );
+    }
+
+    /** A lock left by a request that died is ignored after this long. */
+    private static final Duration CHUNK_LOCK_TIMEOUT = Duration.ofMinutes(2);
+
+    /**
+     * M2 (Phase 13): two chunks of the same job sent at once would both read the old counters and the
+     * second save would drop the first one's batch ids, so rollback would miss them. A chunk now claims
+     * the job atomically; a second chunk arriving meanwhile gets 409 and the client retries it.
+     */
+    private ImportJob claimChunk(String jobId) {
+        Instant now = clock.instant();
+        Query claim = new Query(new Criteria().andOperator(
+                Criteria.where("_id").is(jobId),
+                Criteria.where("status").is("running"),
+                new Criteria().orOperator(
+                        Criteria.where("chunkLockedAt").is(null),
+                        Criteria.where("chunkLockedAt").lt(now.minus(CHUNK_LOCK_TIMEOUT)))));
+        ImportJob claimed = mongoTemplate.findAndModify(claim,
+                new org.springframework.data.mongodb.core.query.Update().set("chunkLockedAt", now),
+                org.springframework.data.mongodb.core.FindAndModifyOptions.options().returnNew(true),
+                ImportJob.class);
+        if (claimed == null) {
+            throw new ApiException(ErrorCode.CONFLICT, "Another part of this import is still being saved. Please retry.", HttpStatus.CONFLICT);
+        }
+        return claimed;
     }
 
     private void markAllStaleRunningJobsFailed() {

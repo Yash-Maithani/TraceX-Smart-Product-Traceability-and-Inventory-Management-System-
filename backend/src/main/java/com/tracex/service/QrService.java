@@ -25,10 +25,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.ByteArrayOutputStream;
-import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -127,6 +124,14 @@ public class QrService {
     }
 
     public void recordScan(String token, String source, HttpServletRequest request) {
+        recordScan(token, source, request, false);
+    }
+
+    /**
+     * M9 (Phase 13): only a signed-in staff member can label a scan "factory" or "QA"; an anonymous scan
+     * is always recorded as "buyer", so the public cannot skew the internal scan analytics.
+     */
+    public void recordScan(String token, String source, HttpServletRequest request, boolean staff) {
         if (!traceTokenService.isValidToken(token)) {
             throw new ResourceNotFoundException("Batch not found or unavailable");
         }
@@ -136,6 +141,9 @@ public class QrService {
             throw new ValidationException("Validation failed", List.of(
                     new FieldErrorDto("source", "Invalid source value. Must be one of: factory, buyer, QA")
             ));
+        }
+        if (!staff) {
+            effectiveSource = "buyer";
         }
 
         Batch batch = batchRepository.findByTraceToken(token)
@@ -235,13 +243,6 @@ public class QrService {
     }
 
     private String hashIp(String clientIp) {
-        try {
-            Mac mac = Mac.getInstance("HmacSHA256");
-            mac.init(new SecretKeySpec(traceTokenService.getSecretKeyBytes(), "HmacSHA256"));
-            byte[] hmac = mac.doFinal((clientIp != null ? clientIp : "unknown").getBytes(StandardCharsets.UTF_8));
-            return HexFormat.of().formatHex(hmac);
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to hash IP", e);
-        }
+        return traceTokenService.keyedHash("scan-ip", clientIp != null ? clientIp : "unknown");
     }
 }

@@ -173,6 +173,22 @@ public class UserService {
             throw new ApiException(ErrorCode.AUTH_INVALID_TOKEN, "Invitation token has expired", HttpStatus.BAD_REQUEST);
         }
 
+        // M2 (Phase 13): an existing account with this email blocks a second one
+        if (request.getEmail() != null && userRepository.findByEmailIgnoreCase(request.getEmail().trim()).isPresent()) {
+            throw new ApiException(ErrorCode.CONFLICT, "An account with this email already exists", HttpStatus.CONFLICT);
+        }
+
+        // M2 (Phase 13): claim the invitation atomically, so two activations sent at once cannot both
+        // create an account from the same link
+        Query claimInvite = new Query(new Criteria().andOperator(
+                Criteria.where("_id").is(request.getId()),
+                Criteria.where("inviteToken").is(tokenHash),
+                Criteria.where("inviteUsed").ne(true)));
+        Update markUsed = new Update().set("inviteUsed", true).set("updatedAt", clock.instant());
+        if (mongoTemplate.updateFirst(claimInvite, markUsed, AccessRequest.class).getModifiedCount() == 0) {
+            throw new ApiException(ErrorCode.AUTH_INVALID_TOKEN, "Invitation token has already been used", HttpStatus.BAD_REQUEST);
+        }
+
         // Derive username per reference auth.controller.js lines 320-326
         String[] nameParts = request.getName().trim().split("\\s+");
         String baseUsername = nameParts[0].toLowerCase().replaceAll("[^a-z0-9]", "");
@@ -206,12 +222,15 @@ public class UserService {
         user.setCreatedAt(clock.instant());
         user.setUpdatedAt(clock.instant());
 
-        User savedUser = userRepository.save(user);
-
-        // Mark invite used
-        request.setInviteUsed(true);
-        request.setUpdatedAt(clock.instant());
-        accessRequestRepository.save(request);
+        User savedUser;
+        try {
+            savedUser = userRepository.save(user);
+        } catch (RuntimeException e) {
+            // Give the invitation back if the account could not be created (e.g. the email index refused it)
+            mongoTemplate.updateFirst(new Query(Criteria.where("_id").is(request.getId())),
+                    new Update().set("inviteUsed", false), AccessRequest.class);
+            throw e;
+        }
 
         // Email OTP
         emailService.sendActivationOtpEmail(savedUser.getEmail(), savedUser.getName(), rawOtp);

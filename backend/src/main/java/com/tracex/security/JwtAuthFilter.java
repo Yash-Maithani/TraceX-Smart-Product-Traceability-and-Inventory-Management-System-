@@ -59,20 +59,17 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (!jwtService.validateToken(token)) {
+        // M13 (Phase 13): verify and read the claims in one parse instead of three
+        io.jsonwebtoken.Claims claims;
+        try {
+            claims = jwtService.parseClaims(token);
+        } catch (io.jsonwebtoken.JwtException | IllegalArgumentException e) {
             writeError(response, HttpStatus.UNAUTHORIZED, ErrorCode.AUTH_INVALID_TOKEN, "Invalid or expired authentication token");
             return;
         }
-
-        String userId;
-        Long tokenVersion;
-        try {
-            userId = jwtService.extractUserId(token);
-            tokenVersion = jwtService.extractTokenVersion(token);
-        } catch (Exception e) {
-            writeError(response, HttpStatus.UNAUTHORIZED, ErrorCode.AUTH_INVALID_TOKEN, "Failed to parse authentication token");
-            return;
-        }
+        String userId = claims.getSubject();
+        Object tv = claims.get("tv");
+        Long tokenVersion = tv instanceof Number ? ((Number) tv).longValue() : null;
 
         if (userId == null || tokenVersion == null) {
             writeError(response, HttpStatus.UNAUTHORIZED, ErrorCode.AUTH_INVALID_TOKEN, "Token is missing required claims");

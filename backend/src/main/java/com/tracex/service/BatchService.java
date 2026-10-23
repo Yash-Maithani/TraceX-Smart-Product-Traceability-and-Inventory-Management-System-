@@ -41,6 +41,9 @@ import java.util.stream.Collectors;
 @Service
 public class BatchService {
 
+    /** Largest page the list endpoints return (M3, Phase 13). */
+    public static final int MAX_PAGE_SIZE = 500;
+
     private static final Set<String> WHITELISTED_SORT_FIELDS = Set.of(
             "expirydate", "createdat", "batchcode", "productname", "quantityproduced"
     );
@@ -139,6 +142,8 @@ public class BatchService {
             sort = Sort.by(direction, mappedField);
         }
 
+        if (page < 1) throw new ValidationException("page", "page must be 1 or more");
+        if (limit < 1 || limit > MAX_PAGE_SIZE) throw new ValidationException("limit", "limit must be between 1 and " + MAX_PAGE_SIZE);
         Pageable pageable = PageRequest.of(page - 1, limit, sort);
         query.with(pageable);
 
@@ -312,7 +317,9 @@ public class BatchService {
                 Criteria.where("isDeleted").is(false),
                 Criteria.where("lifecycleState").is("ACTIVE"),
                 Criteria.where("expiryDate").gte(tomorrowDateStr),
-                Criteria.where("expiryDate").regex(BatchFreshness.ISO_LOCAL_DATE_REGEX)
+                Criteria.where("expiryDate").regex(BatchFreshness.ISO_LOCAL_DATE_REGEX),
+                // M1 (Phase 13): an inspection that turns FAILED after the checks above still blocks the update
+                Criteria.where("qualityCheck.status").ne("FAILED")
         ));
 
         Batch.DispatchHistoryEntry historyEntry = new Batch.DispatchHistoryEntry(
@@ -359,6 +366,9 @@ public class BatchService {
             }
             if (reloaded.getExpiryDate() == null || BatchFreshness.calculateDaysUntilExpiry(reloaded.getExpiryDate(), clockToUse) <= 0) {
                 throw new ApiException(ErrorCode.BATCH_EXPIRED, "Expired batch cannot be dispatched", HttpStatus.CONFLICT);
+            }
+            if (reloaded.getQualityCheck() != null && "FAILED".equalsIgnoreCase(reloaded.getQualityCheck().getStatus())) {
+                throw new ApiException(ErrorCode.QUALITY_HOLD, "Batch cannot be dispatched: latest inspection verdict is FAILED", HttpStatus.CONFLICT);
             }
             throw new ApiException(ErrorCode.CONFLICT, "Batch state changed concurrently", HttpStatus.CONFLICT);
         }

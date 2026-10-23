@@ -7,6 +7,7 @@ import com.tracex.security.UserPrincipal;
 import com.tracex.service.AccessRequestService;
 import com.tracex.util.RequestIdContext;
 import org.springframework.http.ResponseEntity;
+import com.tracex.security.Roles;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +25,7 @@ public class AccessRequestController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize(Roles.MANAGERS)
     public ResponseEntity<ApiResponse<List<AccessRequestSummaryDto>>> getAllRequests() {
         List<AccessRequestSummaryDto> requests = accessRequestService.getAllRequests();
         String requestId = RequestIdContext.getOrCreate();
@@ -32,7 +33,7 @@ public class AccessRequestController {
     }
 
     @PostMapping("/{id}/approve")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize(Roles.ADMIN)
     public ResponseEntity<ApiResponse<AccessRequestSummaryDto>> approveRequest(
             @PathVariable String id,
             @AuthenticationPrincipal UserPrincipal principal) {
@@ -42,7 +43,7 @@ public class AccessRequestController {
     }
 
     @PostMapping("/{id}/reject")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize(Roles.ADMIN)
     public ResponseEntity<ApiResponse<AccessRequestSummaryDto>> rejectRequest(
             @PathVariable String id,
             @RequestBody(required = false) RejectRequestDto dto,
@@ -54,7 +55,7 @@ public class AccessRequestController {
     }
 
     @PostMapping("/{id}/resend")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize(Roles.ADMIN)
     public ResponseEntity<ApiResponse<AccessRequestSummaryDto>> resendInvite(
             @PathVariable String id,
             @AuthenticationPrincipal UserPrincipal principal) {
@@ -64,7 +65,7 @@ public class AccessRequestController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize(Roles.ADMIN)
     public ResponseEntity<ApiResponse<Void>> deleteRequest(
             @PathVariable String id,
             @AuthenticationPrincipal UserPrincipal principal) {

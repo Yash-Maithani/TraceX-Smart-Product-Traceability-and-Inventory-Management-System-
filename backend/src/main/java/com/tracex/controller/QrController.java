@@ -69,7 +69,9 @@ public class QrController {
         }
 
         String requestId = RequestIdContext.getOrCreate();
-        qrService.recordScan(body.getToken(), body.getSource(), request);
+        var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        boolean staff = auth != null && auth.getPrincipal() instanceof com.tracex.security.UserPrincipal;
+        qrService.recordScan(body.getToken(), body.getSource(), request, staff);
         return ApiResponse.ok(null, "Scan recorded successfully", requestId);
     }
 }

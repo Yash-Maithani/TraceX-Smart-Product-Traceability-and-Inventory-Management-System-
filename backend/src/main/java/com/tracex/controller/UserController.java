@@ -9,6 +9,7 @@ import com.tracex.service.UserService;
 import com.tracex.util.RequestIdContext;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import com.tracex.security.Roles;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +27,7 @@ public class UserController {
     }
 
     @GetMapping("/directory")
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize(Roles.MANAGERS)
     public ResponseEntity<ApiResponse<List<UserSummaryDto>>> getDirectory() {
         List<UserSummaryDto> directory = userService.getDirectory();
         String requestId = RequestIdContext.getOrCreate();
@@ -34,7 +35,7 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize(Roles.MANAGERS)
     public ResponseEntity<ApiResponse<List<UserSummaryDto>>> getUsers() {
         List<UserSummaryDto> users = userService.getUsers();
         String requestId = RequestIdContext.getOrCreate();
@@ -42,7 +43,7 @@ public class UserController {
     }
 
     @GetMapping("/users/deleted")
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PreAuthorize(Roles.SUPER_ADMIN)
     public ResponseEntity<ApiResponse<List<UserSummaryDto>>> getDeletedUsers() {
         List<UserSummaryDto> deleted = userService.getDeletedUsers();
         String requestId = RequestIdContext.getOrCreate();
@@ -50,7 +51,7 @@ public class UserController {
     }
 
     @PatchMapping("/users/{id}/toggle")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize(Roles.ADMIN)
     public ResponseEntity<ApiResponse<UserSummaryDto>> toggleUserStatus(
             @PathVariable String id,
             @AuthenticationPrincipal UserPrincipal principal) {
@@ -60,7 +61,7 @@ public class UserController {
     }
 
     @PatchMapping("/users/{id}/role")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize(Roles.ADMIN)
     public ResponseEntity<ApiResponse<UserSummaryDto>> updateUserRole(
             @PathVariable String id,
             @RequestBody(required = false) UpdateRoleDto dto,
@@ -78,7 +79,7 @@ public class UserController {
     }
 
     @DeleteMapping("/users/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize(Roles.ADMIN)
     public ResponseEntity<ApiResponse<Void>> deleteUser(
             @PathVariable String id,
             @RequestBody(required = false) DeleteUserDto dto,
@@ -90,7 +91,7 @@ public class UserController {
     }
 
     @PatchMapping("/users/{id}/restore")
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PreAuthorize(Roles.SUPER_ADMIN)
     public ResponseEntity<ApiResponse<UserSummaryDto>> restoreUser(
             @PathVariable String id,
             @AuthenticationPrincipal UserPrincipal principal) {

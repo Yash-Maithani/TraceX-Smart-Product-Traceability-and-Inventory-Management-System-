@@ -1,0 +1,4 @@
+[INFO] Tests run: 735, Failures: 0, Errors: 0, Skipped: 0
+[INFO] --- jacoco:0.8.12:report (report) @ tracex-backend ---
+[INFO] Loading execution data file C:\Users\yashm\OneDrive\Desktop\TraceX-Smart-Product-Traceability-and-Inventory-Management-System\backend\target\jacoco.exec
+[INFO] BUILD SUCCESS

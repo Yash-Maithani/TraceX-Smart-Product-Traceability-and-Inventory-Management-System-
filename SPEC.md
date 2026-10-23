@@ -602,18 +602,22 @@ All responses use `/api/v1/` prefix.
 }
 ```
 
-**Paginated list**:
+**Paginated list** (as built; the list fields sit inside `data`, Phase 13 `M4`):
 ```json
 {
   "success": true,
   "requestId": "uuid-v4",
-  "total": 0,
-  "page": 1,
-  "limit": 50,
-  "count": 0,
-  "data": []
+  "data": {
+    "data": [],
+    "total": 0,
+    "page": 1,
+    "limit": 50,
+    "count": 0
+  }
 }
 ```
+
+`page` starts at `1`; `limit` is `1` to `500`. A value outside that range, or one that is not a number, returns `422 VALIDATION_ERROR` with a `fieldErrors` entry for that parameter.
 
 **Error**:
 ```json
@@ -628,7 +632,7 @@ All responses use `/api/v1/` prefix.
 }
 ```
 
-`fieldErrors` is present only on 422 VALIDATION_ERROR responses. `requestId` is a per-request UUID4 logged server-side.
+`fieldErrors` is present only on 422 VALIDATION_ERROR responses. `requestId` is a per-request UUID4 logged server-side. A client may send its own `X-Request-Id`; it is kept only when it is `8` to `64` letters, digits, `-` or `_`, otherwise the server makes a new one (Phase 13 `M11`).
 
 **OpenAPI spec location**: `backend/src/main/resources/openapi/tracex-api.yaml` (generated via springdoc-openapi; served at `/api/v1/docs`).
 
@@ -875,7 +879,7 @@ Per-request DB check: `isDeleted`, `isActive`, and `tokenVersion`. A deactivated
 | `GET /api/v1/qr/trace/t/:token` (public trace) | 60 / IP | 1 min |
 | `POST /api/v1/qr/scan` (public scan recording) | 60 / IP | 1 min |
 | `POST /api/v1/ai/dispatch-audit` | 5 / IP | 15 min |
-| Global API | 500 / IP | 15 min |
+| Global API (every `/api/` request except `OPTIONS`; `tracex.rate-limit.global`, Phase 13 `M5`) | 500 / IP | 15 min |
 
 #### Client IP Resolution & Forwarded Headers
 Client IP for rate limiting is derived strictly via the servlet remote address (`request.getRemoteAddr()`). Client-supplied headers (such as `X-Forwarded-For`) are never parsed directly by application code to prevent IP spoofing attacks.

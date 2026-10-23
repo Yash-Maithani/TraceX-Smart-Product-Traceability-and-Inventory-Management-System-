@@ -107,7 +107,9 @@ public class FefoService {
 
         String targetSku = (sku != null && !sku.trim().isEmpty()) ? sku.trim().toUpperCase() : null;
 
-        List<BatchWithValidity> activeBatches = loadActiveNonDeletedBatches();
+        // M7 (Phase 13): the SKU and category filters run in the database query, so a filtered queue no longer
+        // reads every active batch. The in-memory checks below stay as a guard for mixed-case legacy SKUs.
+        List<BatchWithValidity> activeBatches = loadActiveNonDeletedBatches(targetSku, allowedSkus);
 
         List<BatchSummaryDto> queue = new ArrayList<>();
         List<BatchSummaryDto> expired = new ArrayList<>();
@@ -197,8 +199,18 @@ public class FefoService {
 
     private record BatchWithValidity(Batch batch, boolean validExpiry, String exceptionReason) {}
 
-    private List<BatchWithValidity> loadActiveNonDeletedBatches() {
+    private List<BatchWithValidity> loadActiveNonDeletedBatches(String targetSku, Set<String> allowedSkus) {
         Document filter = new Document("isDeleted", false).append("lifecycleState", "ACTIVE");
+        List<Document> skuClauses = new ArrayList<>();
+        if (targetSku != null) {
+            skuClauses.add(skuMatch(List.of(targetSku)));
+        }
+        if (allowedSkus != null) {
+            skuClauses.add(skuMatch(new ArrayList<>(allowedSkus)));
+        }
+        if (!skuClauses.isEmpty()) {
+            filter.append("$and", skuClauses);
+        }
         List<BatchWithValidity> results = new ArrayList<>();
 
         for (Document rawDoc : mongoTemplate.getCollection("batches").find(filter)) {
@@ -221,6 +233,15 @@ public class FefoService {
             results.add(new BatchWithValidity(batch, validExpiry && batch.getExpiryDate() != null, exceptionReason));
         }
         return results;
+    }
+
+    /** Matches any of the given upper-case SKUs, ignoring case in stored values. */
+    private static Document skuMatch(List<String> skus) {
+        if (skus.isEmpty()) {
+            return new Document("sku", new Document("$in", List.of()));
+        }
+        String alternatives = skus.stream().map(java.util.regex.Pattern::quote).collect(Collectors.joining("|"));
+        return new Document("sku", new Document("$regex", "^(?:" + alternatives + ")$").append("$options", "i"));
     }
 
     private BatchSummaryDto toSummaryDto(Batch batch, Clock clockToUse, boolean validExpiry, Map<String, String> skuToRiskLevel) {

@@ -16,6 +16,10 @@ public class RateLimiter {
 
     private final Clock clock;
     private final Map<String, Deque<Instant>> requestBuckets = new ConcurrentHashMap<>();
+    /** Longest window any caller uses; buckets idle for longer than this are dropped (M5, Phase 13). */
+    private static final Duration MAX_WINDOW = Duration.ofHours(1);
+    private static final int SWEEP_EVERY = 1000;
+    private int callsSinceSweep = 0;
 
     public RateLimiter(Clock clock) {
         this.clock = clock;
@@ -51,7 +55,26 @@ public class RateLimiter {
         }
 
         bucket.addLast(now);
+        if (++callsSinceSweep >= SWEEP_EVERY) {
+            callsSinceSweep = 0;
+            sweep(now);
+        }
         return true;
+    }
+
+    private void sweep(Instant now) {
+        Instant idleCutoff = now.minus(MAX_WINDOW);
+        requestBuckets.entrySet().removeIf(e -> e.getValue().isEmpty() || e.getValue().peekLast().isBefore(idleCutoff));
+    }
+
+    /** Number of keys currently tracked (tests and diagnostics). */
+    public synchronized int trackedKeyCount() {
+        return requestBuckets.size();
+    }
+
+    /** Runs the idle sweep now (tests). */
+    public synchronized void sweepNow() {
+        sweep(clock.instant());
     }
 
     public synchronized void reset(String key) {

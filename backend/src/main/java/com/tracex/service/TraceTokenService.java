@@ -107,7 +107,20 @@ public class TraceTokenService {
         }
     }
 
-    public byte[] getSecretKeyBytes() {
-        return secretKeyBytes.clone();
+    /**
+     * HMAC of a value under a key derived for one purpose (M9, Phase 13). Scan IP hashes no longer use the
+     * trace-token key itself, and the secret never leaves this class.
+     */
+    public String keyedHash(String purpose, String value) {
+        try {
+            Mac derive = Mac.getInstance(HMAC_ALGORITHM);
+            derive.init(new SecretKeySpec(secretKeyBytes, HMAC_ALGORITHM));
+            byte[] purposeKey = derive.doFinal(("tracex:" + purpose).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            Mac mac = Mac.getInstance(HMAC_ALGORITHM);
+            mac.init(new SecretKeySpec(purposeKey, HMAC_ALGORITHM));
+            return java.util.HexFormat.of().formatHex(mac.doFinal(value.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to compute keyed hash", e);
+        }
     }
 }
