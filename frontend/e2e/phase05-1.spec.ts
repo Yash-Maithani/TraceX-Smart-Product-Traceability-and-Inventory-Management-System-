@@ -456,7 +456,21 @@ test.describe('Phase 5.1 E2E Verification Suite (Checks 3–9: Per-Page Photo Ba
     });
     expect(imageRequestsAfterToggle).toEqual([]);
 
-    // 2. Sign in, toggle ON then OFF in the user menu, verify reload and navigation
+    // 2. Sign in, toggle ON then OFF in the user menu, verify reload and navigation.
+    // Since Phase 9 the account's saved display settings apply at sign-in, so start the account
+    // from "photos off" to match this browser, instead of whatever an earlier test saved.
+    const apiLogin = await fetch('http://localhost:8083/api/v1/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: 'superadmin', password: SEED_PASSWORD })
+    });
+    const apiToken = ((await apiLogin.json()) as { data: { token: string } }).data.token;
+    await fetch('http://localhost:8083/api/v1/auth/me/settings', {
+      method: 'PATCH',
+      headers: { Authorization: `Bearer ${apiToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ showPageImages: false })
+    });
+
     await page.goto('/login');
     await page.getByLabel('Username').fill('superadmin');
     await page.getByLabel(/^Password/).fill(SEED_PASSWORD);
@@ -468,13 +482,27 @@ test.describe('Phase 5.1 E2E Verification Suite (Checks 3–9: Per-Page Photo Ba
       fullPage: true
     });
 
-    // Turn back ON in user menu
+    // Turn back ON in user menu (and let it save, so turning it off again is a real change)
+    const savedOn = page.waitForResponse(
+      (res) =>
+        res.url().includes('/api/v1/auth/me/settings') &&
+        res.request().method() === 'PATCH' &&
+        (res.request().postData() ?? '').includes('"showPageImages":true')
+    );
     await page.getByTestId('user-menu-page-images-toggle').click();
-    expect(await page.locator('picture').count()).toBe(1);
+    await expect(page.locator('picture')).toHaveCount(1);
+    await savedOn;
 
-    // Turn OFF in user menu
+    // Turn OFF in user menu, and wait until the account has saved it before reloading
+    const savedOff = page.waitForResponse(
+      (res) =>
+        res.url().includes('/api/v1/auth/me/settings') &&
+        res.request().method() === 'PATCH' &&
+        (res.request().postData() ?? '').includes('"showPageImages":false')
+    );
     await page.getByTestId('user-menu-page-images-toggle').click();
-    expect(await page.locator('picture').count()).toBe(0);
+    await expect(page.locator('picture')).toHaveCount(0);
+    await savedOff;
 
     imageRequestsAfterToggle.length = 0;
     await page.reload();

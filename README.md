@@ -11,6 +11,15 @@ Consumers scanning a product QR code receive a public provenance and freshness v
 - **Database**: MongoDB (`tracex_fresh_dev`, `tracex_fresh_test`, `tracex_fresh_e2e`, `tracex_fresh`)
 - **Testing**: JUnit 5 & Spring MockMvc (backend), Vitest, Testing Library & `vitest-axe` (frontend unit), Playwright & `@axe-core/playwright` (end-to-end)
 
+New to the project? Read the [Project Guide](docs/project-guide.md) first. It explains what TraceX does, who can do what, how the code is laid out, and the words used in the other documents.
+
+## Prerequisites
+
+- Java 21 JDK (the Maven wrapper `mvnw.cmd` downloads Maven itself)
+- Node.js 20 and npm
+- MongoDB running locally on `mongodb://localhost:27017` (the backend tests and the dev profile both expect it)
+- Windows PowerShell for the helper scripts in `scripts/`
+
 ## Running Locally
 
 ### Backend (API on port `8081`)
@@ -90,9 +99,13 @@ cd frontend
 npx playwright test
 ```
 
+Before running the browser tests, build the backend jar (`.\mvnw.cmd clean verify` in `backend`), stop any dev server on port `5174`, run `scripts\e2e-reset.ps1`, and start the backend with `java -jar target/tracex-backend-1.0.0-SNAPSHOT.jar --spring.profiles.active=e2e` from `backend`.
+
 ## Documentation
 
+- [Project Guide (`docs/project-guide.md`)](docs/project-guide.md): start here
+- [API Key Setup (`docs/setup/api-keys.md`)](docs/setup/api-keys.md)
 - [System Specification (`SPEC.md`)](SPEC.md)
 - [Project Progress & Verification Log (`PROGRESS.md`)](PROGRESS.md)
-- [Project Brief (`docs/BRIEF.md`)](docs/BRIEF.md)
-- [Handoff Summary (`docs/HANDOFF.md`)](docs/HANDOFF.md)
+- [Permission Matrix (`docs/permission-matrix.csv`)](docs/permission-matrix.csv)
+- Historical, from before the rebuild (describe the old Node app, not this code): [`docs/BRIEF.md`](docs/BRIEF.md), [`docs/HANDOFF.md`](docs/HANDOFF.md)

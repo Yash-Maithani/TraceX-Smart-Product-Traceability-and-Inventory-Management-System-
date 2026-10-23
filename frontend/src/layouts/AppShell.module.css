@@ -258,3 +258,34 @@
   line-height: 18px;
   text-align: center;
 }
+
+/* Phase 12: legal links in the signed-in sidebar */
+.legalLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  font-size: var(--text-xs);
+}
+
+.legalLinks a {
+  color: var(--text-muted);
+}
+
+.legalLinks a:hover,
+.legalLinks a:focus-visible {
+  color: var(--text-primary);
+}
+
+/* Phase 12: each page settles into place when it opens (position only, 150 ms) */
+.pageEnter {
+  animation: tracexPageEnter var(--duration-normal) ease-out;
+}
+
+@keyframes tracexPageEnter {
+  from { transform: translateY(4px); }
+  to { transform: none; }
+}
+
+.navLink {
+  transition: background-color var(--duration-normal) ease, color var(--duration-normal) ease;
+}

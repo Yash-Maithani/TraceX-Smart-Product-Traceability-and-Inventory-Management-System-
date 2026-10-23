@@ -57,7 +57,7 @@ describe('PublicPages and Auth Recovery Success Paths', () => {
     u1();
 
     const { unmount: u2 } = renderPublicRoute('/terms');
-    expect(screen.getByRole('heading', { name: /Terms of Use/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Terms and Conditions/i })).toBeInTheDocument();
     u2();
 
     const { unmount: u3 } = renderPublicRoute('/trace/TX-2026-10-001');

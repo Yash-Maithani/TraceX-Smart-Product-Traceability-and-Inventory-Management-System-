@@ -52,7 +52,7 @@ export function LegacyTracePage() {
         <span>&copy; {new Date().getFullYear()} TraceX Traceability</span>
         <div className={coreStyles.filterActionGroup}>
           <Link to="/privacy">Privacy Policy</Link>
-          <Link to="/terms">Terms of Use</Link>
+          <Link to="/terms">Terms and Conditions</Link>
         </div>
       </footer>
     </div>

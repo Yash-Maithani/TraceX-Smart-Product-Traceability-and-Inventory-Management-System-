@@ -420,6 +420,7 @@
 
 /* Dialog / Modal */
 .dialogBackdrop {
+  animation: tracexFadeIn var(--duration-normal) ease-out;
   position: fixed;
   inset: 0;
   z-index: var(--z-modal);
@@ -432,6 +433,7 @@
 }
 
 .dialogPanel {
+  animation: tracexRise var(--duration-normal) ease-out;
   width: 100%;
   max-width: 34rem;
   max-height: calc(100vh - 2rem);
@@ -485,6 +487,7 @@
 }
 
 .toastItem {
+  animation: tracexSlideIn var(--duration-normal) ease-out;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -868,4 +871,23 @@
   background-color: var(--bg-surface);
   color: var(--text-primary);
   font-size: var(--text-xs);
+}
+
+/*
+ * Phase 12 motion. Short (150 ms, --duration-normal), position only: text never fades, so colour
+ * contrast is the same in every frame. The reduced-motion block in tokens.css turns all of it off.
+ */
+@keyframes tracexFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes tracexRise {
+  from { transform: translateY(6px) scale(0.99); }
+  to { transform: none; }
+}
+
+@keyframes tracexSlideIn {
+  from { transform: translateX(12px); }
+  to { transform: none; }
 }

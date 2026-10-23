@@ -74,6 +74,11 @@
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   min-width: 0;
+  transition: border-color var(--duration-normal) ease;
+}
+
+.sectionCard:hover {
+  border-color: var(--border-strong);
 }
 
 .sectionHeader {

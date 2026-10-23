@@ -11,6 +11,8 @@ export interface AuthLayoutProps {
   children: ReactNode;
   footerLinks?: ReactNode;
   backdropKey?: BackdropKey;
+  /** Wider card for long reading pages such as the legal pages (Phase 12). */
+  wide?: boolean;
 }
 
 export function AuthLayout({
@@ -18,7 +20,8 @@ export function AuthLayout({
   subtitle,
   children,
   footerLinks,
-  backdropKey
+  backdropKey,
+  wide = false
 }: AuthLayoutProps) {
   const location = useLocation();
   const resolvedKey = backdropKey ?? resolveBackdropKeyForPath(location.pathname);
@@ -35,7 +38,7 @@ export function AuthLayout({
           <ThemeToggle />
         </header>
         <main id="main-content" tabIndex={-1} className={styles.authMain}>
-          <section className={styles.authCard} aria-labelledby="auth-page-heading">
+          <section className={`${styles.authCard} ${wide ? styles.authCardWide : ''}`} aria-labelledby="auth-page-heading">
             <div>
               <h1 id="auth-page-heading" className={styles.authTitle}>
                 {title}
@@ -48,7 +51,7 @@ export function AuthLayout({
         </main>
         <footer className={styles.pageFooter}>
           <Link to="/privacy">Privacy Policy</Link>
-          <Link to="/terms">Terms of Use</Link>
+          <Link to="/terms">Terms and Conditions</Link>
         </footer>
       </PageBackdrop>
     </div>

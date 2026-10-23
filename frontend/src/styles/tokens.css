@@ -352,7 +352,7 @@ html[data-theme="dark"] {
   --status-neutral-border: #94a3b8;
 }
 
-/* Reduced Motion Support â€” sets all transition and animation durations to 0s */
+/* Reduced Motion Support: sets all transition and animation durations to 0s */
 @media (prefers-reduced-motion: reduce) {
   :root {
     --duration-fast: 0s;

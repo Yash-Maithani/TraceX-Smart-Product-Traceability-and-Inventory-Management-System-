@@ -1,5 +1,5 @@
 # TraceX — PROGRESS.md
-> Updated: 2026-10-23 (Phase 11 COMPLETE)
+> Updated: 2026-10-23 (Phase 12 COMPLETE)
 
 ---
 
@@ -35,7 +35,7 @@
 | 10 | Notifications and live updates (SSE) | COMPLETE | 2026-10-22 | [phase-10](docs/progress/phase-10.md) |
 | 10.1 | Role-channel messages and record comments (S-05) | COMPLETE | 2026-10-22 | [phase-10-1](docs/progress/phase-10-1.md) |
 | 11 | AI and Google OAuth (switched on by keys) | COMPLETE | 2026-10-23 | [phase-11](docs/progress/phase-11.md) |
-| 12 | UI refinement, legal pages, favicon, documentation | NOT STARTED | | |
+| 12 | UI refinement, legal pages, favicon, documentation | COMPLETE | 2026-10-23 | [phase-12](docs/progress/phase-12.md) |
 | 13 | Testing and hardening | NOT STARTED | | |
 | 14 | Production preparation and deployment | NOT STARTED | | |
 
@@ -424,3 +424,10 @@
 - **Backend**: Added `service/ai/AiProvider.java`, `GeminiProvider.java` and `NvidiaProvider.java` (Java `HttpClient`, no new dependencies; the Gemini key goes in a header, never the URL), `AiAuditService.java` (per-user rate limit, 4-hour cache, prompt without `farmerName`, output checked against the input), `AiController.java` (`GET /api/v1/ai/status`, `POST /api/v1/ai/dispatch-audit`), `GoogleTokenVerifier.java` (ID token checked for audience, issuer, verified email and expiry), `GoogleCredentialDto.java`, `User.googleEmail` (unique, sparse) and `googleLinkedAt`, `AuthService.googleLogin`, `UserService.linkGoogle` / `unlinkGoogle`, and error codes `GOOGLE_SIGN_IN_UNAVAILABLE` and `AUTH_GOOGLE_NOT_LINKED`. `application.properties` now imports an untracked `backend/.env`; `.env.example` values are empty. 2 matrix rows added; Phase 11 rows active (`RbacMatrixTest` `462 -> 497`, `71` rows). Added `AiAuditTests.java` (`6`) and `GoogleSignInTests.java` (`6`), both with fakes so no test needs a key. Backend total: **`723` tests, `0` failures**. `OI-05` closed.
 - **Frontend**: `AiAuditPanel.tsx` on `/fefo` (hidden without a key), `GoogleSignInButton.tsx` and `lib/googleIdentity.ts` (loads Google's script only when `VITE_GOOGLE_CLIENT_ID` is set), the Google button on `/login`, `GoogleLinkCard.tsx` on `/profile`, and Google origins added to the production CSP only when configured. Added `AiAndGoogle.test.tsx` (`5` tests). Frontend unit total: **`113` tests in `19` files**. Added `e2e/phase11.spec.ts` (`1` test); Playwright E2E total: **`48` passed across `9` files**.
 - **Guide**: [docs/setup/api-keys.md](docs/setup/api-keys.md) explains how to get each key for free and where to put it. Full log in [docs/progress/phase-11.md](docs/progress/phase-11.md).
+
+### Phase 12 UI Polish, Legal Pages, Favicon and Documentation
+- **Legal pages**: Real Privacy Policy and Terms and Conditions (`legalContent.ts`), written to match what the code stores and for how long; "Terms of Use" renamed everywhere; links added to the signed-in sidebar; empty `src/pages/LegalPage.tsx` removed.
+- **Motion**: page settle, dialog rise, toast slide, card and link hover, all 150 ms and position-only, all off under reduced motion.
+- **Icons**: `public/favicon.svg`, `favicon.ico`, `apple-touch-icon.png` (`scripts/generate-icons.mjs`), linked from `index.html`.
+- **Docs**: new [docs/project-guide.md](docs/project-guide.md) for team members; README prerequisites and browser-test steps; `docs/BRIEF.md` and `docs/HANDOFF.md` marked historical.
+- **Totals**: frontend unit **`116` tests in `20` files** (`+3`); backend unchanged (`723`). Full log in [docs/progress/phase-12.md](docs/progress/phase-12.md).

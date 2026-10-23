@@ -112,9 +112,7 @@ export const STRINGS = {
   },
   publicPages: {
     privacyTitle: 'Privacy Policy',
-    privacyBody: 'TraceX stores operational batch, inspection, dispatch, and user account records required for food supply chain traceability.',
-    termsTitle: 'Terms of Use',
-    termsBody: 'Access to TraceX is restricted to authorized personnel. All state-changing actions are recorded in the audit log.'
+    termsTitle: 'Terms and Conditions'
   }
 } as const;
 

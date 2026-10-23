@@ -153,6 +153,10 @@ export function AppShell() {
           </div>
         </div>
       ) : null}
+      <nav aria-label="Legal" className={styles.legalLinks}>
+        <NavLink to="/privacy">Privacy Policy</NavLink>
+        <NavLink to="/terms">Terms and Conditions</NavLink>
+      </nav>
       <div className={styles.userActions}>
         <PageImagesToggle
           fullWidth
@@ -222,7 +226,9 @@ export function AppShell() {
           </header>
 
           <main id="main-content" tabIndex={-1} className={styles.mainContent}>
-            <Outlet />
+            <div key={location.pathname} className={styles.pageEnter}>
+              <Outlet />
+            </div>
           </main>
         </div>
       </div>

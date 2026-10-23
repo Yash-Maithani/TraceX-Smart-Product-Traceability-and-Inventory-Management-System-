@@ -1,3 +1,5 @@
+> **Historical document.** Written before the rebuild; it describes the old Node.js reference app, not the current Spring Boot + React code. For the current project see [project-guide.md](project-guide.md) and `SPEC.md`.
+
 # TraceX — Master Project Brief
 
 ## What is TraceX?
