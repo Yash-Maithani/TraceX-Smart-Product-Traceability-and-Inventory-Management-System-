@@ -430,4 +430,4 @@
 - **Motion**: page settle, dialog rise, toast slide, card and link hover, all 150 ms and position-only, all off under reduced motion.
 - **Icons**: `public/favicon.svg`, `favicon.ico`, `apple-touch-icon.png` (`scripts/generate-icons.mjs`), linked from `index.html`.
 - **Docs**: new [docs/project-guide.md](docs/project-guide.md) for team members; README prerequisites and browser-test steps; `docs/BRIEF.md` and `docs/HANDOFF.md` marked historical.
-- **Totals**: frontend unit **`116` tests in `20` files** (`+3`); backend unchanged (`723`). Full log in [docs/progress/phase-12.md](docs/progress/phase-12.md).
+- **Totals**: frontend unit **`116` tests in `20` files** (`+3`); backend unchanged (`723`); Playwright E2E **`48` passed across `9` files** after repairing `P51-E2E-05`. Full log in [docs/progress/phase-12.md](docs/progress/phase-12.md).
