@@ -35,6 +35,7 @@ export interface PermissionMatrixEntry {
 export const PERMISSION_MATRIX: readonly PermissionMatrixEntry[] = [
   { key: 'POST /api/v1/auth/login', phase: 1, method: 'POST', path: '/api/v1/auth/login', allowedRoles: ['super-admin', 'admin', 'manager', 'factory-manager', 'quality-inspector', 'dispatch-coordinator'], anonymousAllowed: true },
   { key: 'POST /api/v1/auth/request-access', phase: 2, method: 'POST', path: '/api/v1/auth/request-access', allowedRoles: ['super-admin', 'admin', 'manager', 'factory-manager', 'quality-inspector', 'dispatch-coordinator'], anonymousAllowed: true },
+  { key: 'POST /api/v1/auth/google/token', phase: 11, method: 'POST', path: '/api/v1/auth/google/token', allowedRoles: ['super-admin', 'admin', 'manager', 'factory-manager', 'quality-inspector', 'dispatch-coordinator'], anonymousAllowed: true },
   { key: 'POST /api/v1/auth/activate', phase: 2, method: 'POST', path: '/api/v1/auth/activate', allowedRoles: ['super-admin', 'admin', 'manager', 'factory-manager', 'quality-inspector', 'dispatch-coordinator'], anonymousAllowed: true },
   { key: 'POST /api/v1/auth/verify-otp', phase: 2, method: 'POST', path: '/api/v1/auth/verify-otp', allowedRoles: ['super-admin', 'admin', 'manager', 'factory-manager', 'quality-inspector', 'dispatch-coordinator'], anonymousAllowed: true },
   { key: 'POST /api/v1/auth/verify-otp/resend', phase: 2, method: 'POST', path: '/api/v1/auth/verify-otp/resend', allowedRoles: ['super-admin', 'admin', 'manager', 'factory-manager', 'quality-inspector', 'dispatch-coordinator'], anonymousAllowed: true },
@@ -100,6 +101,7 @@ export const PERMISSION_MATRIX: readonly PermissionMatrixEntry[] = [
   { key: 'PATCH /api/v1/messages/:id', phase: 10, method: 'PATCH', path: '/api/v1/messages/:id', allowedRoles: ['super-admin', 'admin', 'manager', 'factory-manager', 'quality-inspector', 'dispatch-coordinator'], anonymousAllowed: false },
   { key: 'DELETE /api/v1/messages/:id', phase: 10, method: 'DELETE', path: '/api/v1/messages/:id', allowedRoles: ['super-admin', 'admin', 'manager', 'factory-manager', 'quality-inspector', 'dispatch-coordinator'], anonymousAllowed: false },
   { key: 'POST /api/v1/ai/dispatch-audit', phase: 11, method: 'POST', path: '/api/v1/ai/dispatch-audit', allowedRoles: ['super-admin', 'admin', 'manager', 'factory-manager', 'quality-inspector', 'dispatch-coordinator'], anonymousAllowed: false },
+  { key: 'GET /api/v1/ai/status', phase: 11, method: 'GET', path: '/api/v1/ai/status', allowedRoles: ['super-admin', 'admin', 'manager', 'factory-manager', 'quality-inspector', 'dispatch-coordinator'], anonymousAllowed: false },
   { key: 'GET /api/v1/products', phase: 3, method: 'GET', path: '/api/v1/products', allowedRoles: ['super-admin', 'admin', 'manager', 'factory-manager', 'quality-inspector', 'dispatch-coordinator'], anonymousAllowed: false },
   { key: 'GET /api/v1/dashboard/summary', phase: 6, method: 'GET', path: '/api/v1/dashboard/summary', allowedRoles: ['super-admin', 'admin', 'manager', 'factory-manager', 'quality-inspector', 'dispatch-coordinator'], anonymousAllowed: false },
 ];

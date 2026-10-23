@@ -1,5 +1,5 @@
 # TraceX — PROGRESS.md
-> Updated: 2026-10-22 (Phase 10.1 COMPLETE)
+> Updated: 2026-10-23 (Phase 11 COMPLETE)
 
 ---
 
@@ -34,7 +34,7 @@
 | 9 | Team admin UI, settings, login history | COMPLETE | 2026-10-22 | [phase-09](docs/progress/phase-09.md) |
 | 10 | Notifications and live updates (SSE) | COMPLETE | 2026-10-22 | [phase-10](docs/progress/phase-10.md) |
 | 10.1 | Role-channel messages and record comments (S-05) | COMPLETE | 2026-10-22 | [phase-10-1](docs/progress/phase-10-1.md) |
-| 11 | AI and Google OAuth (conditional on the audit) | NOT STARTED | | |
+| 11 | AI and Google OAuth (switched on by keys) | COMPLETE | 2026-10-23 | [phase-11](docs/progress/phase-11.md) |
 | 12 | UI refinement, legal pages, favicon, documentation | NOT STARTED | | |
 | 13 | Testing and hardening | NOT STARTED | | |
 | 14 | Production preparation and deployment | NOT STARTED | | |
@@ -80,7 +80,7 @@
 | OI-02 | Batch code generation uses non-atomic findOne+increment; race condition on concurrent creates | MEDIUM | Closed | `backend/src/utils/batchCodeGenerator.js` lines 10–22 | SPEC §3.2, §4 (`counters` collection) (Phase 3) |
 | OI-03 | Reference stores JWT in localStorage under key `hs_token` (confirmed). New build stores token in `sessionStorage` under key `tx_token` per D-1 / Step 0 (memory-only rejected due to reload logout; localStorage prohibited). XSS mitigations (strict CSP, short 8h expiry, per-request tokenVersion check) documented in SPEC §7 risk register. Closed for client side in Phase 5; hosting CSP headers come in Phase 14 | HIGH | Closed | `frontend/src/api/client.js` line 15; `frontend/src/pages/Login.jsx` line 742 | SPEC §7 (D-1, Step 0) (Phase 1 & Phase 5; hosting CSP headers in Phase 14) |
 | OI-04 | Batch list (GET /api/batches) and FEFO queue (GET /api/dispatch/fefo) are unauthenticated in reference — expose PII | MEDIUM | Closed | `backend/src/routes/batches.routes.js` line 10, `backend/src/routes/dispatch.routes.js` line 3 | SPEC §6.3 (Phase 3 & Phase 4) |
-| OI-05 | farmerName sent to third-party AI providers — privacy risk | MEDIUM | Open | `backend/src/services/aiService.js` lines 54–55 | SPEC §7 (D-9) (Phase 11) |
+| OI-05 | farmerName sent to third-party AI providers — privacy risk | MEDIUM | Closed | `backend/src/services/aiService.js` lines 54–55 | SPEC §7 (D-9); Phase 11 `AiAuditService.buildPrompt` omits it, proven by `AiAuditTests.geminiReportIsCleaned` |
 | OI-06 | Dispatch coordinator role has no distinct permissions; any authenticated user can dispatch in reference | LOW | Closed | `backend/src/routes/dispatch.routes.js` line 3; `backend/src/middleware/requireAdmin.js` line 17 | SPEC §2, §3.6 (D-10) (Phase 4) |
 | OI-07 | `inspections` 30-day TTL destroys quality audit trail | MEDIUM | Closed | `backend/src/models/Inspection.model.js` line 78 | SPEC §3.3, §4 (D-15) (Phase 4) |
 | OI-08 | Priority score not recalculated as days pass; stored value drifts | LOW | Closed | `backend/src/models/Batch.model.js`; `backend/src/services/expiryCalculator.js` lines 29–33 | SPEC §3.1 (display-only; canonical sort by status tier + expiryDate) (Phase 4) |
@@ -419,3 +419,8 @@
 ### Phase 10.1 Role-Channel Messages and Record Comments (S-05)
 - **Backend**: Added `Message.java` (`messages`; TTL on `expiresAt`, null for record comments), `MessageDtos.java`, `MessageService.java` and `MessageController.java` (7 endpoints under `/api/v1/messages`), ported from the reference `messages.controller.js` with one tightening: inspection threads follow the inspection read rule, so `dispatch-coordinator` is refused. Added 7 rows to `docs/permission-matrix.csv` (phase `10`) and regenerated `src/auth/permissions.generated.ts`; `RbacMatrixTest` `413 -> 462` (`66` active rows). Added `MessageTests.java` (`9` tests). Backend total: **`676` tests, `0` failures**.
 - **Frontend**: `/messages` (`MessagesPage.tsx`, channel tabs only for a super-admin), `MessageThread.tsx` (shared list and composer; Edit for the author, Delete for the author or a moderator, deleted slots kept), `RecordComments.tsx` on the batch detail page and in the inspection record dialog, `useMessageActions.ts`, live refresh on `message:new`, and a Messages nav entry. Added `Messages.test.tsx` (`4` tests). Frontend unit total: **`108` tests in `18` files**. Added `e2e/phase10-1.spec.ts` (`2` tests); Playwright E2E total: **`47` passed across `8` files**. Full log in [docs/progress/phase-10-1.md](docs/progress/phase-10-1.md).
+
+### Phase 11 AI Dispatch Audit and Google Sign-in (S-01, S-07)
+- **Backend**: Added `service/ai/AiProvider.java`, `GeminiProvider.java` and `NvidiaProvider.java` (Java `HttpClient`, no new dependencies; the Gemini key goes in a header, never the URL), `AiAuditService.java` (per-user rate limit, 4-hour cache, prompt without `farmerName`, output checked against the input), `AiController.java` (`GET /api/v1/ai/status`, `POST /api/v1/ai/dispatch-audit`), `GoogleTokenVerifier.java` (ID token checked for audience, issuer, verified email and expiry), `GoogleCredentialDto.java`, `User.googleEmail` (unique, sparse) and `googleLinkedAt`, `AuthService.googleLogin`, `UserService.linkGoogle` / `unlinkGoogle`, and error codes `GOOGLE_SIGN_IN_UNAVAILABLE` and `AUTH_GOOGLE_NOT_LINKED`. `application.properties` now imports an untracked `backend/.env`; `.env.example` values are empty. 2 matrix rows added; Phase 11 rows active (`RbacMatrixTest` `462 -> 497`, `71` rows). Added `AiAuditTests.java` (`6`) and `GoogleSignInTests.java` (`6`), both with fakes so no test needs a key. Backend total: **`723` tests, `0` failures**. `OI-05` closed.
+- **Frontend**: `AiAuditPanel.tsx` on `/fefo` (hidden without a key), `GoogleSignInButton.tsx` and `lib/googleIdentity.ts` (loads Google's script only when `VITE_GOOGLE_CLIENT_ID` is set), the Google button on `/login`, `GoogleLinkCard.tsx` on `/profile`, and Google origins added to the production CSP only when configured. Added `AiAndGoogle.test.tsx` (`5` tests). Frontend unit total: **`113` tests in `19` files**. Added `e2e/phase11.spec.ts` (`1` test); Playwright E2E total: **`48` passed across `9` files**.
+- **Guide**: [docs/setup/api-keys.md](docs/setup/api-keys.md) explains how to get each key for free and where to put it. Full log in [docs/progress/phase-11.md](docs/progress/phase-11.md).

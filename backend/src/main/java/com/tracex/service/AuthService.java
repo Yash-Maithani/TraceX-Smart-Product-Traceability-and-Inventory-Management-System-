@@ -10,6 +10,7 @@ import com.tracex.model.LoginEvent;
 import com.tracex.model.User;
 import com.tracex.repository.LoginEventRepository;
 import com.tracex.repository.UserRepository;
+import com.tracex.security.GoogleTokenVerifier;
 import com.tracex.security.JwtService;
 import com.tracex.security.RateLimiter;
 import com.tracex.util.UserAgentParser;
@@ -40,13 +41,16 @@ public class AuthService {
     private final RateLimiter rateLimiter;
     private final LoginEventRepository loginEventRepository;
     private final Clock clock;
+    private final GoogleTokenVerifier googleTokenVerifier;
 
     public AuthService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
                        JwtService jwtService,
                        RateLimiter rateLimiter,
                        LoginEventRepository loginEventRepository,
-                       Clock clock) {
+                       Clock clock,
+                       GoogleTokenVerifier googleTokenVerifier) {
+        this.googleTokenVerifier = googleTokenVerifier;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
@@ -91,7 +95,41 @@ public class AuthService {
         return new LoginResponse(token, UserSummaryDto.fromEntity(user));
     }
 
+    /**
+     * Sign in with a Google ID token (Phase 11, S-07, reference `googleAuth.controller.js`).
+     * Only accounts that linked this Google email while signed in can use it; nothing is created here.
+     */
+    public LoginResponse googleLogin(String credential, String clientIp, String userAgent) {
+        String rateLimitKey = "login:" + (clientIp != null ? clientIp : "unknown");
+        if (!rateLimiter.allowRequest(rateLimitKey, maxLoginAttempts, LOGIN_WINDOW)) {
+            throw new RateLimitException("Too many login attempts. Please try again later.");
+        }
+        if (!googleTokenVerifier.isConfigured()) {
+            throw new ApiException(ErrorCode.GOOGLE_SIGN_IN_UNAVAILABLE, "Google sign-in is not available on this server.", HttpStatus.SERVICE_UNAVAILABLE);
+        }
+        GoogleTokenVerifier.GoogleIdentity identity = googleTokenVerifier.verify(credential)
+                .orElseThrow(() -> new ApiException(ErrorCode.AUTH_INVALID_TOKEN, "Google sign-in failed. Please try again.", HttpStatus.UNAUTHORIZED));
+
+        Optional<User> userOpt = userRepository.findByGoogleEmail(identity.email());
+        if (userOpt.isEmpty() || userOpt.get().isDeleted()) {
+            throw new ApiException(ErrorCode.AUTH_GOOGLE_NOT_LINKED,
+                    "No TraceX account is linked to this Google account. Sign in with your username and password, then link Google on the Profile page.",
+                    HttpStatus.FORBIDDEN);
+        }
+        User user = userOpt.get();
+        if (!user.isActive()) {
+            throw new ApiException(ErrorCode.AUTH_ACCOUNT_INACTIVE, "Your account has been deactivated. Contact your administrator.", HttpStatus.FORBIDDEN);
+        }
+        String token = jwtService.generateToken(user.getId(), user.getTokenVersion());
+        recordLoginEvent(user, userAgent, "google");
+        return new LoginResponse(token, UserSummaryDto.fromEntity(user));
+    }
+
     private void recordLoginEvent(User user, String userAgent) {
+        recordLoginEvent(user, userAgent, "password");
+    }
+
+    private void recordLoginEvent(User user, String userAgent, String method) {
         try {
             loginEventRepository.save(new LoginEvent(
                     user.getId(),
@@ -99,7 +137,7 @@ public class AuthService {
                     UserAgentParser.browser(userAgent),
                     UserAgentParser.os(userAgent),
                     UserAgentParser.deviceType(userAgent),
-                    "password",
+                    method,
                     clock.instant()));
         } catch (Exception ex) {
             // Login history is informational; failing to write it must not block sign-in

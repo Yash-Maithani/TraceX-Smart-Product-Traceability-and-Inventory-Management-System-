@@ -24,6 +24,7 @@ import {
 import { formatBusinessDate } from '../../lib/dates';
 import { DispatchDialog } from '../batches/DispatchDialog';
 import { EMPTY_VALUE, formatDays } from '../../lib/format';
+import { AiAuditPanel } from './AiAuditPanel';
 
 export function FefoPage() {
   const { user } = useAuth();
@@ -158,6 +159,8 @@ export function FefoPage() {
         backdropKey="fefo"
         priority
       />
+
+      <AiAuditPanel />
 
       {lastDispatchWarning ? (
         <div

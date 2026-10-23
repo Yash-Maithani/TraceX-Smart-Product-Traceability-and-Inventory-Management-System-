@@ -152,3 +152,7 @@ export type ReadAllResultDto = components['schemas']['ReadAllResultDto'];
 export type MessageDto = components['schemas']['MessageDto'];
 export type ChannelsDto = components['schemas']['ChannelsDto'];
 export type MessageRefType = 'batch' | 'inspection';
+
+// Phase 11: AI dispatch audit and Google sign-in
+export type AiStatusDto = components['schemas']['AiStatus'];
+export type AiAuditReportDto = components['schemas']['AuditReport'];

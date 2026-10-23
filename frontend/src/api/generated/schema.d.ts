@@ -292,6 +292,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/me/google-link": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["linkGoogle"];
+        delete: operations["unlinkGoogle"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/me/change-password": {
         parameters: {
             query?: never;
@@ -324,6 +340,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/google/token": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["googleLogin"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/forgot-password": {
         parameters: {
             query?: never;
@@ -350,6 +382,22 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["activate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ai/dispatch-audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["dispatchAudit"];
         delete?: never;
         options?: never;
         head?: never;
@@ -900,6 +948,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/ai/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["status"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/users/{id}": {
         parameters: {
             query?: never;
@@ -1357,9 +1421,10 @@ export interface components {
             /** Format: date-time */
             updatedAt?: string;
             preferences?: components["schemas"]["Preferences"];
+            googleEmail?: string;
             active?: boolean;
-            superAdmin?: boolean;
             deleted?: boolean;
+            superAdmin?: boolean;
         };
         ResendOtpDto: {
             email: string;
@@ -1404,6 +1469,18 @@ export interface components {
             email: string;
             role: string;
         };
+        GoogleCredentialDto: {
+            credential: string;
+        };
+        ApiResponseUserSummaryDto: {
+            success?: boolean;
+            requestId?: string;
+            data?: components["schemas"]["UserSummaryDto"];
+            message?: string;
+            code?: string;
+            error?: string;
+            fieldErrors?: components["schemas"]["FieldErrorDto"][];
+        };
         ChangePasswordDto: {
             currentPassword: string;
             newPassword: string;
@@ -1429,6 +1506,49 @@ export interface components {
             code?: string;
             error?: string;
             fieldErrors?: components["schemas"]["FieldErrorDto"][];
+        };
+        ApiResponseAuditReport: {
+            success?: boolean;
+            requestId?: string;
+            data?: components["schemas"]["AuditReport"];
+            message?: string;
+            code?: string;
+            error?: string;
+            fieldErrors?: components["schemas"]["FieldErrorDto"][];
+        };
+        AuditReport: {
+            urgentBatches?: components["schemas"]["UrgentBatch"][];
+            qualityWarnings?: components["schemas"]["QualityWarning"][];
+            top3Priorities?: components["schemas"]["Priority"][];
+            supplyChainRisks?: components["schemas"]["SupplyChainRisk"][];
+            summary?: string;
+            /** Format: int32 */
+            totalAnalyzed?: number;
+            provider?: string;
+            /** Format: date-time */
+            generatedAt?: string;
+            fromCache?: boolean;
+        };
+        Priority: {
+            /** Format: int32 */
+            rank?: number;
+            batchCode?: string;
+            productName?: string;
+            action?: string;
+            reasoning?: string;
+        };
+        QualityWarning: {
+            batchCode?: string;
+            concern?: string;
+        };
+        SupplyChainRisk: {
+            risk?: string;
+            severity?: string;
+            recommendation?: string;
+        };
+        UrgentBatch: {
+            batchCode?: string;
+            reason?: string;
         };
         ApiResponseNotificationDto: {
             success?: boolean;
@@ -1490,15 +1610,6 @@ export interface components {
              */
             dispatchDate?: string;
             overrideReason?: string;
-        };
-        ApiResponseUserSummaryDto: {
-            success?: boolean;
-            requestId?: string;
-            data?: components["schemas"]["UserSummaryDto"];
-            message?: string;
-            code?: string;
-            error?: string;
-            fieldErrors?: components["schemas"]["FieldErrorDto"][];
         };
         UpdateRoleDto: {
             /** @enum {string} */
@@ -1982,6 +2093,19 @@ export interface components {
             method?: string;
             /** Format: date-time */
             createdAt?: string;
+        };
+        AiStatus: {
+            enabled?: boolean;
+            providers?: string[];
+        };
+        ApiResponseAiStatus: {
+            success?: boolean;
+            requestId?: string;
+            data?: components["schemas"]["AiStatus"];
+            message?: string;
+            code?: string;
+            error?: string;
+            fieldErrors?: components["schemas"]["FieldErrorDto"][];
         };
         DeleteUserDto: {
             deleteNote?: string;
@@ -2522,6 +2646,50 @@ export interface operations {
             };
         };
     };
+    linkGoogle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GoogleCredentialDto"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseUserSummaryDto"];
+                };
+            };
+        };
+    };
+    unlinkGoogle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseUserSummaryDto"];
+                };
+            };
+        };
+    };
     changePassword: {
         parameters: {
             query?: never;
@@ -2556,6 +2724,30 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["LoginRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseLoginResponse"];
+                };
+            };
+        };
+    };
+    googleLogin: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GoogleCredentialDto"];
             };
         };
         responses: {
@@ -2614,6 +2806,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApiResponseMapStringObject"];
+                };
+            };
+        };
+    };
+    dispatchAudit: {
+        parameters: {
+            query?: {
+                refresh?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseAuditReport"];
                 };
             };
         };
@@ -3424,6 +3638,26 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApiResponseListUserSummaryDto"];
+                };
+            };
+        };
+    };
+    status: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseAiStatus"];
                 };
             };
         };

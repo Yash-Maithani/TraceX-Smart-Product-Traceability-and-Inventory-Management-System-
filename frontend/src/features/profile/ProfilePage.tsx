@@ -17,6 +17,7 @@ import {
 } from '../../components/ui';
 import { STRINGS } from '../../strings/en';
 import { EMPTY_VALUE } from '../../lib/format';
+import { GoogleLinkCard } from './GoogleLinkCard';
 
 export function ProfilePage() {
   const { user, setAuthenticatedSession, logoutAll, refreshSession } = useAuth();
@@ -319,6 +320,8 @@ export function ProfilePage() {
               </Button>
             </div>
           </section>
+
+          <GoogleLinkCard />
         </div>
       </div>
 

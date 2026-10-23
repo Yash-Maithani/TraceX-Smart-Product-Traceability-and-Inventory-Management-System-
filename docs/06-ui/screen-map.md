@@ -32,9 +32,9 @@ This document maps every feature row in `docs/00-audit/feature-parity.md` (and t
 | # | Category | Feature (`docs/00-audit/feature-parity.md`) | Target Phase | Phase 6 Status / Route & Endpoint Mapping |
 |---|---|---|---|---|
 | 1 | Authentication | Username/password login (`POST /api/v1/auth/login`) | Phase 5 | Complete (`/login`) |
-| 2 | Authentication | Google OAuth login (`POST /api/v1/auth/google/token`) | Phase 11 | Deferred to Phase 11 (`D-3`) |
-| 3 | Authentication | Google account link (`POST /api/v1/auth/me/google-link`) | Phase 11 | Deferred to Phase 11 (`D-3`) |
-| 4 | Authentication | Google account unlink (`DELETE /api/v1/auth/me/google-link`) | Phase 11 | Deferred to Phase 11 (`D-3`) |
+| 2 | Authentication | Google OAuth login (`POST /api/v1/auth/google/token`) | Phase 11 | Complete when `VITE_GOOGLE_CLIENT_ID` is set (`/login` Google button, `GoogleSignInButton.tsx`); hidden otherwise |
+| 3 | Authentication | Google account link (`POST /api/v1/auth/me/google-link`) | Phase 11 | Complete when configured (`/profile` `GoogleLinkCard.tsx`) |
+| 4 | Authentication | Google account unlink (`DELETE /api/v1/auth/me/google-link`) | Phase 11 | Complete (`/profile` `GoogleLinkCard.tsx`; shown while an account is linked, even if Google sign-in is later switched off) |
 | 5 | Authentication | Current user profile (`GET /api/v1/auth/me`) | Phase 5 & 6 | Complete (`AuthContext.tsx` + `/profile` `ProfilePage.tsx`) |
 | 6 | Authentication | Update profile (`PATCH /api/v1/auth/me`) | Phase 6 | Implemented in `/profile` (`ProfilePage.tsx`) |
 | 7 | Authentication | Change password (`POST /api/v1/auth/me/change-password`) | Phase 6 | Implemented in `/profile` (`ProfilePage.tsx`; stores rotated `token` in `sessionStorage`) |
@@ -91,7 +91,7 @@ This document maps every feature row in `docs/00-audit/feature-parity.md` (and t
 | 58 | Bulk Import | Rollback import (`POST /api/v1/import/:id/rollback`) | Phase 8 | Implemented in `ImportPage.tsx` (`/import` Rollback `ConfirmDialog`); tested in `ImportTests.java`, `ImportPage.test.tsx`, `P8-E2E-01` |
 | 59 | Notifications | List notifications, SSE stream, mark read | Phase 10 | Complete (`/notifications` `NotificationsPage.tsx`, top-bar `NotificationBell.tsx`, live stream via `useLiveUpdates.ts` in `AppShell.tsx`) |
 | 60 | Role Messages | List/post role-channel messages & record comments | Phase 10.1 | Complete (`/messages` `MessagesPage.tsx`; comments on `/batches/:id` and the inspection record dialog via `RecordComments.tsx`) |
-| 61 | AI Dispatch Audit | AI dispatch risk analysis (`POST /api/v1/ai/dispatch-audit`) | Phase 11 | Deferred to Phase 11 |
+| 61 | AI Dispatch Audit | AI dispatch risk analysis (`POST /api/v1/ai/dispatch-audit`) | Phase 11 | Complete when an AI key is set (`/fefo` `AiAuditPanel.tsx`, shown only when `GET /api/v1/ai/status` reports enabled) |
 | 62 | Health | Health check (`GET /actuator/health`) | Phase 1 & 5 | Complete (`OfflineBanner.tsx`) |
 
 ---

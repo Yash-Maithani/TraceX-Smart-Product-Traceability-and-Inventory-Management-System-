@@ -20,6 +20,8 @@ public interface UserRepository extends MongoRepository<User, String> {
 
     Optional<User> findByEmailIgnoreCase(String email);
 
+    Optional<User> findByGoogleEmail(String googleEmail);
+
     boolean existsByEmailIgnoreCase(String email);
 
     long countByIsSuperAdminTrueAndIsActiveTrueAndIsDeletedFalse();

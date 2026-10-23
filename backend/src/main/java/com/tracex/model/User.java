@@ -44,6 +44,11 @@ public class User {
 
     private Preferences preferences; // display settings synced across devices (Phase 9)
 
+    // Google sign-in (Phase 11). Unique when set; absent (not null) when unlinked, so sparse works.
+    @Indexed(unique = true, sparse = true)
+    private String googleEmail;
+    private Instant googleLinkedAt;
+
     @JsonIgnore
     private String resetToken; // SHA-256 hashed
 
@@ -209,6 +214,22 @@ public class User {
 
     public void setOtpAttempts(int otpAttempts) {
         this.otpAttempts = otpAttempts;
+    }
+
+    public String getGoogleEmail() {
+        return googleEmail;
+    }
+
+    public void setGoogleEmail(String googleEmail) {
+        this.googleEmail = googleEmail;
+    }
+
+    public Instant getGoogleLinkedAt() {
+        return googleLinkedAt;
+    }
+
+    public void setGoogleLinkedAt(Instant googleLinkedAt) {
+        this.googleLinkedAt = googleLinkedAt;
     }
 
     public Preferences getPreferences() {

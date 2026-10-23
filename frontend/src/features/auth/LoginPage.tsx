@@ -10,6 +10,9 @@ import { consumeAuthReason, peekAuthReason, subscribeTokenChange } from '../../a
 import { sanitizeNextPath } from '../../auth/RequireAuth';
 import { ApiError } from '../../api/client';
 import { STRINGS } from '../../strings/en';
+import { signInWithGoogle } from '../../api/endpoints';
+import { GoogleSignInButton } from '../../components/GoogleSignInButton';
+import { isGoogleSignInEnabled } from '../../lib/googleIdentity';
 
 const loginSchema = z.object({
   username: z.string().trim().min(1, 'Username or email is required.'),
@@ -19,7 +22,7 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export function LoginPage() {
-  const { login } = useAuth();
+  const { login, setAuthenticatedSession } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [serverError, setServerError] = useState<string | null>(null);
@@ -55,6 +58,19 @@ export function LoginPage() {
       } else {
         setServerError('Unable to sign in. Please try again.');
       }
+    }
+  };
+
+  const onGoogleCredential = async (credential: string) => {
+    setServerError(null);
+    consumeAuthReason();
+    try {
+      const res = await signInWithGoogle(credential);
+      if (!res.token || !res.user) throw new Error('Malformed login response from server.');
+      setAuthenticatedSession(res.token, res.user);
+      navigate(sanitizeNextPath(searchParams.get('next')), { replace: true });
+    } catch (err) {
+      setServerError(err instanceof Error ? err.message : 'Google sign-in failed. Please try again.');
     }
   };
 
@@ -126,6 +142,12 @@ export function LoginPage() {
           {STRINGS.auth.signInBtn}
         </Button>
       </form>
+
+      {isGoogleSignInEnabled() ? (
+        <div className={authStyles.authFooterLinks} data-testid="login-google-section">
+          <GoogleSignInButton onCredential={(c) => void onGoogleCredential(c)} testId="login-google-btn" />
+        </div>
+      ) : null}
     </AuthLayout>
   );
 }

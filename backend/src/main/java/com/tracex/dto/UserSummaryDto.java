@@ -20,6 +20,7 @@ public class UserSummaryDto {
     private Instant createdAt;
     private Instant updatedAt;
     private User.Preferences preferences;
+    private String googleEmail;
 
     public UserSummaryDto() {
     }
@@ -43,7 +44,16 @@ public class UserSummaryDto {
         dto.setUpdatedAt(user.getUpdatedAt());
         // null until the user first saves settings, so the client keeps its local choices until then
         dto.setPreferences(user.getPreferences());
+        dto.setGoogleEmail(user.getGoogleEmail());
         return dto;
+    }
+
+    public String getGoogleEmail() {
+        return googleEmail;
+    }
+
+    public void setGoogleEmail(String googleEmail) {
+        this.googleEmail = googleEmail;
     }
 
     public User.Preferences getPreferences() {

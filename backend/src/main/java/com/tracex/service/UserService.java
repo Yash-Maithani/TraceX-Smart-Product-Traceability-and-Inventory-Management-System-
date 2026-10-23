@@ -427,6 +427,47 @@ public class UserService {
         return UserSummaryDto.fromEntity(saved);
     }
 
+    /** Links the Google account behind a fresh ID token to the signed-in user (Phase 11). */
+    public UserSummaryDto linkGoogle(User actor, String credential, com.tracex.security.GoogleTokenVerifier verifier) {
+        if (!verifier.isConfigured()) {
+            throw new ApiException(ErrorCode.GOOGLE_SIGN_IN_UNAVAILABLE, "Google sign-in is not available on this server.", HttpStatus.SERVICE_UNAVAILABLE);
+        }
+        com.tracex.security.GoogleTokenVerifier.GoogleIdentity identity = verifier.verify(credential)
+                .orElseThrow(() -> new ApiException(ErrorCode.AUTH_INVALID_TOKEN, "Google sign-in failed. Please try again.", HttpStatus.UNAUTHORIZED));
+        User user = userRepository.findById(actor.getId())
+                .orElseThrow(() -> new ApiException(ErrorCode.AUTH_ACCOUNT_DELETED, "User not found", HttpStatus.UNAUTHORIZED));
+
+        // One Google identity, one account: otherwise Google sign-in could land in the wrong account
+        userRepository.findByGoogleEmail(identity.email())
+                .filter(other -> !other.getId().equals(user.getId()))
+                .ifPresent(other -> {
+                    throw new ApiException(ErrorCode.CONFLICT, "That Google account is already linked to another TraceX account.", HttpStatus.CONFLICT);
+                });
+        if (identity.email().equals(user.getGoogleEmail())) {
+            return UserSummaryDto.fromEntity(user);
+        }
+        user.setGoogleEmail(identity.email());
+        user.setGoogleLinkedAt(clock.instant());
+        user.setUpdatedAt(clock.instant());
+        User saved = userRepository.save(user);
+        auditService.record(saved, "GOOGLE_LINKED", "USER", saved.getId(), "Google account linked for " + saved.getUsername());
+        return UserSummaryDto.fromEntity(saved);
+    }
+
+    public UserSummaryDto unlinkGoogle(User actor) {
+        User user = userRepository.findById(actor.getId())
+                .orElseThrow(() -> new ApiException(ErrorCode.AUTH_ACCOUNT_DELETED, "User not found", HttpStatus.UNAUTHORIZED));
+        if (user.getGoogleEmail() == null) {
+            return UserSummaryDto.fromEntity(user);
+        }
+        user.setGoogleEmail(null);
+        user.setGoogleLinkedAt(null);
+        user.setUpdatedAt(clock.instant());
+        User saved = userRepository.save(user);
+        auditService.record(saved, "GOOGLE_UNLINKED", "USER", saved.getId(), "Google account unlinked for " + saved.getUsername());
+        return UserSummaryDto.fromEntity(saved);
+    }
+
     public UserSummaryDto updateSettings(User actor, UpdateSettingsDto dto) {
         User user = userRepository.findById(actor.getId())
                 .orElseThrow(() -> new ApiException(ErrorCode.AUTH_ACCOUNT_DELETED, "User not found", HttpStatus.UNAUTHORIZED));

@@ -58,6 +58,7 @@ public class SecurityConfig {
                         .dispatcherTypeMatchers(jakarta.servlet.DispatcherType.ASYNC).permitAll()
                         .requestMatchers(
                                 "/api/v1/auth/login",
+                                "/api/v1/auth/google/token",
                                 "/api/v1/auth/request-access",
                                 "/api/v1/auth/activate",
                                 "/api/v1/auth/verify-otp",

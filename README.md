@@ -54,6 +54,8 @@ npm run dev
 - `GEMINI_API_KEY`
 - `NVIDIA_API_KEY`
 
+The AI dispatch audit and Google sign-in stay hidden until their keys are set. See [docs/setup/api-keys.md](docs/setup/api-keys.md) for how to get the keys for free and where to put them. Never commit a `.env` file.
+
 ### Frontend (`frontend/.env.example`)
 
 - `VITE_API_BASE_URL`

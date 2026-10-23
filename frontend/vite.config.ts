@@ -59,13 +59,17 @@ function tracexEnvAndCspPlugin(mode: string, command: 'build' | 'serve'): Plugin
       const env = loadEnv(mode, process.cwd(), '');
       const apiBaseUrl = (process.env.VITE_API_BASE_URL ?? env.VITE_API_BASE_URL ?? '').trim();
       const apiOrigin = new URL(apiBaseUrl).origin;
+      // Google sign-in (Phase 11) needs Google's script, styles and popup frame, only when configured
+      const googleOn = Boolean((process.env.VITE_GOOGLE_CLIENT_ID ?? env.VITE_GOOGLE_CLIENT_ID ?? '').trim());
+      const g = googleOn ? ' https://accounts.google.com' : '';
       const cspContent = [
         "default-src 'self'",
-        "script-src 'self'",
-        "style-src 'self'",
+        `script-src 'self'${googleOn ? ' https://accounts.google.com/gsi/client' : ''}`,
+        `style-src 'self'${googleOn ? ' https://accounts.google.com/gsi/style' : ''}`,
         "img-src 'self' data:",
         "font-src 'self'",
-        `connect-src 'self' ${apiOrigin}`,
+        `connect-src 'self' ${apiOrigin}${g}`,
+        ...(googleOn ? ['frame-src https://accounts.google.com'] : []),
         "base-uri 'self'",
         "form-action 'self'"
       ].join('; ');

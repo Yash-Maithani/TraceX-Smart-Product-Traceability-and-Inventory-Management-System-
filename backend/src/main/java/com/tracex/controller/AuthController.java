@@ -25,12 +25,15 @@ public class AuthController {
     private final AccessRequestService accessRequestService;
     private final RateLimiter rateLimiter;
     private final com.tracex.service.NotificationService notificationService;
+    private final com.tracex.security.GoogleTokenVerifier googleTokenVerifier;
 
     public AuthController(AuthService authService,
                           UserService userService,
                           AccessRequestService accessRequestService,
                           RateLimiter rateLimiter,
-                          com.tracex.service.NotificationService notificationService) {
+                          com.tracex.service.NotificationService notificationService,
+                          com.tracex.security.GoogleTokenVerifier googleTokenVerifier) {
+        this.googleTokenVerifier = googleTokenVerifier;
         this.notificationService = notificationService;
         this.authService = authService;
         this.userService = userService;
@@ -45,6 +48,28 @@ public class AuthController {
         LoginResponse response = authService.login(request, clientIp, httpRequest.getHeader("User-Agent"));
         String requestId = RequestIdContext.getOrCreate();
         return ResponseEntity.ok(ApiResponse.ok(response, "Login successful", requestId));
+    }
+
+    /** Sign in with Google (Phase 11, S-07). Public, rate-limited like password login. */
+    @PostMapping("/google/token")
+    public ResponseEntity<ApiResponse<LoginResponse>> googleLogin(@Valid @RequestBody GoogleCredentialDto request,
+                                                                 HttpServletRequest httpRequest) {
+        LoginResponse response = authService.googleLogin(request.getCredential(),
+                rateLimiter.resolveClientIp(httpRequest), httpRequest.getHeader("User-Agent"));
+        return ResponseEntity.ok(ApiResponse.ok(response, "Login successful", RequestIdContext.getOrCreate()));
+    }
+
+    @PostMapping("/me/google-link")
+    public ResponseEntity<ApiResponse<UserSummaryDto>> linkGoogle(@Valid @RequestBody GoogleCredentialDto request,
+                                                                 @AuthenticationPrincipal UserPrincipal principal) {
+        UserSummaryDto user = userService.linkGoogle(principal.getUser(), request.getCredential(), googleTokenVerifier);
+        return ResponseEntity.ok(ApiResponse.ok(user, "Google account linked", RequestIdContext.getOrCreate()));
+    }
+
+    @DeleteMapping("/me/google-link")
+    public ResponseEntity<ApiResponse<UserSummaryDto>> unlinkGoogle(@AuthenticationPrincipal UserPrincipal principal) {
+        UserSummaryDto user = userService.unlinkGoogle(principal.getUser());
+        return ResponseEntity.ok(ApiResponse.ok(user, "Google account unlinked", RequestIdContext.getOrCreate()));
     }
 
     @PostMapping("/request-access")

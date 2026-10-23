@@ -14,6 +14,8 @@ import type {
   ChangePasswordDto,
   DeleteUserDto,
   ChannelsDto,
+  AiAuditReportDto,
+  AiStatusDto,
   LoginEventDto,
   MessageDto,
   MessageRefType,
@@ -512,5 +514,39 @@ export async function editMessage(id: string, body: string): Promise<MessageDto>
 
 export async function deleteMessage(id: string): Promise<MessageDto> {
   const res = await apiRequest<MessageDto>(`/api/v1/messages/${encodeURIComponent(id)}`, { method: 'DELETE' });
+  return res.data;
+}
+
+// ---------- Phase 11: AI dispatch audit and Google sign-in ----------
+
+export async function fetchAiStatus(): Promise<AiStatusDto> {
+  const res = await apiRequest<AiStatusDto>('/api/v1/ai/status', { method: 'GET' });
+  return res.data ?? { enabled: false, providers: [] };
+}
+
+export async function runAiAudit(refresh = false): Promise<AiAuditReportDto> {
+  const res = await apiRequest<AiAuditReportDto>(`/api/v1/ai/dispatch-audit${refresh ? '?refresh=true' : ''}`, {
+    method: 'POST'
+  });
+  return res.data;
+}
+
+export async function signInWithGoogle(credential: string): Promise<LoginResponseDto> {
+  const res = await apiRequest<LoginResponseDto>('/api/v1/auth/google/token', {
+    method: 'POST',
+    body: { credential },
+    skipAuth: true,
+    skipUnauthorizedRedirect: true
+  });
+  return res.data;
+}
+
+export async function linkGoogleAccount(credential: string): Promise<UserSummaryDto> {
+  const res = await apiRequest<UserSummaryDto>('/api/v1/auth/me/google-link', { method: 'POST', body: { credential } });
+  return res.data;
+}
+
+export async function unlinkGoogleAccount(): Promise<UserSummaryDto> {
+  const res = await apiRequest<UserSummaryDto>('/api/v1/auth/me/google-link', { method: 'DELETE' });
   return res.data;
 }

@@ -651,7 +651,9 @@ All responses use `/api/v1/` prefix.
 | `VALIDATION_ERROR` | 422 | Request body failed validation |
 | `METHOD_NOT_ALLOWED` | 405 | HTTP method not supported for this endpoint |
 | `RATE_LIMITED` | 429 | Too many requests |
-| `AI_UNAVAILABLE` | 503 | Both AI providers unavailable |
+| `AI_UNAVAILABLE` | 503 | No AI provider key is configured, or every configured provider failed |
+| `GOOGLE_SIGN_IN_UNAVAILABLE` | 503 | Google sign-in is not configured (`GOOGLE_CLIENT_ID` unset) |
+| `AUTH_GOOGLE_NOT_LINKED` | 403 | The Google account is not linked to any TraceX account |
 | `INTERNAL_ERROR` | 500 | Unexpected server error |
 | `LAST_SUPERADMIN` | 409 | Action would leave no active super-admin |
 | `SELF_MODIFICATION_NOT_ALLOWED` | 409 | Cannot modify or delete your own account |
@@ -681,8 +683,9 @@ All responses use `/api/v1/` prefix.
 | POST | /api/v1/auth/me/change-password | Bearer | any | Revokes all sessions |
 | POST | /api/v1/auth/me/logout-all | Bearer | any | Revokes all sessions |
 | GET | /api/v1/auth/me/login-history | Bearer | any | |
-| POST | /api/v1/auth/me/google-link | Bearer | any | Phase 11 (Should-have, conditional on `GOOGLE_CLIENT_ID` per D-3) |
-| DELETE | /api/v1/auth/me/google-link | Bearer | any | Phase 11 (Should-have, conditional on `GOOGLE_CLIENT_ID` per D-3) |
+| POST | /api/v1/auth/google/token | **public** | — | Phase 11 (D-3): `{ credential }` is a Google ID token; checked for our `aud`, a Google `iss`, a verified email and expiry; only an account that linked that Google email may sign in (`403 AUTH_GOOGLE_NOT_LINKED`); `503 GOOGLE_SIGN_IN_UNAVAILABLE` when `GOOGLE_CLIENT_ID` is unset; shares the login rate limit |
+| POST | /api/v1/auth/me/google-link | Bearer | any | Phase 11 (D-3): links the Google email behind a fresh ID token; one Google account per TraceX account (`409`) |
+| DELETE | /api/v1/auth/me/google-link | Bearer | any | Phase 11 (D-3): unlinks; works even when Google sign-in is switched off |
 
 #### Admin Panel — Access Requests
 
@@ -817,7 +820,8 @@ Fields explicitly omitted: `farmerName`, `qrCodeDataUrl`, `priorityScore`, `trac
 
 | Method | Path | Auth | Min Role | Notes |
 |--------|------|------|----------|-------|
-| POST | /api/v1/ai/dispatch-audit | Bearer | any | Rate-limited |
+| GET | /api/v1/ai/status | Bearer | any | `{ enabled, providers }` so the UI can hide the audit when no key is set (Phase 11) |
+| POST | /api/v1/ai/dispatch-audit | Bearer | any | Rate-limited 5 per 15 minutes per user. Sends the FEFO queue and expired batches with `village` but never `farmerName` (D-9); Gemini first, NVIDIA on failure; answers cached for `GEMINI_CACHE_TTL_HOURS` (4) unless `?refresh=true`; batch codes the model invents are dropped and expired batches are never dispatch picks; `503 AI_UNAVAILABLE` with no key or when every provider fails (Phase 11) |
 
 #### Products
 

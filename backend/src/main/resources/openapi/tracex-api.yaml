@@ -3,7 +3,7 @@ info:
   title: OpenAPI definition
   version: v0
 servers:
-- url: http://localhost:61838
+- url: http://localhost:58445
   description: Generated server url
 paths:
   /api/v1/qr/scan:
@@ -464,6 +464,35 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/ApiResponseVoid'
+  /api/v1/auth/me/google-link:
+    post:
+      tags:
+      - auth-controller
+      operationId: linkGoogle
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCredentialDto'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseUserSummaryDto'
+    delete:
+      tags:
+      - auth-controller
+      operationId: unlinkGoogle
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseUserSummaryDto'
   /api/v1/auth/me/change-password:
     post:
       tags:
@@ -492,6 +521,24 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/LoginRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseLoginResponse'
+  /api/v1/auth/google/token:
+    post:
+      tags:
+      - auth-controller
+      operationId: googleLogin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCredentialDto'
         required: true
       responses:
         "200":
@@ -536,6 +583,25 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/ApiResponseMapStringObject'
+  /api/v1/ai/dispatch-audit:
+    post:
+      tags:
+      - ai-controller
+      operationId: dispatchAudit
+      parameters:
+      - name: refresh
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseAuditReport'
   /api/v1/notifications/{id}/read:
     patch:
       tags:
@@ -1151,6 +1217,18 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/ApiResponseListUserSummaryDto'
+  /api/v1/ai/status:
+    get:
+      tags:
+      - ai-controller
+      operationId: status
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseAiStatus'
   /api/v1/auth/users/{id}:
     delete:
       tags:
@@ -1992,11 +2070,13 @@ components:
           format: date-time
         preferences:
           $ref: '#/components/schemas/Preferences'
+        googleEmail:
+          type: string
         active:
           type: boolean
-        superAdmin:
-          type: boolean
         deleted:
+          type: boolean
+        superAdmin:
           type: boolean
     ResendOtpDto:
       required:
@@ -2095,6 +2175,34 @@ components:
           type: string
         role:
           type: string
+    GoogleCredentialDto:
+      required:
+      - credential
+      type: object
+      properties:
+        credential:
+          maxLength: 4096
+          minLength: 0
+          type: string
+    ApiResponseUserSummaryDto:
+      type: object
+      properties:
+        success:
+          type: boolean
+        requestId:
+          type: string
+        data:
+          $ref: '#/components/schemas/UserSummaryDto'
+        message:
+          type: string
+        code:
+          type: string
+        error:
+          type: string
+        fieldErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldErrorDto'
     ChangePasswordDto:
       required:
       - currentPassword
@@ -2157,6 +2265,93 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FieldErrorDto'
+    ApiResponseAuditReport:
+      type: object
+      properties:
+        success:
+          type: boolean
+        requestId:
+          type: string
+        data:
+          $ref: '#/components/schemas/AuditReport'
+        message:
+          type: string
+        code:
+          type: string
+        error:
+          type: string
+        fieldErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldErrorDto'
+    AuditReport:
+      type: object
+      properties:
+        urgentBatches:
+          type: array
+          items:
+            $ref: '#/components/schemas/UrgentBatch'
+        qualityWarnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/QualityWarning'
+        top3Priorities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Priority'
+        supplyChainRisks:
+          type: array
+          items:
+            $ref: '#/components/schemas/SupplyChainRisk'
+        summary:
+          type: string
+        totalAnalyzed:
+          type: integer
+          format: int32
+        provider:
+          type: string
+        generatedAt:
+          type: string
+          format: date-time
+        fromCache:
+          type: boolean
+    Priority:
+      type: object
+      properties:
+        rank:
+          type: integer
+          format: int32
+        batchCode:
+          type: string
+        productName:
+          type: string
+        action:
+          type: string
+        reasoning:
+          type: string
+    QualityWarning:
+      type: object
+      properties:
+        batchCode:
+          type: string
+        concern:
+          type: string
+    SupplyChainRisk:
+      type: object
+      properties:
+        risk:
+          type: string
+        severity:
+          type: string
+        recommendation:
+          type: string
+    UrgentBatch:
+      type: object
+      properties:
+        batchCode:
+          type: string
+        reason:
+          type: string
     ApiResponseNotificationDto:
       type: object
       properties:
@@ -2282,25 +2477,6 @@ components:
           maxLength: 500
           minLength: 0
           type: string
-    ApiResponseUserSummaryDto:
-      type: object
-      properties:
-        success:
-          type: boolean
-        requestId:
-          type: string
-        data:
-          $ref: '#/components/schemas/UserSummaryDto'
-        message:
-          type: string
-        code:
-          type: string
-        error:
-          type: string
-        fieldErrors:
-          type: array
-          items:
-            $ref: '#/components/schemas/FieldErrorDto'
     UpdateRoleDto:
       required:
       - role
@@ -3217,6 +3393,34 @@ components:
         createdAt:
           type: string
           format: date-time
+    AiStatus:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        providers:
+          type: array
+          items:
+            type: string
+    ApiResponseAiStatus:
+      type: object
+      properties:
+        success:
+          type: boolean
+        requestId:
+          type: string
+        data:
+          $ref: '#/components/schemas/AiStatus'
+        message:
+          type: string
+        code:
+          type: string
+        error:
+          type: string
+        fieldErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldErrorDto'
     DeleteUserDto:
       type: object
       properties:
