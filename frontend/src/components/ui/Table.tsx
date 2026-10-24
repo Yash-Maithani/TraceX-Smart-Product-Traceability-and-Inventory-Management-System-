@@ -4,11 +4,17 @@ import styles from './ui.module.css';
 import { Button } from './Button';
 import { Skeleton } from './Spinner';
 import { EmptyState } from './States';
+import { useOptionalTheme } from '../../hooks/useTheme';
+import { TABLE_STRINGS } from '../../strings/common';
 
 export interface TableColumn<T> {
   key: string;
   header: string;
   sortable?: boolean;
+  /** Codes, dates and short values that must never wrap (AUDIT #4). */
+  nowrap?: boolean;
+  /** Right-aligned tabular number column. */
+  numeric?: boolean;
   render: (row: T) => ReactNode;
 }
 
@@ -20,9 +26,18 @@ export interface TableProps<T> {
   isLoading?: boolean;
   emptyTitle?: string;
   emptyDescription?: string;
-  sortKey?: string;
-  sortDirection?: 'asc' | 'desc';
-  onSortChange?: (key: string) => void;
+  emptyAction?: ReactNode;
+  sortKey?: string | undefined;
+  sortDirection?: 'asc' | 'desc' | undefined;
+  onSortChange?: ((key: string) => void) | undefined;
+}
+
+const SKELETON_ROWS = 6;
+
+function cellClass<T>(col: TableColumn<T>): string | undefined {
+  if (col.numeric) return styles.cellNumeric;
+  if (col.nowrap) return styles.cellNowrap;
+  return undefined;
 }
 
 export function Table<T>({
@@ -31,26 +46,30 @@ export function Table<T>({
   data,
   rowKey,
   isLoading = false,
-  emptyTitle = 'No records found',
-  emptyDescription = 'Adjust your filters or create a new item.',
+  emptyTitle = TABLE_STRINGS.emptyTitle,
+  emptyDescription = TABLE_STRINGS.emptyDescription,
+  emptyAction,
   sortKey,
   sortDirection,
   onSortChange
 }: TableProps<T>) {
-  if (isLoading) {
-    return (
-      <div className={styles.tableContainer} aria-busy="true">
-        <Skeleton label={`Loading ${caption}`} />
-      </div>
-    );
-  }
+  const density = useOptionalTheme()?.prefs.tableDensity ?? 'default';
 
-  if (data.length === 0) {
-    return <EmptyState title={emptyTitle} description={emptyDescription} />;
+  if (!isLoading && data.length === 0) {
+    return <EmptyState title={emptyTitle} description={emptyDescription} action={emptyAction} />;
   }
 
   return (
-    <div className={styles.tableContainer} role="region" aria-label={caption}>
+    <div
+      className={styles.tableContainer}
+      role="region"
+      aria-label={caption}
+      aria-busy={isLoading || undefined}
+      data-density={density}
+      // A table that scrolls inside its own box must be reachable by keyboard (axe scrollable-region-focusable)
+      // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+      tabIndex={0}
+    >
       <table className={styles.table}>
         <caption className={styles.tableCaption}>{caption}</caption>
         <thead>
@@ -66,7 +85,7 @@ export function Table<T>({
                   : undefined;
 
               return (
-                <th key={col.key} scope="col" aria-sort={ariaSort}>
+                <th key={col.key} scope="col" aria-sort={ariaSort} className={cellClass(col)}>
                   {col.sortable && onSortChange ? (
                     <button
                       type="button"
@@ -81,7 +100,7 @@ export function Table<T>({
                           <ArrowDown size={13} aria-hidden="true" />
                         )
                       ) : (
-                        <ArrowUpDown size={13} aria-hidden="true" />
+                        <ArrowUpDown size={13} aria-hidden="true" className={styles.sortIdle} />
                       )}
                     </button>
                   ) : (
@@ -93,15 +112,28 @@ export function Table<T>({
           </tr>
         </thead>
         <tbody>
-          {data.map((row) => (
-            <tr key={rowKey(row)}>
-              {columns.map((col) => (
-                <td key={col.key}>{col.render(row)}</td>
+          {isLoading
+            ? Array.from({ length: SKELETON_ROWS }, (_, rowIdx) => (
+                <tr key={`skeleton-${rowIdx}`} aria-hidden="true">
+                  {columns.map((col) => (
+                    <td key={col.key}>
+                      <Skeleton label={TABLE_STRINGS.loadingRow} className={styles.skeletonLine} />
+                    </td>
+                  ))}
+                </tr>
+              ))
+            : data.map((row) => (
+                <tr key={rowKey(row)}>
+                  {columns.map((col) => (
+                    <td key={col.key} className={cellClass(col)}>
+                      {col.render(row)}
+                    </td>
+                  ))}
+                </tr>
               ))}
-            </tr>
-          ))}
         </tbody>
       </table>
+      {isLoading ? <span className="sr-only">{TABLE_STRINGS.loading(caption)}</span> : null}
     </div>
   );
 }
@@ -128,50 +160,49 @@ export function Pagination({
   const endItem = Math.min(totalItems, page * pageSize);
 
   return (
-    <nav className={styles.pagination} aria-label="Pagination">
+    <nav className={styles.pagination} aria-label={TABLE_STRINGS.paginationLabel}>
       <div>
-        Showing <strong>{startItem}</strong>–<strong>{endItem}</strong> of <strong>{totalItems}</strong>
+        {TABLE_STRINGS.showing} <strong>{startItem}</strong> {TABLE_STRINGS.to} <strong>{endItem}</strong>{' '}
+        {TABLE_STRINGS.of} <strong>{totalItems}</strong>
       </div>
       <div className={styles.paginationControls}>
         {onPageSizeChange ? (
           <label>
-            <span className="sr-only">Rows per page</span>
+            <span className="sr-only">{TABLE_STRINGS.rowsPerPage}</span>
             <select
-              aria-label="Rows per page"
+              aria-label={TABLE_STRINGS.rowsPerPage}
               className={`${styles.inputBase} ${styles.pageSizeSelect}`}
               value={pageSize}
               onChange={(e) => onPageSizeChange(Number(e.target.value))}
             >
               {pageSizeOptions.map((opt) => (
                 <option key={opt} value={opt}>
-                  {opt} / page
+                  {TABLE_STRINGS.perPage(opt)}
                 </option>
               ))}
             </select>
           </label>
         ) : null}
-        <span>
-          Page {page} of {totalPages}
-        </span>
+        <span>{TABLE_STRINGS.pageOf(page, totalPages)}</span>
         <Button
           variant="secondary"
           size="sm"
           disabled={page <= 1}
           onClick={() => onPageChange(page - 1)}
-          aria-label="Previous page"
+          aria-label={TABLE_STRINGS.previousPage}
           leftIcon={<ChevronLeft size={15} />}
         >
-          Previous
+          {TABLE_STRINGS.previous}
         </Button>
         <Button
           variant="secondary"
           size="sm"
           disabled={page >= totalPages}
           onClick={() => onPageChange(page + 1)}
-          aria-label="Next page"
+          aria-label={TABLE_STRINGS.nextPage}
           rightIcon={<ChevronRight size={15} />}
         >
-          Next
+          {TABLE_STRINGS.next}
         </Button>
       </div>
     </nav>

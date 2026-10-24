@@ -1,0 +1,312 @@
+/* Dashboard (UI/UX redesign R2, DESIGN.md §6.2). Tokens only. */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-width: 0;
+}
+
+/* The page stack already spaces sections; drop the header's own bottom margin */
+.page > [data-testid='page-header'] {
+  margin-bottom: 0;
+}
+
+.signedIn {
+  font-size: var(--text-xs);
+  color: var(--meta-text, var(--text-muted));
+}
+
+.signedIn strong {
+  color: var(--meta-strong, var(--text-secondary));
+  font-weight: var(--weight-medium);
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+.sectionHeading {
+  margin: 0 0 var(--space-3) 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--text-secondary);
+}
+
+.actionGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: var(--space-3);
+}
+
+.loadingGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: var(--space-3);
+}
+
+.skeletonTile {
+  display: block;
+  height: 7rem;
+  background-color: var(--bg-muted);
+  border-radius: var(--radius-md);
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.sideColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  min-width: 0;
+}
+
+.panelHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.panelTitle {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+}
+
+.panelSubtitle {
+  margin: var(--space-1) 0 0 0;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.panelEmpty {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.textLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.textLink:hover {
+  text-decoration: underline;
+}
+
+/* Next to dispatch */
+.nextList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nextItem {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr) 9rem 5rem;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.nextItem:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.rank {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+}
+
+.nextMain {
+  min-width: 0;
+}
+
+.nextTop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.code {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.code:hover {
+  text-decoration: underline;
+}
+
+.nextProduct {
+  margin-top: var(--space-1);
+  font-size: var(--text-sm);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.muted {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+}
+
+.qty {
+  text-align: right;
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 639px) {
+  .nextItem {
+    grid-template-columns: 2rem minmax(0, 1fr);
+  }
+
+  .nextItem > :nth-child(3),
+  .nextItem > :nth-child(4) {
+    grid-column: 2;
+  }
+
+  .qty {
+    text-align: left;
+  }
+}
+
+/* Stock by freshness */
+.stockBar {
+  display: flex;
+  height: 0.75rem;
+  border-radius: var(--radius-xs);
+  background-color: var(--rail-track);
+  overflow: hidden;
+  gap: 2px;
+}
+
+.stockSeg {
+  width: var(--seg, 0%);
+  min-width: 4px;
+}
+
+.segSuccess { background-color: var(--status-success-border); }
+.segWarning { background-color: var(--status-warning-border); }
+.segUrgent { background-color: var(--status-urgent-border); }
+.segDanger { background-color: var(--status-danger-border); }
+.segNeutral { background-color: var(--status-neutral-border); }
+.segInfo { background-color: var(--status-info-border); }
+
+.legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-1) var(--space-4);
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 2rem;
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: var(--text-sm);
+}
+
+.legendItem:hover {
+  background-color: var(--bg-elevated);
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.legendSwatch {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: var(--radius-xs);
+  flex-shrink: 0;
+}
+
+.legendLabel {
+  flex: 1;
+  min-width: 0;
+}
+
+.legendCount {
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Inspections */
+.verdicts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.verdict {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.verdict dt {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.verdict dd {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+}

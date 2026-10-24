@@ -1,11 +1,43 @@
+import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { AuthLayout } from '../../layouts/AuthLayout';
 import { Button, EmptyState } from '../../components/ui';
 import { STRINGS } from '../../strings/en';
 import { authStyles } from '../../layouts/AuthLayout';
-import { LEGAL_UPDATED, PRIVACY_SECTIONS, TERMS_SECTIONS, type LegalSection } from './legalContent';
+import { LEGAL_UPDATED, PHOTO_CREDITS, PRIVACY_SECTIONS, TERMS_SECTIONS, type LegalSection } from './legalContent';
 
-function LegalBody({ sections, testId }: { sections: LegalSection[]; testId: string }) {
+function PhotoCredits() {
+  return (
+    <section className={authStyles.legalSection} data-testid="photo-credits">
+      <h2>Photo credits</h2>
+      <p>The page photos are licensed from their photographers. They show real places and are not of TraceX staff, farms or products.</p>
+      <ul>
+        {PHOTO_CREDITS.map((credit) => (
+          <li key={credit.key}>
+            <a href={credit.sourceUrl} target="_blank" rel="noreferrer">
+              {credit.source}
+            </a>
+            . Photo by {credit.author},{' '}
+            <a href={credit.licenceUrl} target="_blank" rel="noreferrer">
+              {credit.licence}
+            </a>
+            .
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function LegalBody({
+  sections,
+  testId,
+  extra
+}: {
+  sections: LegalSection[];
+  testId: string;
+  extra?: ReactNode;
+}) {
   return (
     <div data-testid={testId}>
       {sections.map((section) => (
@@ -21,6 +53,7 @@ function LegalBody({ sections, testId }: { sections: LegalSection[]; testId: str
           ) : null}
         </section>
       ))}
+      {extra}
       <p className={authStyles.legalUpdated}>Last updated {LEGAL_UPDATED}.</p>
     </div>
   );
@@ -34,7 +67,7 @@ export function PrivacyPage() {
       wide
       footerLinks={<Link to="/login">{STRINGS.auth.backToLogin}</Link>}
     >
-      <LegalBody sections={PRIVACY_SECTIONS} testId="privacy-content" />
+      <LegalBody sections={PRIVACY_SECTIONS} testId="privacy-content" extra={<PhotoCredits />} />
     </AuthLayout>
   );
 }

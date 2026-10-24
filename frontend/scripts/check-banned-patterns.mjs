@@ -69,6 +69,41 @@ export function scanDirectoryForBannedPatterns(baseDir = rootDir) {
         violations.push(`${relPath}:${lineNum} - Banned emoji character found (use Lucide icons instead)`);
       }
 
+      // UI/UX redesign R1 (DESIGN.md §7). These run on every line, comments included.
+      // R1-a. Em dashes anywhere in the copy files under src/strings
+      if (!isTestFile && relPath.startsWith('src/strings/') && line.includes('\u2014')) {
+        violations.push(`${relPath}:${lineNum} - Banned em dash in src/strings copy`);
+      }
+      if (!isTestFile && relPath.endsWith('.css')) {
+        // R1-b. Em dashes in CSS generated text
+        if (/\bcontent\s*:/.test(line) && line.includes('\u2014')) {
+          violations.push(`${relPath}:${lineNum} - Banned em dash in CSS content text`);
+        }
+        // R1-c. Gradients in any CSS line, even one that starts with a comment
+        if (/(?:repeating-)?(?:linear|radial|conic)-gradient\s*\(/i.test(line) && /^\s*(?:\/\*|\*)/.test(line)) {
+          violations.push(`${relPath}:${lineNum} - Banned CSS gradient usage`);
+        }
+        // R1-d. No ALL CAPS styling (generic template look)
+        if (/text-transform\s*:\s*uppercase/i.test(line)) {
+          violations.push(`${relPath}:${lineNum} - Banned text-transform: uppercase (use sentence case)`);
+        }
+        // R1-e. Fonts must be served from our own origin
+        if (/@font-face|\bsrc\s*:/.test(line) && /url\(\s*["']?(?:https?:)?\/\//i.test(line)) {
+          violations.push(`${relPath}:${lineNum} - Banned off-origin font URL (self-host fonts only)`);
+        }
+      }
+      // R1-f. Builder or "made with" tags (HARD UI RULE 9, launch blocker)
+      if (!isTestFile && /\b(?:made with|built with|powered by)\b/i.test(line)) {
+        violations.push(`${relPath}:${lineNum} - Banned builder tag text ("made with", "built with", "powered by")`);
+      }
+      // R1-g. Radius above 6px in TS style objects
+      if (!isTestFile && /\.(ts|tsx)$/.test(relPath)) {
+        const tsRadius = line.match(/borderRadius\s*:\s*['"]?([0-9.]+)(px|rem)?/);
+        if (tsRadius && (tsRadius[2] === 'rem' ? parseFloat(tsRadius[1]) * 16 : parseFloat(tsRadius[1])) > 6) {
+          violations.push(`${relPath}:${lineNum} - Banned border-radius above 6px in a style object`);
+        }
+      }
+
       if (trimmed.startsWith('//') || trimmed.startsWith('/*') || trimmed.startsWith('*')) {
         return;
       }
@@ -169,7 +204,11 @@ export function scanDirectoryForBannedPatterns(baseDir = rootDir) {
       }
 
       // 14. Hotlinked http/https image URLs in src/ or design-assets/backdrops.json (Phase 5.1 Part D)
-      if (!isTestFile) {
+      // A manifest "sourceUrl" is the photographer's credit page (shown as a link on the Privacy page),
+      // never an image source, so an Unsplash photo page is allowed there and nowhere else (redesign R4).
+      const isCreditPageLine =
+        isManifest && /^\s*"sourceUrl"\s*:\s*"https:\/\/unsplash\.com\/photos\/[A-Za-z0-9_-]+",?\s*$/.test(line);
+      if (!isTestFile && !isCreditPageLine) {
         if (
           HOTLINK_IMAGE_URL_REGEX.test(line) ||
           /\b(?:src|srcSet)\s*=\s*["']https?:\/\//i.test(line) ||

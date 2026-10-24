@@ -55,6 +55,9 @@ export interface BatchListQueryParams {
   sku?: string | undefined;
   search?: string | undefined;
   sort?: string | undefined;
+  /** Inclusive expiry date range, "YYYY-MM-DD" (redesign backend request B-2). */
+  expiryFrom?: string | undefined;
+  expiryTo?: string | undefined;
 }
 
 export interface FefoQueryParams {
@@ -66,6 +69,9 @@ export interface InspectionListQueryParams {
   page?: number | undefined;
   limit?: number | undefined;
   status?: string | undefined;
+  /** Inclusive business dates (YYYY-MM-DD) on when the inspection was recorded (B-2). */
+  from?: string | undefined;
+  to?: string | undefined;
 }
 
 function buildQueryString(params: Record<string, string | number | undefined>): string {
@@ -100,7 +106,9 @@ export async function fetchBatches(params: BatchListQueryParams = {}): Promise<B
     status: params.status,
     sku: params.sku,
     search: params.search,
-    sort: params.sort
+    sort: params.sort,
+    expiryFrom: params.expiryFrom,
+    expiryTo: params.expiryTo
   });
   const res = await apiRequest<BatchPageResultDto>(`/api/v1/batches${qs}`, {
     method: 'GET'
@@ -194,7 +202,9 @@ export async function fetchInspections(
   const qs = buildQueryString({
     page: params.page,
     limit: params.limit,
-    status: params.status
+    status: params.status,
+    from: params.from,
+    to: params.to
   });
   const res = await apiRequest<InspectionPageResultDto>(`/api/v1/inspections${qs}`, {
     method: 'GET'
@@ -202,11 +212,15 @@ export async function fetchInspections(
   return res.data;
 }
 
-export async function fetchMyInspections(): Promise<InspectionDto[]> {
-  const res = await apiRequest<InspectionDto[]>('/api/v1/inspections/my', {
+/** The signed-in user's own inspections. The server returns a page, like the full list. */
+export async function fetchMyInspections(
+  params: Omit<InspectionListQueryParams, 'status'> = {}
+): Promise<InspectionPageResultDto> {
+  const qs = buildQueryString({ page: params.page, limit: params.limit, from: params.from, to: params.to });
+  const res = await apiRequest<InspectionPageResultDto>(`/api/v1/inspections/my${qs}`, {
     method: 'GET'
   });
-  return res.data ?? [];
+  return res.data;
 }
 
 export async function fetchBatchInspections(batchId: string): Promise<InspectionDto[]> {

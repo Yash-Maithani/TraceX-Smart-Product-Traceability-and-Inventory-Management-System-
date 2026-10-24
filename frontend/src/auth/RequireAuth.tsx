@@ -33,7 +33,7 @@ export function sanitizeNextPath(raw: string | null | undefined): string {
   return trimmed;
 }
 
-export function RequireAuth({ children }: { children: ReactNode }) {
+export function RequireAuth({ children, guestHome }: { children: ReactNode; guestHome?: ReactNode }) {
   const { token, isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
 
@@ -46,6 +46,10 @@ export function RequireAuth({ children }: { children: ReactNode }) {
   }
 
   if (!token || !isAuthenticated) {
+    // A signed-out visitor at `/` gets the public home page instead of a jump to sign-in (redesign R4.1)
+    if (guestHome && location.pathname === '/') {
+      return <>{guestHome}</>;
+    }
     const requestedPath = `${location.pathname}${location.search}`;
     const safeNext = sanitizeNextPath(requestedPath);
     const search = safeNext !== '/' ? `?next=${encodeURIComponent(safeNext)}` : '';

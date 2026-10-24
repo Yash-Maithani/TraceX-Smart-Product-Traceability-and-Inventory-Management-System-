@@ -179,6 +179,11 @@ public class FefoService {
             if (candidate.getId() != null && candidate.getId().equals(targetBatch.getId())) {
                 continue;
             }
+            // B-3: a batch on quality hold (latest verdict FAILED) cannot be dispatched, so it never
+            // makes a later batch of the same SKU "out of order"
+            if (candidate.getQualityCheck() != null && "FAILED".equalsIgnoreCase(candidate.getQualityCheck().getStatus())) {
+                continue;
+            }
             if (candidate.getExpiryDate() != null) {
                 if (candidate.getExpiryDate().isBefore(targetExpiry)) {
                     return Optional.of(candidate);

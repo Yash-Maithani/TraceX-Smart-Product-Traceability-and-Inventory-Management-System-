@@ -1,5 +1,5 @@
 # TraceX — PROGRESS.md
-> Updated: 2026-10-23 (Phase 12 COMPLETE)
+> Updated: 2026-10-23 (Phase 13 COMPLETE; UI/UX redesign planned, see the UI/UX Redesign section)
 
 ---
 
@@ -64,11 +64,12 @@
 | D-17 | Date storage and comparison timezone | Resolved | Business calendar dates (`packDate`, `expiryDate`, `dispatchDate`, and `dispatchHistory[].dispatchDate`) are date-only values (`LocalDate`), stored in MongoDB and serialized in JSON as `"YYYY-MM-DD"` strings. All date-only display comparisons ("days until expiry") use `BUSINESS_TIME_ZONE` env var (default `Asia/Kolkata`) via the backend `Clock` bean. Audit/event timestamps remain UTC `Instant`s | SPEC §3.1, §4, §8.1 |
 | D-18 | FEFO scope (per-SKU vs global) | Resolved | "Out of order" is evaluated per SKU: a batch is out of order if an eligible batch of the same SKU has a strictly earlier `expiryDate`. Batches with the same `expiryDate` are a tie and neither is out of order. The `category` and `sku` query filters on the FEFO endpoint apply before ordering | SPEC §3.1, §3.6 |
 | D-19 | Quality hold on dispatch | Resolved | Reference `backend/src/controllers/batches.controller.js` lines 123–154 does not check `qualityCheck` or inspection status before dispatching. New build blocks dispatch when a batch's latest inspection verdict is `FAILED` (`409 QUALITY_HOLD`); a batch whose latest verdict is `FLAGGED` is dispatchable and returns a warning in the response | SPEC §3.6, §6.2 |
-| D-20 | Per-page photographic backdrops | Resolved | Team decision: real team-supplied/approved photographs (with recorded source, author, licence, and licence URL in `design-assets/backdrops.json`) are allowed solely as decorative backdrops (`alt=""`, `aria-hidden="true"`) behind a flat colour overlay token (`--backdrop-scrim`), with content always on solid surface tokens and a flat fallback when images are off, blocked, or `Save-Data` is set. AI-generated imagery, fake UI screenshots, fake testimonials/logos, data-bearing imagery, unpermitted identifiable people, gradients, glass/blur, parallax, and hotlinked URLs remain banned | SPEC §5.2, §11 |
-| D-21 | Server-computed dashboard summary endpoint (`GET /api/v1/dashboard/summary`) | Resolved | Reference `frontend/src/pages/Dashboard.jsx` lines 3186–3224 computed KPI counts and expiring-soon lists in the browser over a single page of batches. New build adds `GET /api/v1/dashboard/summary` (any authenticated role, matrix phase 6) returning server-computed counts (`EXPIRED`, `URGENT`, `WARNING`, `READY`, `EXCEPTION`) built with the exact `BatchFreshness.applyStatusFilter` builders, `dispatched` total, top 5 expiring batches from `FefoService`, latest-inspection verdict counts (`PASSED`, `FAILED`, `FLAGGED`, `none`), role-scoped `pendingAccessRequests` (`manager`/`admin`/`super-admin` only; `null` for others), and `businessDate` | SPEC §6.3, `docs/06-ui/screen-map.md` |
+| D-20 | Per-page photographic backdrops | Resolved | Team decision: real team-supplied/approved photographs (with recorded source, author, licence, and licence URL in `design-assets/backdrops.json`) are allowed solely as decorative backdrops (`alt=""`, `aria-hidden="true"`) behind a flat colour overlay token (`--backdrop-scrim`), with content always on solid surface tokens and a flat fallback when images are off, blocked, or `Save-Data` is set. AI-generated imagery, fake UI screenshots, fake testimonials/logos, data-bearing imagery, unpermitted identifiable people, gradients, glass/blur, parallax, and hotlinked URLs remain banned Changed 2026-10-23 (Yash, "for now but might change"): photos only on sign-in pages and the public trace page; signed-in page banners are switched off by `SIGNED_IN_PAGE_BANNERS = false` in `frontend/src/routes/backdrops.ts`, keys and assets kept | SPEC §5.2, §11, DESIGN.md §2.2 |
+| D-21 | Server-computed dashboard summary endpoint (`GET /api/v1/dashboard/summary`) | Resolved | Reference `frontend/src/pages/Dashboard.jsx` lines 3186–3224 computed KPI counts and expiring-soon lists in the browser over a single page of batches. New build adds `GET /api/v1/dashboard/summary` (any authenticated role, matrix phase 6) returning server-computed counts (`EXPIRED`, `URGENT`, `WARNING`, `READY`, `EXCEPTION`) built with the exact `BatchFreshness.applyStatusFilter` builders, `dispatched` total, top 5 expiring batches from `FefoService`, latest-inspection verdict counts (`PASSED`, `FAILED`, `FLAGGED`, `none`), role-scoped `pendingAccessRequests` (`manager`/`admin`/`super-admin` only; `null` for others), and `businessDate`. Redesign R2 adds `dispatchedToday` (batches with a dispatch on the business date, request B-1, approved by Yash 2026-10-23) | SPEC §6.3, `docs/06-ui/screen-map.md` |
 | D-22 | Trace token design (opaque HMAC token) | Resolved | Team decision: traceToken is opaque (16-byte SecureRandom nonce + 16-byte HMAC-SHA256(TRACE_TOKEN_SECRET, nonce) tag, base64url `<nonce>.<tag>`). Stored on batch in unique sparse indexed field `traceToken`. Verification is constant-time tag check before DB read. Token never changes for batch lifetime. Archiving returns 404, restoring makes link work. Dispatched batches remain publicly traceable showing status DISPATCHED. TRACE_TOKEN_SECRET must be stable. Prod profile fails fast if missing or < 32 chars. QR PNG returned as data URL | SPEC §4, §6.3, §7, §8.1, `docs/deployment-runbook.md` |
 | D-23 | Import batch creation & validation code path | Resolved | Import commit creates batches through the same `BatchService` creation path as `POST /api/v1/batches` (so each imported batch gets an atomic `TX-YYYY-MM-NNN` batch code from `BatchCodeGenerator`, a `traceToken`, runtime freshness derivation, and standard validation), never by writing documents directly. Row validation reuses existing batch validators with no copied rules (`POST /api/v1/batches` does not reject future `packDate`, so import does not add a future-`packDate` rule) | SPEC §3.7 |
 | D-24 | Import rollback semantics & guards | Resolved | Rollback soft-deletes only the batches the job inserted (`insertedBatchIds`), skipping any already-archived (`isDeleted: true`) batches and archiving the remaining active ones via `BatchService.archiveBatch` (`DELETE /api/v1/batches/{id}`) with reason `"Import rollback <jobId>"`, returning `{ archived, alreadyArchived }` and recording a job-level `IMPORT_ROLLED_BACK` audit entry; it never hard-deletes and does not undo updates made to existing batches. A `"running"` job with no update for `tracex.import.stale-running-minutes` (default `15`) is lazily marked `"failed"` (with `finishedAt` set) on list, detail, commit, and rollback. Rollback is allowed for `"done"` OR `"failed"` jobs with non-empty `insertedBatchIds`; it checks all preconditions first and returns HTTP `409 CONFLICT` (changing nothing) if any inserted batch has been dispatched (`lifecycleState == "DISPATCHED"`), if status is `"running"` or `"rolled_back"`, or if `insertedBatchIds` is empty | SPEC §3.7 |
+| D-25 | Fonts: system stack or self-hosted typeface | Resolved | Team decision (Yash, 2026-10-23): self-host IBM Plex Sans (400, 500, 600) and IBM Plex Mono (400, 500), latin subset, from `@fontsource/ibm-plex-sans` and `@fontsource/ibm-plex-mono` 5.3.0 (SIL OFL 1.1), bundled by Vite; no external font requests; system stack stays as fallback | DESIGN.md §2.1, `frontend/src/main.tsx`, `tokens.css` |
 
 ---
 
@@ -86,7 +87,7 @@
 | OI-08 | Priority score not recalculated as days pass; stored value drifts | LOW | Closed | `backend/src/models/Batch.model.js`; `backend/src/services/expiryCalculator.js` lines 29–33 | SPEC §3.1 (display-only; canonical sort by status tier + expiryDate) (Phase 4) |
 | OI-09 | HANDOFF.md uses `TX-` prefix; source code uses `HS-` prefix — resolved to `TX-` | LOW | Closed | `backend/src/utils/batchCodeGenerator.js` line 8 | SPEC §3.2 (D-11 resolved: `TX-` prefix adopted) (Phase 3) |
 | OI-10 | `.git` directory presence in reference — confirmed absent via `Test-Path` (downloaded zip, not cloned git repo) | INFO | Closed | Reference workspace root | Resolved / Closed in Audit |
-| OI-11 | All placeholder backdrops (`placeholder: true` in `design-assets/backdrops.json`) must be replaced with real licensed team-approved photos before launch | MEDIUM | Open | `design-assets/backdrops.json` | SPEC §5.2, §11 (Phase 14 launch gate) |
+| OI-11 | All placeholder backdrops (`placeholder: true` in `design-assets/backdrops.json`) must be replaced with real licensed team-approved photos before launch | MEDIUM | Closed 2026-10-24 (R4: 14 real licensed photos, `check:backdrops` fails on placeholders) | `design-assets/backdrops.json` | SPEC §5.2, §11 (Phase 14 launch gate) |
 | OI-12 | Strict review (19 Oct) findings not fixed in Phase 8.2: H10 (tests need a local MongoDB, no Testcontainers, CI or coverage tool), H11 (no CSP headers yet; OI-03 relies on them), and M1 to M14 (dispatch-check race, other check-then-act races, 500s for bad query params, pagination envelope, global rate limit, archived-batch reads, FEFO loads all batches, audit actorId and clock, forgeable scan source, two authorization styles, unchecked X-Request-Id, in-process inspection lock, JWT parsed three times, `.env.example` forward-headers advice) | MEDIUM | Mostly closed in Phase 13: M1 to M14 and H10 done (M4 and M12 documented); the database-level unique email index is deferred (see phase-13.md); H11 open | Strict PBL review, 19 Oct 2026 (team copy outside the repo), sections 4 and 5 | Phase 13 (hardening); H11 in Phase 14 |
 
 ---
@@ -436,3 +437,176 @@
 - **Fixes**: atomic quality-hold check on dispatch (`M1`); one-time invitation claim, duplicate email refused at activation and one import chunk at a time (`M2`); `422` for bad `page`, `limit` and parameter types (`M3`); SPEC paging shape corrected (`M4`); global rate limit of 500 per address per 15 minutes and idle-bucket cleanup (`M5`); archived batches admin-only by id (`M6`); FEFO filters in the database query (`M7`); audit actor id and clock (`M8`); public scans always `buyer`, purpose-derived IP hash key (`M9`); one `@PreAuthorize` style with `security/Roles.java` (`M10`); safe request ids only (`M11`); inspection lock documented (`M12`); one JWT parse per request (`M13`); forwarded-headers advice (`M14`).
 - **CI and coverage (`H10`)**: `.github/workflows/ci.yml` (backend with a MongoDB service, frontend checks and unit tests) and JaCoCo (`87.7%` of lines on the first report).
 - **Totals**: backend **`735` tests, `0` failures** (`+12` in `HardeningTests`); frontend unit **`116` tests in `20` files**; Playwright E2E **`48` passed across `9` files**. Full log in [docs/progress/phase-13.md](docs/progress/phase-13.md).
+
+---
+
+## UI/UX Redesign
+
+> Added 2026-10-23, imagery phase added 2026-10-24. **Status: R1 to R5 COMPLETE (awaiting review).** Plan: [docs/06-ui/IMAGERY.md](docs/06-ui/IMAGERY.md). Frontend only: no API contract, RBAC, route or backend changes. Design source of truth: [DESIGN.md](DESIGN.md). Evidence: [docs/06-ui/AUDIT.md](docs/06-ui/AUDIT.md), [docs/06-ui/RESEARCH.md](docs/06-ui/RESEARCH.md), [docs/screenshots/before/](docs/screenshots/before/).
+
+### Redesign phase table
+
+| Phase | Title | Status |
+|---|---|---|
+| R1 | Tokens, core components and app shell | COMPLETE (awaiting review), [phase-r1](docs/progress/phase-r1.md) |
+| R2 | Dashboard, notifications and messages | COMPLETE (awaiting review), [phase-r2](docs/progress/phase-r2.md) |
+| R3 | Batches list, batch detail (timeline) and archived | COMPLETE (awaiting review), [phase-r3](docs/progress/phase-r3.md) |
+| R4 | Imagery: real photos, photo banners, split sign-in layout, trace photo; R4.1 public home page | COMPLETE (awaiting review), [phase-r4](docs/progress/phase-r4.md) |
+| R5 | FEFO, dispatch, inspections and import | COMPLETE (awaiting review), [phase-r5](docs/progress/phase-r5.md) |
+| R6 | Team, settings, profile, auth pages, public QR trace, legal recheck and styleguide | NOT STARTED |
+| R7 | Final polish, after screenshots and launch checklist | NOT STARTED |
+
+### Definition of done for every redesign phase
+
+- [ ] web-review, design-critique and accessibility-review run on every changed page; all High issues fixed.
+- [ ] After-screenshots at 1366px and 390px in `docs/screenshots/after/` (same file names as `before/`).
+- [ ] HARD UI RULES (DESIGN.md §0) checked one by one and recorded in the phase log.
+- [ ] All checks green and counts reported: backend `735` tests, frontend unit `116` or more, Playwright `48` or more, `npm run lint`, `npm run typecheck`, `npm run check:banned`, `npm run check:contrast`, `npm run check:backdrops`, `npm run test:a11y`.
+- [ ] Existing `data-testid` values kept, or tests updated in the same phase with the reason logged.
+- [ ] Phase log in `docs/progress/phase-rN.md`; this table updated.
+
+### R1: Tokens, core components and app shell
+
+**Goal:** the new look and the shell every page sits in, with no page layout changes yet.
+**Files:** `frontend/src/styles/tokens.css`, `global.css`, `components/ui/*` (Button, Field, Table, StatusBadge, statusMap, Dialog, Toast, States, Spinner, PageBackdrop), new `components/ui/{FilterChip,ShelfLifeRail,Tabs,Timeline,CommandPalette,LiveIndicator,UserMenu,DisplayMenu,StatCard,Breadcrumbs}.tsx`, `layouts/AppShell.*`, `layouts/NotificationBell.tsx`, `routes/navConfig.ts` (grouping only, same paths), `lib/eventStream.ts` (report connection state), `hooks/useLiveUpdates.ts`, `lib/prefs.ts` (density), `strings/` split, `scripts/check-banned-patterns.mjs`, `public/fonts/` (if D-25 approved).
+**Skills:** frontend-design, design-system, ux-copy.
+- [x] Token additions and fixes from DESIGN.md §3.5 (status hold, row heights, type scale, sidebar bg, comment encoding).
+- [x] Self-hosted IBM Plex Sans and Mono (D-25 approved; done in R2 through `@fontsource` packages instead of `public/fonts/`).
+- [x] Button, Field, Select, Table (sortable headers, sticky header, density, hidden caption, no-wrap columns), Dialog, ConfirmDialog, Toast, StatusBadge (new status set), table skeleton rows. Not done: the 300ms skeleton delay (dropped, it would hide loading states the tests check) and the four EmptyState kinds (moved to each page phase).
+- [x] New: FilterChip, ShelfLifeRail, Tabs, Timeline, StatCard, Breadcrumbs, CommandPalette (pages + batch search + role actions), LiveIndicator, DisplayMenu, shortcuts dialog. The user menu became a compact sidebar footer (keeps the sign-out test ids).
+- [x] Shell: grouped sidebar, compact user footer, top bar with palette trigger (breadcrumbs stay in the page header), live indicator, bell, display menu; drawer on mobile; remove route fade.
+- [x] Header reflow so actions never clip; banner removal still waiting for the D-20 answer. PageHeader without banner backdrop on signed-in pages (only if D-20 change approved; otherwise header reflow fix only so actions never clip).
+- [x] `strings/` split by feature; `en.ts` kept as alias.
+- [x] Checker extensions from DESIGN.md §7 with tests.
+**Acceptance:** every existing page renders inside the new shell with no clipped actions at 390px; Ctrl+K opens the palette and finds a batch by code; LiveIndicator shows Reconnecting when the backend stops and Live when it returns; all checks green.
+**Tests:** unit tests for CommandPalette (keyboard, search, role filtering), LiveIndicator (state changes), ShelfLifeRail (percent, expired, dispatched, missing expiry), StatusBadge hold mapping, FilterChip, Table sort/density; axe on all new components in `test:a11y`; Playwright: palette open and navigate, mobile drawer.
+**Status:** COMPLETE (awaiting review). Backend 735, unit 131, Playwright 48, all checks green. Log: [phase-r1](docs/progress/phase-r1.md).
+
+### R2: Dashboard, notifications and messages
+
+**Goal:** a dashboard that says what needs action today.
+**Files:** `features/dashboard/*`, `features/notifications/*`, `features/messages/*`, `strings/dashboard.ts`.
+**Skills:** frontend-design, ux-copy, design-critique.
+- [x] Needs-action StatCards (Expired, Expiring in 7 days, On hold, Access requests for admins and managers), each linking to a filtered view.
+- [x] Stock-by-freshness bar with a counts legend; each legend row links to the filtered batch list.
+- [x] Next to dispatch list with rails.
+- [x] Inspection counts; remove the operator card; role-aware empty state.
+- [x] Dispatched today tile only if backend request B-1 is approved.
+- [x] Notifications grouped by day and linked to records; mark all as read.
+- [x] Messages: ARIA tabs with message counts and a labelled tab panel, plain copy. Not done: unread dots (the API has no per-user read state for channels) and a pinned composer (kept the existing one).
+**Acceptance:** with seed data the first screen at 1366px shows all four action tiles and the next 5 to dispatch without scrolling; tiles with zero stay neutral.
+**Tests:** update `DashboardPage.test.tsx` and `e2e/phase06.spec.ts` (E2E-01) for new structure; add tests for role-aware tiles and links.
+**Status:** COMPLETE (awaiting review). Log: [phase-r2](docs/progress/phase-r2.md).
+
+### R3: Batches list, batch detail (timeline) and archived
+
+**Goal:** fast scanning of batches and one readable story per batch.
+**Files:** `features/batches/*`, `features/messages/RecordComments.tsx`, `strings/batches.ts`.
+**Skills:** frontend-design, design-handoff, ux-copy.
+- [x] Batches toolbar: debounced search with history replace, Status and Product chips, Expiry date range (B-2), Clear filters, count chip in the header, sortable headers mapped to the existing `sort` param, density (from R1 Display menu).
+- [x] Shelf-life rail column; dispatched rows hide days left; mobile card trimmed.
+- [x] Batch detail header strip (badges, rail, quantity); Correct details and Archive kept as quiet buttons instead of an overflow menu (keeps test ids and one click); History timeline built from pack date, note history, inspections, dispatches and scans. Comments stay in their own panel.
+- [x] Print stylesheet for batch sheet and QR label (black on white in every theme).
+- [x] Unsaved-changes guard for the note and the correction dialog (`beforeunload` plus a Discard changes confirm).
+- [x] Archived as an Active / Archived switch under Batches with search and pagination.
+- [x] Archive confirm copy names the effect.
+**Acceptance:** no wrapped batch codes or dates at 1366px; detail page answers "what happened to this batch" in one column; print preview shows a clean A4 sheet and a label.
+**Tests:** update `BatchesAndDialogs.test.tsx`, `BatchDetailPage.test.tsx`, `e2e/phase06.spec.ts` and `phase07.spec.ts`; add Timeline ordering test, debounce test, print class test.
+**Status:** COMPLETE (awaiting review). Log: [phase-r3](docs/progress/phase-r3.md).
+
+### R4: Imagery (real photos, banners, split sign-in, trace photo)
+
+**Goal:** the product shows real photography of its own world (Uttarakhand farms, warehouse, dock) without hiding any data.
+**Files:** `frontend/design-assets/originals/*`, `design-assets/backdrops.json`, `scripts/prepare-backdrops.mjs` (run only), `scripts/check-backdrops.mjs`, `src/assets/backdrops/*` (generated), `src/routes/backdrops.ts` (`SIGNED_IN_PAGE_BANNERS = true`), `components/ui/PageBackdrop.tsx`, `components/ui/States.tsx` (PageHeader banner), new `layouts/AuthSplitLayout` (or `AuthLayout` reworked), `features/public/PublicTracePage.tsx` (layout only), `features/public/legalContent.ts` (Photo credits), `styles/tokens.css` (`--backdrop-scrim`, `--backdrop-tint`), `scripts/check-contrast.mjs`.
+**Skills:** frontend-design, web-design-system, design-system, accessibility-review, web-review, design-critique.
+- [x] Yash confirms D-20 reopen and picks one photo per key (IMAGERY.md §4).
+- [x] Download the 14 originals into `design-assets/originals/` (after Yash's OK); visual check each for text, logos, faces, screens and artefacts; swap to option B where one fails.
+- [x] Fill `backdrops.json` (source, author, licence, licenceUrl, approvedByOwner, placeholder false, objectPosition, aiGenerated false); run `prepare:backdrops`; all size budgets pass.
+- [x] Extend `check:backdrops`: fail on placeholder, missing source or licence, or AI without owner approval and a prompt record.
+- [x] Banners back on signed-in pages behind the switch; scrim and tint tokens tuned per palette and mode; `check:contrast` passes against worst-case white and black pixels.
+- [x] AuthSplitLayout for all six sign-in pages (40% photo, 60% form, phone band), header with only a light/dark switch.
+- [x] Public trace page: full-bleed photo, one solid panel.
+- [x] Photo credits section on the Privacy Policy page.
+**Acceptance:** every page shows its photo in light and dark across the 3 palettes; no text over a photo below 4.5:1; first sign-in load adds no more than 250 KB of images; Save-Data, the Page photos switch and print show no photo with zero layout shift.
+**Tests:** update `PageBackdrop.test.tsx` (banners on, manifest checks), `e2e/phase05-1.spec.ts` (picture counts, zero-shift checks on the dashboard banner), `e2e/phase05.spec.ts` (auth layout, header controls); new unit test for the extended `check:backdrops`.
+**Status:** COMPLETE (awaiting review), [phase-r4](docs/progress/phase-r4.md). `--backdrop-tint` dropped: the per-palette scrim already unifies the set.
+
+### R5: FEFO, dispatch, inspections and import
+
+**Goal:** dispatch staff see holds and the next batch to ship; import is easy to follow.
+**Files:** `features/fefo/*`, `features/batches/DispatchDialog.tsx`, `features/inspections/*`, `features/import/*`, strings.
+**Skills:** frontend-design, ux-copy, accessibility-review.
+- [x] FEFO tabs (Queue, Expired, Missing expiry) with counts; first eligible row per SKU primary; on-hold rows disabled with tooltip.
+- [x] Dispatch dialog summary line and plain override copy.
+- [x] Inspections: verdict chips, tab counts, checklist grid, plain copy.
+- [x] Import stepper states, human column names, error rows first, rollback confirm with counts, leave guard.
+**Acceptance:** a Failed-verdict batch can not be sent to dispatch from the UI; the override dialog names the batch that expires sooner.
+**Tests:** update `e2e/phase06.spec.ts` (dispatch), `phase08.spec.ts` (import); unit tests for hold detection and first-per-SKU logic.
+**Status:** COMPLETE (awaiting review), [phase-r5](docs/progress/phase-r5.md). Inspections date filter (B-2) and held-batch order fix (B-3) done.
+
+### R6 (part 1): Team, settings, profile and styleguide
+
+**Goal:** admin screens that are calm and safe.
+**Files:** `features/team/*`, `features/settings/*`, `features/profile/*`, `features/styleguide/*`, strings.
+**Skills:** design-system, ux-copy, design-critique.
+- [ ] Team tabs with counts, search, row action menu; destructive red only inside menus and confirms.
+- [ ] Settings owns Display (theme, palette, accent, density, page photos) and sign-in history with "Unknown browser".
+- [ ] Profile copy without internal terms; sign out everywhere confirm.
+- [ ] Styleguide shows every component state, the status set, rails, densities, all palettes and accents.
+- [ ] Forbidden and Not found states with plain copy.
+**Acceptance:** styleguide covers every component in DESIGN.md §4 in every state.
+**Tests:** update `e2e/phase09.spec.ts`; styleguide axe test.
+**Status:** NOT STARTED
+
+### R6 (part 2): Auth pages, public QR trace page and legal pages recheck
+
+> The layout part of this (AuthSplitLayout, trace photo) moves into R4 Imagery; R6 keeps the copy, consumer wording and legal recheck.
+
+**Goal:** a clear first impression for staff and shoppers.
+**Files:** `layouts/AuthLayout.*`, `features/auth/*`, `features/public/*`, `routes/backdrops.ts`, `design-assets/backdrops.json` (keys only, if D-20 change approved), strings.
+**Skills:** web-review, frontend-design, ux-copy, accessibility-review.
+- [ ] Auth layout 40/60 with brand panel or approved photo; no mobile top band; only wordmark and light/dark toggle in the header.
+- [ ] Public trace: consumer wording, rail, short journey, single panel, fixed footer spacing, invalid-link state without nesting.
+- [ ] Legal pages: 70ch column, contents list, recheck content against what the code stores.
+- [ ] Recheck favicon files and links; recheck no builder tag.
+**Acceptance:** public trace page at 390px shows product, best-before and verdict above the fold; legal pages read at 65 to 75 characters per line.
+**Tests:** update `e2e/phase05.spec.ts`, `phase05-1.spec.ts` (backdrops), `phase07.spec.ts`; `check:backdrops` updated for the reduced key set if approved.
+**Status:** NOT STARTED
+
+### R7: Final polish, after screenshots and launch checklist
+
+**Goal:** prove the redesign and get ready to launch.
+**Files:** `docs/screenshots/after/`, `docs/06-ui/AUDIT.md` (after column), `README.md`, `docs/project-guide.md`, `SPEC.md` §5 (update to match DESIGN.md).
+**Skills:** web-review, design-critique, accessibility-review.
+- [ ] Full after-screenshot set matching `before/`.
+- [ ] Re-run the audit; every High issue closed, remaining Medium and Low listed.
+- [ ] SPEC §5 updated to point at DESIGN.md (SPEC.md is kept, not deleted).
+- [ ] Launch checklist below reviewed.
+**Acceptance:** AUDIT.md shows before and after for all Top 10 issues.
+**Tests:** full suite and all checks.
+**Status:** NOT STARTED
+
+### Launch checklist (HARD UI RULE 9)
+
+- [ ] Custom domain connected
+- [ ] Real favicon present and linked (files exist: `public/favicon.svg`, `favicon.ico`, `apple-touch-icon.png`; recheck in R6)
+- [ ] No "made with AI" or builder tag anywhere (none found on 2026-10-23; checker rule added in R1)
+- [ ] Privacy Policy page live (`/privacy` exists; recheck in R6)
+- [ ] Terms and Conditions page live (`/terms` exists; recheck in R6)
+
+### Decisions / Open questions
+
+| ID | Question | Proposed default | Status |
+|---|---|---|---|
+| D-25 | Self-host IBM Plex Sans and Mono instead of system fonts (about 100 KB, own origin only)? | Yes | Approved by Yash 2026-10-23; done in R2 |
+| D-20 (change) | Limit photo backdrops to sign-in pages and the public trace page; remove banners from signed-in pages? | Yes | Approved by Yash 2026-10-23 (may change); done in R2 behind one switch |
+| B-1 | Add `dispatchedToday` to `GET /dashboard/summary` (backend change)? | Ask; fallback shows total dispatched | Approved; done in R2 with `DashboardSummaryTests` |
+| B-2 | Add date filters to inspections and batches endpoints (backend change)? | Ask; fallback has no date range picker | Approved; batches done in R3 (`expiryFrom`, `expiryTo`, `BatchExpiryRangeTests`); inspections done in R5 (`from`, `to`, `InspectionDateRangeTests`) |
+| D-20 (reopen) | Photo banners on signed-in pages, split sign-in layout, full-bleed trace photo, real licensed photos | Yes | Approved by Yash 2026-10-24; done in R4 |
+| IMG-1 | Photo picks, one per backdrop key | All ★ first choices | Left to Claude by Yash 2026-10-24; final picks in IMAGERY.md §8 |
+| IMG-2 | AI-image fallback | Owner-approved exception for TraceX only, used only if both real options for a key fail the visual check; logged with tool and prompt | Approved by Yash 2026-10-24; not used so far (0 of 14) |
+| IMG-3 | Accept Unsplash and Pexels licences alongside CC BY and CC BY-SA | Yes | Approved by Yash 2026-10-24 |
+| RD-1 | Bulk actions on tables | Not added (no bulk endpoints) | Proposed |
+| RD-2 | Unsaved-changes guard | `beforeunload` plus dialog and wizard guards; no router migration | Import wizard guard done in R5 |
+| B-3 | Out-of-order dispatch check counts an on-hold (Failed) batch as "earlier", so the next batch of that product needs an override reason (backend change) | Skip Failed-verdict batches in `findEarlierEligibleBatchForSameSku`, with a test | Approved by Yash 2026-10-24; done (`testHeldEarlierBatchDoesNotForceOverride`) |
+| RD-3 | Inspection rows showing `TX-2026-10-003` with two different products (dev data) | Check outside the redesign | Open |

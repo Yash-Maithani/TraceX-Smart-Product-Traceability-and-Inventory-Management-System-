@@ -113,29 +113,45 @@ describe('BatchesPage, ArchivedBatchesPage, CreateBatchDialog, and DispatchDialo
     expect(screen.getByTestId('open-create-batch-btn')).toBeInTheDocument();
     expect(screen.getByTestId('view-archived-batches-btn')).toBeInTheDocument();
 
-    // Status filter updates query
-    fireEvent.change(screen.getByTestId('batches-filter-status'), {
-      target: { value: 'URGENT' }
-    });
+    // Status filter chip updates the query (UI/UX redesign R3)
+    fireEvent.click(screen.getByTestId('batches-filter-status'));
+    fireEvent.click(screen.getByRole('button', { name: 'Expiring soon' }));
     await waitFor(() => {
       expect(fetchSpy).toHaveBeenCalledWith(expect.objectContaining({ status: 'URGENT' }));
     });
 
-    // Search and Sort filter
+    // Search is debounced; sorting comes from the column headers
     fireEvent.change(screen.getByTestId('batches-filter-search'), {
       target: { value: 'Honey' }
     });
-    fireEvent.change(screen.getByTestId('batches-filter-sort'), {
-      target: { value: 'batchCode:asc' }
+    await waitFor(() => {
+      expect(fetchSpy).toHaveBeenCalledWith(expect.objectContaining({ search: 'Honey' }));
     });
+    fireEvent.click(screen.getByRole('button', { name: /^Code/ }));
     await waitFor(() => {
       expect(fetchSpy).toHaveBeenCalledWith(
         expect.objectContaining({ search: 'Honey', sort: 'batchCode:asc' })
       );
     });
 
-    // Reset filters
+    // Expiry range (backend request B-2)
+    fireEvent.click(screen.getByTestId('batches-filter-expiry'));
+    fireEvent.change(screen.getByTestId('batches-filter-expiry-from'), { target: { value: '2026-10-01' } });
+    fireEvent.change(screen.getByTestId('batches-filter-expiry-to'), { target: { value: '2026-10-31' } });
+    fireEvent.click(screen.getByTestId('batches-filter-expiry-apply'));
+    await waitFor(() => {
+      expect(fetchSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ expiryFrom: '2026-10-01', expiryTo: '2026-10-31' })
+      );
+    });
+
+    // Clear filters keeps the sort
     fireEvent.click(screen.getByTestId('batches-reset-filters-btn'));
+    await waitFor(() => {
+      expect(fetchSpy).toHaveBeenLastCalledWith(
+        expect.objectContaining({ status: undefined, search: undefined, sort: 'batchCode:asc' })
+      );
+    });
   });
 
   it('hides create and archived controls on BatchesPage for quality-inspector', async () => {

@@ -28,6 +28,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -296,6 +298,14 @@ public class InspectionService {
     }
 
     public InspectionPageResult listLatestInspections(int page, int limit, String status) {
+        return listLatestInspections(page, limit, status, null, null);
+    }
+
+    /**
+     * Latest inspection per batch. {@code from} and {@code to} (B-2) are inclusive business dates in the
+     * configured business timezone and filter on when the inspection was recorded.
+     */
+    public InspectionPageResult listLatestInspections(int page, int limit, String status, LocalDate from, LocalDate to) {
         int safePage = Math.max(1, page);
         int safeLimit = Math.max(1, Math.min(limit, 200));
 
@@ -304,6 +314,7 @@ public class InspectionService {
         if (status != null && !status.trim().isEmpty()) {
             query.addCriteria(Criteria.where("status").is(status.trim().toUpperCase()));
         }
+        addRecordedDateRange(query, from, to);
 
         long total = mongoTemplate.count(query, Inspection.class);
         Pageable pageable = PageRequest.of(safePage - 1, safeLimit, Sort.by(Sort.Direction.DESC, "createdAt"));
@@ -314,16 +325,40 @@ public class InspectionService {
     }
 
     public InspectionPageResult listMyInspections(String userId, int page, int limit) {
+        return listMyInspections(userId, page, limit, null, null);
+    }
+
+    public InspectionPageResult listMyInspections(String userId, int page, int limit, LocalDate from, LocalDate to) {
         int safePage = Math.max(1, page);
         int safeLimit = Math.max(1, Math.min(limit, 200));
 
         Query query = new Query(Criteria.where("inspectedBy.userId").is(userId));
+        addRecordedDateRange(query, from, to);
         long total = mongoTemplate.count(query, Inspection.class);
         Pageable pageable = PageRequest.of(safePage - 1, safeLimit, Sort.by(Sort.Direction.DESC, "createdAt"));
         query.with(pageable);
 
         List<Inspection> docs = mongoTemplate.find(query, Inspection.class);
         return new InspectionPageResult(docs, total, safePage, safeLimit);
+    }
+
+    /** Adds an inclusive createdAt range for business dates; a reversed range is a 422 (B-2). */
+    private void addRecordedDateRange(Query query, LocalDate from, LocalDate to) {
+        if (from != null && to != null && from.isAfter(to)) {
+            throw new ValidationException("to", "to must be on or after from");
+        }
+        if (from == null && to == null) {
+            return;
+        }
+        ZoneId zone = clock.getZone();
+        Criteria range = Criteria.where("createdAt");
+        if (from != null) {
+            range = range.gte(from.atStartOfDay(zone).toInstant());
+        }
+        if (to != null) {
+            range = range.lt(to.plusDays(1).atStartOfDay(zone).toInstant());
+        }
+        query.addCriteria(range);
     }
 
     public List<Inspection> listByBatchId(String batchId) {

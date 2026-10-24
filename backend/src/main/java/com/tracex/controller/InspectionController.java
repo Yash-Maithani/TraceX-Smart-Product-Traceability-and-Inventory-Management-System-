@@ -34,8 +34,10 @@ public class InspectionController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "30") int limit,
             @RequestParam(required = false) String status,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate from,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate to,
             @AuthenticationPrincipal UserPrincipal principal) {
-        return ApiResponse.ok(inspectionService.listLatestInspections(page, limit, status), RequestIdContext.getOrCreate());
+        return ApiResponse.ok(inspectionService.listLatestInspections(page, limit, status, from, to), RequestIdContext.getOrCreate());
     }
 
     @PreAuthorize(Roles.INSPECTORS)
@@ -56,9 +58,11 @@ public class InspectionController {
     public ApiResponse<InspectionService.InspectionPageResult> listMyInspections(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int limit,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate from,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate to,
             @AuthenticationPrincipal UserPrincipal principal) {
         return ApiResponse.ok(
-                inspectionService.listMyInspections(principal.getUser().getId(), page, limit),
+                inspectionService.listMyInspections(principal.getUser().getId(), page, limit, from, to),
                 RequestIdContext.getOrCreate()
         );
     }

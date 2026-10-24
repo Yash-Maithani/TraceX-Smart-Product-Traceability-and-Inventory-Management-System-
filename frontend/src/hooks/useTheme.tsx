@@ -6,6 +6,7 @@ import {
   saveUiPreferences,
   type ThemeAccent,
   type ThemeMode,
+  type TableDensity,
   type ThemePalette,
   type UiPreferences
 } from '../lib/prefs';
@@ -20,6 +21,7 @@ interface ThemeContextValue {
   setSidebarCollapsed: (collapsed: boolean) => void;
   setShowPageImages: (show: boolean) => void;
   toggleShowPageImages: () => void;
+  setTableDensity: (density: TableDensity) => void;
   /** Applies settings saved on the user's account (Phase 9). Unknown values are ignored. */
   applyAccountPreferences: (saved: AccountPreferences) => void;
 }
@@ -100,6 +102,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setPrefs((prev) => ({ ...prev, showPageImages: !prev.showPageImages }));
   }, []);
 
+  const setTableDensity = useCallback((tableDensity: TableDensity) => {
+    setPrefs((prev) => ({ ...prev, tableDensity }));
+  }, []);
+
   const applyAccountPreferences = useCallback((saved: AccountPreferences) => {
     setPrefs((prev) => {
       const next: UiPreferences = { ...prev };
@@ -129,6 +135,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         setSidebarCollapsed,
         setShowPageImages,
         toggleShowPageImages,
+        setTableDensity,
         applyAccountPreferences
       }}
     >
@@ -143,4 +150,9 @@ export function useTheme(): ThemeContextValue {
     throw new Error('useTheme must be used within a ThemeProvider');
   }
   return ctx;
+}
+
+/** For shared components that may render outside the provider (tests, isolated widgets). */
+export function useOptionalTheme(): ThemeContextValue | null {
+  return useContext(ThemeContext);
 }

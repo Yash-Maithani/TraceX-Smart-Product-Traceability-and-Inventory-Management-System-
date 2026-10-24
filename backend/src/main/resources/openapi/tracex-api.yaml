@@ -3,7 +3,7 @@ info:
   title: OpenAPI definition
   version: v0
 servers:
-- url: http://localhost:58445
+- url: http://localhost:62395
   description: Generated server url
 paths:
   /api/v1/qr/scan:
@@ -147,6 +147,18 @@ paths:
         required: false
         schema:
           type: string
+      - name: from
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: to
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
       responses:
         "200":
           description: OK
@@ -279,6 +291,18 @@ paths:
         required: false
         schema:
           type: string
+      - name: expiryFrom
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: expiryTo
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
       responses:
         "200":
           description: OK
@@ -972,6 +996,18 @@ paths:
           type: integer
           format: int32
           default: 20
+      - name: from
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: to
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
       responses:
         "200":
           description: OK
@@ -2074,9 +2110,9 @@ components:
           type: string
         active:
           type: boolean
-        deleted:
-          type: boolean
         superAdmin:
+          type: boolean
+        deleted:
           type: boolean
     ResendOtpDto:
       required:
@@ -3139,6 +3175,9 @@ components:
           type: integer
           format: int64
         dispatched:
+          type: integer
+          format: int64
+        dispatchedToday:
           type: integer
           format: int64
         totalActive:

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Check, MailPlus, RotateCcw, Trash2, UserCog, UserMinus, UserPlus, X } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 import coreStyles from '../core/core.module.css';
 import {
   approveAccessRequest,
@@ -57,7 +58,9 @@ export function TeamPage() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { pushToast } = useToast();
-  const [tab, setTab] = useState<TeamTab>('users');
+  // The dashboard's access-request tile opens /team?tab=requests
+  const [searchParams] = useSearchParams();
+  const [tab, setTab] = useState<TeamTab>(() => (searchParams.get('tab') === 'requests' ? 'requests' : 'users'));
 
   const canWriteUsers = canCallEndpoint(user, 'PATCH', '/api/v1/auth/users/:id/toggle');
   const canWriteRequests = canCallEndpoint(user, 'POST', '/api/v1/auth/requests/:id/approve');

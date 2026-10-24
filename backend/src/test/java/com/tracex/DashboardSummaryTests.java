@@ -246,6 +246,49 @@ public class DashboardSummaryTests {
     }
 
     @Test
+    @DisplayName("GET /api/v1/dashboard/summary counts batches dispatched on today's business date only")
+    void testDispatchedTodayCountsOnlyTodaysDispatches() throws Exception {
+        String adminToken = tokenForUser("dash_admin_today", Role.ADMIN, false);
+        String today = LocalDate.now(clock).toString();
+        String yesterday = LocalDate.now(clock).minusDays(1).toString();
+        long base = mongoTemplate.count(new Query(Criteria.where("isDeleted").is(false)
+                .and("dispatchHistory.dispatchDate").is(today)), Batch.class);
+
+        List<String> insertedCodes = List.of("TX-DASH-TODAY-1", "TX-DASH-TODAY-2", "TX-DASH-YDAY", "TX-DASH-TODAY-ARCH");
+        try {
+            mongoTemplate.getCollection("batches").insertOne(dispatchedDoc("TX-DASH-TODAY-1", List.of(today), false));
+            // Two dispatches today on one batch still count once
+            mongoTemplate.getCollection("batches").insertOne(dispatchedDoc("TX-DASH-TODAY-2", List.of(yesterday, today, today), false));
+            mongoTemplate.getCollection("batches").insertOne(dispatchedDoc("TX-DASH-YDAY", List.of(yesterday), false));
+            // Archived batches are not counted
+            mongoTemplate.getCollection("batches").insertOne(dispatchedDoc("TX-DASH-TODAY-ARCH", List.of(today), true));
+
+            mockMvc.perform(get("/api/v1/dashboard/summary")
+                            .header("Authorization", "Bearer " + adminToken))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.dispatchedToday").value(base + 2));
+        } finally {
+            mongoTemplate.remove(new Query(Criteria.where("batchCode").in(insertedCodes)), Batch.class);
+        }
+    }
+
+    private Document dispatchedDoc(String code, List<String> dispatchDates, boolean archived) {
+        List<Document> history = new ArrayList<>();
+        for (String d : dispatchDates) {
+            history.add(new Document("buyerName", "Test Buyer").append("dispatchDate", d));
+        }
+        return new Document()
+                .append("batchCode", code)
+                .append("productName", "Dispatched Today Test")
+                .append("sku", "WBJC")
+                .append("packDate", "2026-01-01")
+                .append("expiryDate", "2099-01-01")
+                .append("lifecycleState", "DISPATCHED")
+                .append("dispatchHistory", history)
+                .append("isDeleted", archived);
+    }
+
+    @Test
     @DisplayName("GET /api/v1/dashboard/summary scopes pendingAccessRequests to manager, admin, and super-admin only")
     void testDashboardSummaryRoleScopingForPendingAccessRequests() throws Exception {
         long expectedPending = mongoTemplate.count(

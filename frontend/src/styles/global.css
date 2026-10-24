@@ -53,3 +53,12 @@ textarea {
   white-space: nowrap;
   border: 0;
 }
+
+/* Printed pages (batch sheet, QR label) use black on white in every theme */
+@media print {
+  html,
+  body {
+    background-color: var(--print-paper);
+    color: var(--print-ink);
+  }
+}

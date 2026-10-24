@@ -38,8 +38,12 @@ public class BatchController {
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String sku,
             @RequestParam(required = false) String search,
-            @RequestParam(required = false) String sort) {
-        return ApiResponse.ok(batchService.getAllBatches(page, limit, status, sku, search, sort), RequestIdContext.getOrCreate());
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate expiryFrom,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate expiryTo) {
+        return ApiResponse.ok(
+                batchService.getAllBatches(page, limit, status, sku, search, sort, expiryFrom, expiryTo),
+                RequestIdContext.getOrCreate());
     }
 
     @PreAuthorize(Roles.BATCH_EDITORS)

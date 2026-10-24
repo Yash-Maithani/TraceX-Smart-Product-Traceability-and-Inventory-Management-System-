@@ -126,6 +126,9 @@ export function runContrastChecks(css) {
       checkPair(ctx, 'text-muted on bg-surface (text)', pVars['--text-muted'], pVars['--bg-surface'], 4.5);
       // Large text, input borders, icons >= 3.0:1
       checkPair(ctx, 'text-secondary on bg-elevated (icons/large)', pVars['--text-secondary'], pVars['--bg-elevated'], 3.0);
+      // UI/UX redesign R1: sidebar frame uses bg-elevated in light mode for nav labels
+      checkPair(ctx, 'text-secondary on bg-elevated (sidebar text)', pVars['--text-secondary'], pVars['--bg-elevated'], 4.5);
+      checkPair(ctx, 'text-muted on bg-elevated (table meta)', pVars['--text-muted'], pVars['--bg-elevated'], 4.5);
       checkPair(ctx, 'border-strong on bg-surface (input border)', pVars['--border-strong'], pVars['--bg-surface'], 3.0);
       checkPair(ctx, 'border-strong on bg-canvas (input border)', pVars['--border-strong'], pVars['--bg-canvas'], 3.0);
 
@@ -211,6 +214,8 @@ export function runContrastChecks(css) {
     checkPair(ctx, 'success-text on success-bg', sVars['--status-success-text'], sVars['--status-success-bg'], 4.5);
     checkPair(ctx, 'info-text on info-bg', sVars['--status-info-text'], sVars['--status-info-bg'], 4.5);
     checkPair(ctx, 'neutral-text on neutral-bg', sVars['--status-neutral-text'], sVars['--status-neutral-bg'], 4.5);
+    // UI/UX redesign R1: on-hold status (strong fill)
+    checkPair(ctx, 'hold-text on hold-bg', sVars['--status-hold-text'], sVars['--status-hold-bg'], 4.5);
   }
 
   return { results, failures };

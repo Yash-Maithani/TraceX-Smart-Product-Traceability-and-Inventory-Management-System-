@@ -1,96 +1,110 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Archive, Plus, RotateCcw } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import coreStyles from '../core/core.module.css';
+import styles from './batches.module.css';
+import { BatchListTabs } from './BatchListTabs';
 import { ApiError } from '../../api/client';
 import { fetchBatches, fetchProducts } from '../../api/endpoints';
 import type { BatchSummaryDto } from '../../api/types';
 import { useAuth } from '../../auth/AuthContext';
-import {
-  canCreateBatch,
-  canViewArchivedBatches
-} from '../../auth/permissions.generated';
+import { canCreateBatch } from '../../auth/permissions.generated';
 import {
   Button,
+  DateRangeChip,
   EmptyState,
   ErrorState,
-  Field,
-  Input,
+  FilterChip,
   PageHeader,
   Pagination,
-  Select,
-  Skeleton,
+  ShelfLifeRail,
   StatusBadge,
   Table,
   type StatusBadgeValue,
   type TableColumn
 } from '../../components/ui';
 import { formatBusinessDate } from '../../lib/dates';
+import { BATCH_STRINGS as S } from '../../strings/batches';
+import { STATUS_STRINGS } from '../../strings/status';
 import { CreateBatchDialog } from './CreateBatchDialog';
-import { EMPTY_VALUE, formatDays } from '../../lib/format';
 
-const STATUS_OPTIONS: readonly { value: string; label: string }[] = [
-  { value: '', label: 'All Freshness & Lifecycle Tiers' },
-  { value: 'EXPIRED', label: 'Expired' },
-  { value: 'URGENT', label: 'Urgent' },
-  { value: 'WARNING', label: 'Warning' },
-  { value: 'READY', label: 'Ready' },
-  { value: 'EXCEPTION', label: 'Exception' },
-  { value: 'DISPATCHED', label: 'Dispatched' }
-];
+const STATUS_OPTIONS = [
+  { value: 'READY', label: STATUS_STRINGS.READY },
+  { value: 'WARNING', label: STATUS_STRINGS.WARNING },
+  { value: 'URGENT', label: STATUS_STRINGS.URGENT },
+  { value: 'EXPIRED', label: STATUS_STRINGS.EXPIRED },
+  { value: 'EXCEPTION', label: STATUS_STRINGS.EXCEPTION },
+  { value: 'DISPATCHED', label: STATUS_STRINGS.DISPATCHED }
+] as const;
 
-const SORT_OPTIONS: readonly { value: string; label: string }[] = [
-  { value: '', label: 'Default (Expiry Date Asc)' },
-  { value: 'expiryDate:asc', label: 'Expiry Date (Earliest First)' },
-  { value: 'expiryDate:desc', label: 'Expiry Date (Latest First)' },
-  { value: 'batchCode:asc', label: 'Batch Code (A–Z)' },
-  { value: 'batchCode:desc', label: 'Batch Code (Z–A)' },
-  { value: 'productName:asc', label: 'Product Name (A–Z)' },
-  { value: 'createdAt:desc', label: 'Newest Created First' },
-  { value: 'quantityProduced:desc', label: 'Quantity (High to Low)' }
-];
+/** Table column key to the server's sort field (BatchService whitelist). */
+const SORT_FIELDS: Record<string, string> = {
+  code: 'batchCode',
+  product: 'productName',
+  expires: 'expiryDate',
+  quantity: 'quantityProduced'
+};
+
+const SEARCH_DELAY_MS = 250;
+
+function QualityCell({ row }: { row: BatchSummaryDto }) {
+  const verdict = row.qualityCheck?.status;
+  if (verdict === 'FAILED') return <StatusBadge status="ON_HOLD" />;
+  if (verdict) return <StatusBadge status={verdict as StatusBadgeValue} />;
+  return <span className={styles.muted}>{S.notInspected}</span>;
+}
 
 export function BatchesPage({ openCreateInitially = false }: { openCreateInitially?: boolean }) {
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
   const navigate = useNavigate();
-
   const isNewRoute = openCreateInitially || location.pathname === '/batches/new';
   const [createOpen, setCreateOpen] = useState(isNewRoute);
+  const mayCreate = canCreateBatch(user);
 
   const status = searchParams.get('status') ?? '';
   const sku = searchParams.get('sku') ?? '';
   const search = searchParams.get('search') ?? '';
   const sort = searchParams.get('sort') ?? '';
+  const expiryFrom = searchParams.get('expiryFrom') ?? '';
+  const expiryTo = searchParams.get('expiryTo') ?? '';
   const page = Math.max(1, Number.parseInt(searchParams.get('page') ?? '1', 10) || 1);
   const limit = Math.max(1, Number.parseInt(searchParams.get('limit') ?? '20', 10) || 20);
 
-  const updateParam = (key: string, value: string) => {
+  // The search box is local while typing; the URL follows after a short pause (AUDIT: no request
+  // and no history entry per keystroke).
+  const [searchDraft, setSearchDraft] = useState(search);
+  useEffect(() => setSearchDraft(search), [search]);
+
+  const updateParams = (changes: Record<string, string>, replace = false) => {
     const next = new URLSearchParams(searchParams);
-    if (value.trim() === '') {
-      next.delete(key);
-    } else {
-      next.set(key, value);
+    for (const [key, value] of Object.entries(changes)) {
+      if (value.trim() === '') next.delete(key);
+      else next.set(key, value);
     }
-    if (key !== 'page') {
-      next.set('page', '1');
-    }
+    if (!('page' in changes)) next.set('page', '1');
+    setSearchParams(next, { replace });
+  };
+
+  useEffect(() => {
+    if (searchDraft === search) return undefined;
+    const t = setTimeout(() => updateParams({ search: searchDraft }, true), SEARCH_DELAY_MS);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchDraft]);
+
+  const anyFilter = Boolean(status || sku || search || expiryFrom || expiryTo);
+  const clearFilters = () => {
+    setSearchDraft('');
+    const next = new URLSearchParams();
+    if (sort) next.set('sort', sort);
     setSearchParams(next);
   };
 
-  const resetFilters = () => {
-    setSearchParams(new URLSearchParams());
-  };
-
-  const productsQuery = useQuery({
-    queryKey: ['products'],
-    queryFn: fetchProducts
-  });
-
+  const productsQuery = useQuery({ queryKey: ['products'], queryFn: fetchProducts });
   const batchesQuery = useQuery({
-    queryKey: ['batches', { page, limit, status, sku, search, sort }],
+    queryKey: ['batches', { page, limit, status, sku, search, sort, expiryFrom, expiryTo }],
     queryFn: () =>
       fetchBatches({
         page,
@@ -98,91 +112,87 @@ export function BatchesPage({ openCreateInitially = false }: { openCreateInitial
         status: status || undefined,
         sku: sku || undefined,
         search: search || undefined,
-        sort: sort || undefined
+        sort: sort || undefined,
+        expiryFrom: expiryFrom || undefined,
+        expiryTo: expiryTo || undefined
       })
   });
 
   const batches = batchesQuery.data?.data ?? [];
   const total = batchesQuery.data?.total ?? 0;
 
+  const [sortField, sortDir] = sort ? sort.split(':') : ['', ''];
+  const sortKey = Object.keys(SORT_FIELDS).find((k) => SORT_FIELDS[k] === sortField);
+  const onSortChange = (key: string) => {
+    const field = SORT_FIELDS[key];
+    if (!field) return;
+    const nextDir = sortField === field && sortDir !== 'desc' ? 'desc' : 'asc';
+    updateParams({ sort: `${field}:${nextDir}` });
+  };
+
   const columns: TableColumn<BatchSummaryDto>[] = [
     {
-      key: 'batchCode',
-      header: 'Batch Code',
+      key: 'code',
+      header: S.columns.code,
+      sortable: true,
+      nowrap: true,
       render: (row) => (
-        <Link
-          to={`/batches/${row.id}`}
-          className={coreStyles.codeLink}
-          data-testid={`batch-link-${row.batchCode}`}
-        >
+        <Link to={`/batches/${row.id}`} className={styles.code} data-testid={`batch-link-${row.batchCode}`}>
           {row.batchCode}
         </Link>
       )
     },
     {
-      key: 'productName',
-      header: 'Product & SKU',
+      key: 'product',
+      header: S.columns.product,
+      sortable: true,
       render: (row) => (
-        <div>
-          <div>
-            <strong>{row.productName}</strong>
-          </div>
-          <div className={coreStyles.metaLabel}>{row.sku}</div>
+        <div className={styles.product}>
+          <span>{row.productName}</span>
+          <span className={styles.muted}>{row.sku}</span>
         </div>
       )
     },
     {
       key: 'status',
-      header: 'Freshness Status',
-      render: (row) =>
-        row.status ? (
-          <StatusBadge status={row.status} />
-        ) : (
-          <span>{EMPTY_VALUE}</span>
-        )
+      header: S.columns.status,
+      nowrap: true,
+      render: (row) => (row.status ? <StatusBadge status={row.status} /> : <span className={styles.muted}>-</span>)
     },
     {
-      key: 'expiryDate',
-      header: 'Expiry Date',
+      key: 'shelf',
+      header: S.columns.shelfLife,
       render: (row) => (
-        <div>
-          <div data-testid={`batch-expiry-${row.batchCode}`}>
-            {formatBusinessDate(row.expiryDate)}
-          </div>
-          <div className={coreStyles.metaLabel}>
-            {row.status === 'EXCEPTION'
-              ? (row.exceptionReason ?? 'Invalid expiry')
-              : formatDays(row.daysUntilExpiry, 'd')}
-          </div>
-        </div>
+        <ShelfLifeRail packDate={row.packDate} expiryDate={row.expiryDate} daysUntilExpiry={row.daysUntilExpiry} status={row.status} />
       )
+    },
+    {
+      key: 'expires',
+      header: S.columns.expires,
+      sortable: true,
+      nowrap: true,
+      render: (row) => <span data-testid={`batch-expiry-${row.batchCode}`}>{formatBusinessDate(row.expiryDate)}</span>
     },
     {
       key: 'quality',
-      header: 'Quality Verdict',
-      render: (row) =>
-        row.qualityCheck?.status ? (
-          <StatusBadge status={row.qualityCheck.status as StatusBadgeValue} />
-        ) : (
-          <span className={coreStyles.metaLabel}>Uninspected</span>
-        )
+      header: S.columns.quality,
+      nowrap: true,
+      render: (row) => <QualityCell row={row} />
     },
     {
       key: 'quantity',
-      header: 'Quantity',
-      render: (row) => (
-        <span>
-          {row.quantityProduced} {row.unit}
-        </span>
-      )
+      header: S.columns.quantity,
+      sortable: true,
+      numeric: true,
+      render: (row) => S.quantity(row.quantityProduced, row.unit)
     },
     {
-      key: 'source',
-      header: 'Source Lot / Village',
+      key: 'origin',
+      header: S.columns.origin,
       render: (row) => (
-        <div>
-          <div className={coreStyles.monoCode}>{row.sourceLotCode}</div>
-          <div className={coreStyles.metaLabel}>{row.village}</div>
+        <div className={styles.product}>
+          <span className={styles.mono}>{row.sourceLotCode}</span>
+          <span className={styles.muted}>{row.village}</span>
         </div>
       )
     }
@@ -195,209 +205,161 @@ export function BatchesPage({ openCreateInitially = false }: { openCreateInitial
     }
   };
 
+  const productOptions = (productsQuery.data ?? []).map((p) => ({ value: p.sku ?? '', label: `${p.productName} (${p.sku})` }));
+
   return (
-    <div className={coreStyles.pageStack} data-testid="batches-page">
+    <div className={styles.page} data-testid="batches-page">
       <PageHeader
-        title="Production Batches"
-        subtitle="Track provenance, server-derived freshness status tiers, and quality verdicts across all batches."
+        title={S.title}
+        subtitle={S.subtitle}
+        meta={
+          batchesQuery.isSuccess ? (
+            <span className={styles.countChip} data-testid="batches-count">
+              {S.count(total)}
+            </span>
+          ) : undefined
+        }
         backdropKey="batches"
         priority
         actions={
-          <div className={coreStyles.inlineRow}>
-            {canViewArchivedBatches(user) ? (
-              <Link to="/batches/archived">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  leftIcon={<Archive size={15} />}
-                  data-testid="view-archived-batches-btn"
-                >
-                  Archived Batches
-                </Button>
-              </Link>
-            ) : null}
-            {canCreateBatch(user) ? (
-              <Button
-                variant="primary"
-                size="sm"
-                leftIcon={<Plus size={15} />}
-                onClick={() => setCreateOpen(true)}
-                data-testid="open-create-batch-btn"
-              >
-                Create Batch
-              </Button>
-            ) : null}
-          </div>
+          mayCreate ? (
+            <Button
+              variant="primary"
+              size="sm"
+              leftIcon={<Plus size={15} />}
+              onClick={() => setCreateOpen(true)}
+              data-testid="open-create-batch-btn"
+            >
+              {S.createBatch}
+            </Button>
+          ) : null
         }
       />
 
-      <section className={coreStyles.filterBar} aria-label="Batch filters">
-        <Field label="Freshness / Lifecycle Tier">
-          <Select
-            value={status}
-            onChange={(e) => updateParam('status', e.target.value)}
-            data-testid="batches-filter-status"
-          >
-            {STATUS_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </Select>
-        </Field>
+      <BatchListTabs />
 
-        <Field label="Product SKU">
-          <Select
-            value={sku}
-            onChange={(e) => updateParam('sku', e.target.value)}
-            data-testid="batches-filter-sku"
-          >
-            <option value="">All SKUs</option>
-            {(productsQuery.data ?? []).map((p) => (
-              <option key={p.sku} value={p.sku}>
-                {p.sku} · {p.productName}
-              </option>
-            ))}
-          </Select>
-        </Field>
-
-        <Field label="Search (Code, Product, Lot, Farmer)">
-          <Input
+      <section className={styles.toolbar} aria-label={S.searchLabel}>
+        <label className={styles.searchBox}>
+          <Search size={16} aria-hidden="true" />
+          <span className="sr-only">{S.searchLabel}</span>
+          <input
             type="search"
-            value={search}
-            onChange={(e) => updateParam('search', e.target.value)}
-            placeholder="Search batch code, product, lot…"
+            value={searchDraft}
+            onChange={(e) => setSearchDraft(e.target.value)}
+            placeholder={S.searchPlaceholder}
             data-testid="batches-filter-search"
           />
-        </Field>
-
-        <Field label="Sort Order">
-          <Select
-            value={sort}
-            onChange={(e) => updateParam('sort', e.target.value)}
-            data-testid="batches-filter-sort"
-          >
-            {SORT_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </Select>
-        </Field>
-
-        <div className={coreStyles.filterActions}>
-          <Button
-            variant="secondary"
-            size="sm"
-            leftIcon={<RotateCcw size={14} />}
-            onClick={resetFilters}
-            data-testid="batches-reset-filters-btn"
-          >
-            Reset
-          </Button>
-        </div>
+        </label>
+        <FilterChip
+          label={S.statusFilter}
+          value={status}
+          options={STATUS_OPTIONS}
+          onChange={(v) => updateParams({ status: v })}
+          testId="batches-filter-status"
+        />
+        <FilterChip
+          label={S.skuFilter}
+          value={sku}
+          options={productOptions}
+          onChange={(v) => updateParams({ sku: v })}
+          testId="batches-filter-sku"
+        />
+        <DateRangeChip
+          label={S.expiryFilter}
+          fromLabel={S.expiryFrom}
+          toLabel={S.expiryTo}
+          from={expiryFrom}
+          to={expiryTo}
+          onApply={(from, to) => updateParams({ expiryFrom: from, expiryTo: to })}
+          testId="batches-filter-expiry"
+        />
+        {anyFilter ? (
+          <button type="button" className={styles.clearLink} onClick={clearFilters} data-testid="batches-reset-filters-btn">
+            {S.clearFilters}
+          </button>
+        ) : null}
       </section>
 
-      {batchesQuery.isPending ? (
-        <div className={coreStyles.sectionCard} aria-busy="true">
-          <Skeleton label="Loading production batches" />
-        </div>
-      ) : batchesQuery.isError ? (
+      {batchesQuery.isError ? (
         <ErrorState
-          title="Unable to load batches"
-          description={
-            batchesQuery.error instanceof Error
-              ? batchesQuery.error.message
-              : 'Failed to load batch list.'
-          }
-          requestId={
-            batchesQuery.error instanceof ApiError ? batchesQuery.error.requestId : undefined
-          }
+          title={S.errorTitle}
+          description={batchesQuery.error instanceof ApiError ? batchesQuery.error.message : S.errorBody}
+          requestId={batchesQuery.error instanceof ApiError ? batchesQuery.error.requestId : undefined}
           onRetry={() => void batchesQuery.refetch()}
         />
-      ) : batches.length === 0 ? (
-        <EmptyState
-          title="No matching batches found"
-          description="Try clearing your search or status filter, or create a new production batch."
-          action={
-            <Button variant="secondary" onClick={resetFilters}>
-              Clear Filters
-            </Button>
-          }
-        />
+      ) : !batchesQuery.isPending && batches.length === 0 ? (
+        anyFilter ? (
+          <EmptyState
+            title={S.emptyNoMatchTitle}
+            description={S.emptyNoMatchBody}
+            action={
+              <Button variant="secondary" onClick={clearFilters}>
+                {S.clearFilters}
+              </Button>
+            }
+          />
+        ) : (
+          <EmptyState
+            title={S.emptyFirstTitle}
+            description={mayCreate ? S.emptyFirstCanCreate : S.emptyFirstCannotCreate}
+            action={
+              mayCreate ? (
+                <Button variant="primary" leftIcon={<Plus size={15} />} onClick={() => setCreateOpen(true)}>
+                  {S.createBatch}
+                </Button>
+              ) : undefined
+            }
+          />
+        )
       ) : (
         <>
-          <div className={coreStyles.desktopTableWrap} data-testid="batches-desktop-table">
+          <div className={styles.desktopOnly} data-testid="batches-desktop-table">
             <Table
-              caption="Production batches"
+              caption={S.caption}
               columns={columns}
               data={batches}
               rowKey={(row) => row.id ?? row.batchCode ?? ''}
+              isLoading={batchesQuery.isPending}
+              sortKey={sortKey}
+              sortDirection={sortDir === 'desc' ? 'desc' : 'asc'}
+              onSortChange={onSortChange}
             />
           </div>
-
-          <div className={coreStyles.mobileCardList} data-testid="batches-mobile-cards">
+          <ul className={styles.mobileList} data-testid="batches-mobile-cards">
             {batches.map((row) => (
-              <article
-                key={row.id ?? row.batchCode}
-                className={coreStyles.itemCard}
-                data-testid={`batch-mobile-card-${row.batchCode}`}
-              >
-                <div className={coreStyles.itemCardHeader}>
-                  <Link to={`/batches/${row.id}`} className={coreStyles.codeLink}>
+              <li key={row.id ?? row.batchCode} className={styles.card} data-testid={`batch-mobile-card-${row.batchCode}`}>
+                <div className={styles.cardTop}>
+                  <Link to={`/batches/${row.id}`} className={styles.code}>
                     {row.batchCode}
                   </Link>
-                  <div className={coreStyles.inlineRow}>
+                  <span className={styles.badges}>
                     {row.status ? <StatusBadge status={row.status} /> : null}
-                    {row.qualityCheck?.status ? (
-                      <StatusBadge status={row.qualityCheck.status as StatusBadgeValue} />
-                    ) : null}
-                  </div>
+                    {row.qualityCheck?.status === 'FAILED' ? <StatusBadge status="ON_HOLD" /> : null}
+                  </span>
                 </div>
-                <div>
-                  <strong>{row.productName}</strong> ({row.sku})
+                <div className={styles.cardProduct}>
+                  {row.productName} <span className={styles.muted}>{row.sku}</span>
                 </div>
-                <div className={coreStyles.itemCardMetaGrid}>
-                  <div className={coreStyles.metaItem}>
-                    <span className={coreStyles.metaLabel}>Pack Date</span>
-                    <span className={coreStyles.metaValue}>
-                      {formatBusinessDate(row.packDate)}
-                    </span>
-                  </div>
-                  <div className={coreStyles.metaItem}>
-                    <span className={coreStyles.metaLabel}>Expiry Date</span>
-                    <span className={coreStyles.metaValue}>
-                      {formatBusinessDate(row.expiryDate)}
-                    </span>
-                  </div>
-                  <div className={coreStyles.metaItem}>
-                    <span className={coreStyles.metaLabel}>Quantity</span>
-                    <span className={coreStyles.metaValue}>
-                      {row.quantityProduced} {row.unit}
-                    </span>
-                  </div>
-                  <div className={coreStyles.metaItem}>
-                    <span className={coreStyles.metaLabel}>Source Lot</span>
-                    <span className={coreStyles.metaValue}>{row.sourceLotCode}</span>
-                  </div>
+                <div className={styles.cardBottom}>
+                  <ShelfLifeRail packDate={row.packDate} expiryDate={row.expiryDate} daysUntilExpiry={row.daysUntilExpiry} status={row.status} />
+                  <span className={styles.qty}>{S.quantity(row.quantityProduced, row.unit)}</span>
                 </div>
-              </article>
+              </li>
             ))}
-          </div>
-
-          <Pagination
-            page={page}
-            pageSize={limit}
-            totalItems={total}
-            onPageChange={(nextPage) => updateParam('page', String(nextPage))}
-            onPageSizeChange={(nextLimit) => updateParam('limit', String(nextLimit))}
-          />
+          </ul>
+          {total > 0 ? (
+            <Pagination
+              page={page}
+              pageSize={limit}
+              totalItems={total}
+              onPageChange={(nextPage) => updateParams({ page: String(nextPage) })}
+              onPageSizeChange={(nextLimit) => updateParams({ limit: String(nextLimit) })}
+            />
+          ) : null}
         </>
       )}
 
-      {canCreateBatch(user) ? (
-        <CreateBatchDialog open={createOpen || isNewRoute} onClose={handleCloseCreate} />
-      ) : null}
+      {mayCreate ? <CreateBatchDialog open={createOpen || isNewRoute} onClose={handleCloseCreate} /> : null}
     </div>
   );
 }

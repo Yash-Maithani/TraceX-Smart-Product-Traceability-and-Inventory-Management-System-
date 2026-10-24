@@ -305,6 +305,9 @@ describe('ImportPage (Phase 8 Part C & D)', () => {
     const skuSelect = screen.getByTestId('map-select-productSku');
     fireEvent.change(skuSelect, { target: { value: '' } });
     expect(screen.getByTestId('unmapped-required-warning')).toBeInTheDocument();
+    // Redesign R5: the warning names the column, never the field id
+    expect(screen.getByTestId('unmapped-required-warning')).toHaveTextContent('Product SKU');
+    expect(screen.getByTestId('unmapped-required-warning')).not.toHaveTextContent('productSku');
     expect(screen.getByTestId('import-validate-btn')).toBeDisabled();
 
     // Re-map productSku
@@ -320,6 +323,11 @@ describe('ImportPage (Phase 8 Part C & D)', () => {
     expect(validateSpy).toHaveBeenCalledTimes(1);
     expect(screen.getByTestId('summary-insert-count')).toHaveTextContent('1');
     expect(screen.getByTestId('summary-error-count')).toHaveTextContent('1');
+
+    // Redesign R5: error rows come first, and errors name the column, not the field id
+    const previewRows = screen.getByTestId('import-preview-table').querySelectorAll('tbody tr');
+    expect(previewRows[0]).toHaveTextContent('LOT-102');
+    expect(previewRows[0]).toHaveTextContent('Quantity Produced: Quantity must be at least 1');
 
     // D-9: SecretFarmerPII is never rendered in preview
     expect(screen.getByTestId('import-preview-table').textContent).not.toContain(
@@ -432,10 +440,10 @@ describe('ImportPage (Phase 8 Part C & D)', () => {
 
     const failureAlert = await screen.findByTestId('import-commit-failure');
     expect(commitSpy).toHaveBeenCalledTimes(2);
-    expect(failureAlert).toHaveTextContent(/Chunk 2 of 2 failed/i);
+    expect(failureAlert).toHaveTextContent(/Part 2 of 2 failed/i);
     expect(failureAlert).toHaveTextContent(/Network connection lost during chunk 2/i);
     expect(screen.getByTestId('failed-chunk-job-id')).toHaveTextContent('job-mid-fail-99');
-    expect(failureAlert).toHaveTextContent(/15-minute stale window/i);
+    expect(failureAlert).toHaveTextContent(/marked failed after 15 minutes/i);
   });
 
   it('displays recent import jobs, opens job detail dialog, and executes rollback via ConfirmDialog', async () => {
@@ -502,7 +510,7 @@ describe('ImportPage (Phase 8 Part C & D)', () => {
 
     // Rollback
     fireEvent.click(screen.getByTestId('rollback-job-btn-job-hist-1'));
-    const confirmBtn = await screen.findByRole('button', { name: 'Confirm Rollback' });
+    const confirmBtn = await screen.findByRole('button', { name: 'Undo import' });
     fireEvent.click(confirmBtn);
 
     await waitFor(() => {

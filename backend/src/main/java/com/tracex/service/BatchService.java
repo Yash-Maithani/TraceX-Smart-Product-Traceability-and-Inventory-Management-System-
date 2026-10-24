@@ -105,8 +105,30 @@ public class BatchService {
     }
 
     public BatchPageResult getAllBatches(int page, int limit, String statusFilter, String sku, String search, String sortParam) {
+        return getAllBatches(page, limit, statusFilter, sku, search, sortParam, null, null);
+    }
+
+    /**
+     * Batch list with an optional inclusive expiry date range (UI/UX redesign, backend request B-2).
+     * Expiry dates are stored as "YYYY-MM-DD" strings (D-17), so the range is a string comparison;
+     * batches with a missing or broken expiry never match a range.
+     */
+    public BatchPageResult getAllBatches(int page, int limit, String statusFilter, String sku, String search, String sortParam,
+                                         LocalDate expiryFrom, LocalDate expiryTo) {
+        if (expiryFrom != null && expiryTo != null && expiryFrom.isAfter(expiryTo)) {
+            throw new ValidationException("expiryTo", "expiryTo must be on or after expiryFrom");
+        }
         Query query = new Query();
         query.addCriteria(Criteria.where("isDeleted").is(false));
+
+        if (expiryFrom != null || expiryTo != null) {
+            // Both bounds are always set: "0000-01-01" and "9999-12-31" keep missing, empty or
+            // non-date strings out (letters sort after digits). A top-level expiryDate key is used
+            // because the status filter already occupies $and.
+            String from = expiryFrom != null ? expiryFrom.toString() : "0000-01-01";
+            String to = expiryTo != null ? expiryTo.toString() : "9999-12-31";
+            query.addCriteria(Criteria.where("expiryDate").gte(from).lte(to));
+        }
 
         if (sku != null && !sku.trim().isEmpty()) {
             query.addCriteria(Criteria.where("sku").is(sku.trim().toUpperCase()));

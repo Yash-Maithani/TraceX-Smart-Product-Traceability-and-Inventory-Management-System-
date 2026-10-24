@@ -3,9 +3,9 @@ import { useQuery } from '@tanstack/react-query';
 import coreStyles from '../core/core.module.css';
 import { fetchChannelMessages, fetchMessageChannels, postChannelMessage } from '../../api/endpoints';
 import { useAuth } from '../../auth/AuthContext';
-import { EmptyState, ErrorState, PageHeader, Skeleton } from '../../components/ui';
-import { formatTimestamp } from '../../lib/dates';
+import { EmptyState, ErrorState, PageHeader, Skeleton, Tabs } from '../../components/ui';
 import { STRINGS } from '../../strings/en';
+import { MESSAGE_STRINGS as S } from '../../strings/inbox';
 import { MessageThread } from './MessageThread';
 import { useMessageActions } from './useMessageActions';
 
@@ -18,12 +18,12 @@ function ChannelView({ role, canModerate }: { role: string; canModerate: boolean
   const query = useQuery({ queryKey, queryFn: () => fetchChannelMessages(role) });
   const actions = useMessageActions(queryKey, (body) => postChannelMessage(role, body));
 
-  if (query.isLoading) return <Skeleton label="Loading messages" />;
+  if (query.isLoading) return <Skeleton label={S.loadingMessages} />;
   if (query.isError) {
     return (
       <ErrorState
-        title="Could not load this channel"
-        description={query.error instanceof Error ? query.error.message : 'Please try again.'}
+        title={S.errorChannel}
+        description={query.error instanceof Error ? query.error.message : S.errorBody}
         onRetry={() => void query.refetch()}
       />
     );
@@ -31,9 +31,9 @@ function ChannelView({ role, canModerate }: { role: string; canModerate: boolean
   return (
     <MessageThread
       messages={query.data ?? []}
-      composerLabel={`Message the ${channelLabel(role)} channel`}
-      emptyTitle="No messages yet"
-      emptyDescription="Use this channel for shift handover and coordination."
+      composerLabel={S.composerLabel(channelLabel(role))}
+      emptyTitle={S.emptyTitle}
+      emptyDescription={S.emptyBody}
       canModerate={canModerate}
       testIdPrefix="channel"
       {...actions}
@@ -58,55 +58,51 @@ export function MessagesPage() {
   return (
     <div className={coreStyles.pageStack} data-testid="messages-page">
       <PageHeader
-        title="Messages"
-        subtitle={`Role channels for coordination. Messages are kept for ${retention} days; comment on a batch or inspection for anything that should stay on record.`}
+        title={S.title}
+        subtitle={S.subtitle(retention)}
         backdropKey="notifications"
         priority
       />
 
       {channelsQuery.isLoading ? (
-        <Skeleton label="Loading channels" />
+        <Skeleton label={S.loadingChannels} />
       ) : channelsQuery.isError ? (
         <ErrorState
-          title="Could not load channels"
-          description={channelsQuery.error instanceof Error ? channelsQuery.error.message : 'Please try again.'}
+          title={S.errorChannels}
+          description={channelsQuery.error instanceof Error ? channelsQuery.error.message : S.errorBody}
           onRetry={() => void channelsQuery.refetch()}
         />
       ) : channels.length === 0 ? (
-        <EmptyState title="No channels" description="Your account has no role channel." />
+        <EmptyState title={S.noChannelsTitle} description={S.noChannelsBody} />
       ) : (
         <>
           {channels.length > 1 ? (
-            <div className={coreStyles.tabBar} role="tablist" aria-label="Channels">
-              {channels.map((c) => {
-                const activity = channelsQuery.data?.activity?.[c];
-                return (
-                  <button
-                    key={c}
-                    type="button"
-                    role="tab"
-                    aria-selected={active === c}
-                    className={`${coreStyles.tabBtn} ${active === c ? coreStyles.tabBtnActive : ''}`}
-                    onClick={() => setPicked(c)}
-                    data-testid={`channel-tab-${c}`}
-                    title={activity ? `Last message ${formatTimestamp(activity.lastAt)}` : 'No messages yet'}
-                  >
-                    {channelLabel(c)}
-                    {activity?.total ? ` (${activity.total})` : ''}
-                  </button>
-                );
-              })}
-            </div>
+            <Tabs
+              label={S.channelsLabel}
+              idPrefix="channel"
+              selectedId={active ?? ''}
+              onSelect={setPicked}
+              tabs={channels.map((c) => ({
+                id: c,
+                label: channelLabel(c),
+                count: channelsQuery.data?.activity?.[c]?.total || undefined,
+                testId: `channel-tab-${c}`
+              }))}
+            />
           ) : null}
 
           {active ? (
-            <section className={coreStyles.sectionCard} data-testid={`channel-panel-${active}`}>
+            <section
+              className={coreStyles.sectionCard}
+              data-testid={`channel-panel-${active}`}
+              id={`channel-panel-${active}`}
+              role={channels.length > 1 ? 'tabpanel' : undefined}
+              aria-labelledby={channels.length > 1 ? `channel-tab-${active}` : undefined}
+            >
               <div className={coreStyles.sectionHeader}>
                 <div>
-                  <h2 className={coreStyles.sectionTitle}>{channelLabel(active)} channel</h2>
-                  <p className={coreStyles.sectionSubtitle}>
-                    {channelsQuery.data?.memberCounts?.[active] ?? 0} active members can read this channel.
-                  </p>
+                  <h2 className={coreStyles.sectionTitle}>{S.channelTitle(channelLabel(active))}</h2>
+                  <p className={coreStyles.sectionSubtitle}>{S.members(channelsQuery.data?.memberCounts?.[active] ?? 0)}</p>
                 </div>
               </div>
               <ChannelView key={active} role={active} canModerate={canModerate} />

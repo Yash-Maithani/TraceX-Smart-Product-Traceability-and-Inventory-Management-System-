@@ -50,6 +50,7 @@ const SAMPLE_SUMMARY: DashboardSummaryDto = {
   ready: 3,
   exception: 1,
   dispatched: 2,
+  dispatchedToday: 1,
   inspectionVerdicts: {
     PASSED: 5,
     FAILED: 1,
@@ -119,7 +120,7 @@ describe('DashboardPage (Phase 6 Part D)', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText('Unable to load dashboard summary')).toBeInTheDocument();
+      expect(screen.getByText("Could not load today's summary")).toBeInTheDocument();
     });
     expect(screen.getByText(/req-503-abc/)).toBeInTheDocument();
 
@@ -155,7 +156,7 @@ describe('DashboardPage (Phase 6 Part D)', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText('No batches recorded yet')).toBeInTheDocument();
+      expect(screen.getByText('No batches yet')).toBeInTheDocument();
     });
   });
 
@@ -196,6 +197,16 @@ describe('DashboardPage (Phase 6 Part D)', () => {
     expect(screen.getByTestId('top-expiring-item-TX-2026-10-001')).toBeInTheDocument();
     expect(screen.getByTestId('dashboard-pending-requests')).toBeInTheDocument();
     expect(screen.getByTestId('pending-requests-count')).toHaveTextContent('3');
+    expect(screen.getByTestId('dashboard-pending-requests')).toHaveAttribute('href', '/team?tab=requests');
+
+    // Needs-action tiles (UI/UX redesign R2): real counts, linked to the filtered views
+    expect(screen.getByTestId('action-expired')).toHaveAttribute('href', '/batches?status=EXPIRED');
+    expect(screen.getByTestId('action-expired')).toHaveTextContent('1');
+    expect(screen.getByTestId('action-hold')).toHaveAttribute('href', '/inspections?verdict=FAILED');
+    expect(screen.getByTestId('action-hold')).toHaveTextContent('1');
+    expect(screen.getByTestId('action-dispatched-today')).toHaveTextContent('1');
+    expect(screen.getByTestId('action-dispatched-today')).toHaveTextContent('2 dispatched in all');
+    expect(screen.getByRole('img', { name: '10 active batches by freshness' })).toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId('verify-session-btn'));
 

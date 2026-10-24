@@ -84,8 +84,9 @@ export function validateBackdropManifest(manifest, routeMapKeys = null, checkGen
     if (typeof entry.placeholder !== 'boolean') {
       errors.push(`Key '${key}' must specify boolean "placeholder" (true or false).`);
     } else if (entry.placeholder === true) {
-      warnings.push(
-        `[PLACEHOLDER WARNING] Key '${key}' (routes: ${(entry.routes || []).join(', ')}) uses a generated token placeholder (placeholder: true). Replace with an owner-approved licensed photo before launch (OI-11).`
+      // UI/UX redesign R4: placeholders are no longer allowed (IMAGERY.md §6, closes OI-11)
+      errors.push(
+        `Key '${key}' (routes: ${(entry.routes || []).join(', ')}) is still a placeholder (placeholder: true). Every key needs a licensed photo.`
       );
     } else {
       // Non-placeholder entry: must have source, author, licence, licenceUrl, and approvedByOwner === true
@@ -113,6 +114,16 @@ export function validateBackdropManifest(manifest, routeMapKeys = null, checkGen
       }
       if (entry.approvedByOwner !== true) {
         errors.push(`Non-placeholder key '${key}' must have "approvedByOwner": true.`);
+      }
+      if (typeof entry.aiGenerated !== 'boolean') {
+        errors.push(`Key '${key}' must state "aiGenerated": true or false.`);
+      } else if (entry.aiGenerated === true) {
+        // AI images are an owner-approved TraceX exception only, and must record how they were made
+        const tool = typeof entry.aiTool === 'string' ? entry.aiTool.trim() : '';
+        const prompt = typeof entry.aiPrompt === 'string' ? entry.aiPrompt.trim() : '';
+        if (entry.approvedByOwner !== true || !tool || !prompt) {
+          errors.push(`AI-generated key '${key}' needs "approvedByOwner": true, "aiTool" and "aiPrompt".`);
+        }
       }
     }
 

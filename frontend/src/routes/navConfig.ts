@@ -28,6 +28,8 @@ export interface NavRouteItem {
   minRoles: readonly MatrixRole[];
   phase: number;
   enabled: boolean;
+  /** Sidebar group (UI/UX redesign R1, DESIGN.md §4 Sidebar). */
+  group: 'operations' | 'team';
 }
 
 /**
@@ -42,7 +44,8 @@ export const NAV_ROUTES: readonly NavRouteItem[] = [
     endpoint: { method: 'GET', path: '/api/v1/dashboard/summary' },
     minRoles: getAllowedRolesForEndpoint('GET', '/api/v1/dashboard/summary'),
     phase: 6,
-    enabled: true
+    enabled: true,
+    group: 'operations'
   },
   {
     path: '/batches',
@@ -51,7 +54,8 @@ export const NAV_ROUTES: readonly NavRouteItem[] = [
     endpoint: { method: 'GET', path: '/api/v1/batches' },
     minRoles: getAllowedRolesForEndpoint('GET', '/api/v1/batches'),
     phase: 6,
-    enabled: true
+    enabled: true,
+    group: 'operations'
   },
   {
     path: '/import',
@@ -60,7 +64,8 @@ export const NAV_ROUTES: readonly NavRouteItem[] = [
     endpoint: { method: 'GET', path: '/api/v1/import/schema' },
     minRoles: getAllowedRolesForEndpoint('GET', '/api/v1/import/schema'),
     phase: 8,
-    enabled: true
+    enabled: true,
+    group: 'operations'
   },
   {
     path: '/fefo',
@@ -69,7 +74,8 @@ export const NAV_ROUTES: readonly NavRouteItem[] = [
     endpoint: { method: 'GET', path: '/api/v1/dispatch/fefo' },
     minRoles: getAllowedRolesForEndpoint('GET', '/api/v1/dispatch/fefo'),
     phase: 6,
-    enabled: true
+    enabled: true,
+    group: 'operations'
   },
   {
     path: '/inspections',
@@ -78,7 +84,8 @@ export const NAV_ROUTES: readonly NavRouteItem[] = [
     endpoint: { method: 'GET', path: '/api/v1/inspections' },
     minRoles: getAllowedRolesForEndpoint('GET', '/api/v1/inspections'),
     phase: 6,
-    enabled: true
+    enabled: true,
+    group: 'operations'
   },
   {
     path: '/batches/archived',
@@ -87,7 +94,8 @@ export const NAV_ROUTES: readonly NavRouteItem[] = [
     endpoint: { method: 'GET', path: '/api/v1/batches/archived' },
     minRoles: getAllowedRolesForEndpoint('GET', '/api/v1/batches/archived'),
     phase: 6,
-    enabled: true
+    enabled: true,
+    group: 'operations'
   },
   {
     path: '/profile',
@@ -96,7 +104,8 @@ export const NAV_ROUTES: readonly NavRouteItem[] = [
     endpoint: { method: 'GET', path: '/api/v1/auth/me' },
     minRoles: getAllowedRolesForEndpoint('GET', '/api/v1/auth/me'),
     phase: 6,
-    enabled: true
+    enabled: true,
+    group: 'team'
   },
   {
     path: '/team',
@@ -105,7 +114,8 @@ export const NAV_ROUTES: readonly NavRouteItem[] = [
     endpoint: { method: 'GET', path: '/api/v1/auth/users' },
     minRoles: getAllowedRolesForEndpoint('GET', '/api/v1/auth/users'),
     phase: 9,
-    enabled: true
+    enabled: true,
+    group: 'team'
   },
   {
     path: '/notifications',
@@ -114,7 +124,8 @@ export const NAV_ROUTES: readonly NavRouteItem[] = [
     endpoint: { method: 'GET', path: '/api/v1/notifications' },
     minRoles: getAllowedRolesForEndpoint('GET', '/api/v1/notifications'),
     phase: 10,
-    enabled: true
+    enabled: true,
+    group: 'team'
   },
   {
     path: '/messages',
@@ -123,7 +134,8 @@ export const NAV_ROUTES: readonly NavRouteItem[] = [
     endpoint: { method: 'GET', path: '/api/v1/messages/channels' },
     minRoles: getAllowedRolesForEndpoint('GET', '/api/v1/messages/channels'),
     phase: 10,
-    enabled: true
+    enabled: true,
+    group: 'team'
   },
   {
     path: '/settings',
@@ -132,7 +144,8 @@ export const NAV_ROUTES: readonly NavRouteItem[] = [
     endpoint: { method: 'PATCH', path: '/api/v1/auth/me/settings' },
     minRoles: getAllowedRolesForEndpoint('PATCH', '/api/v1/auth/me/settings'),
     phase: 9,
-    enabled: true
+    enabled: true,
+    group: 'team'
   }
 ];
 

@@ -199,7 +199,7 @@ test.describe('Phase 6 E2E Verification Suite (Core Feature UI & Checks 6, 8, 9)
     // Click URGENT metric card -> navigates to /batches?status=URGENT
     await page.getByTestId('dashboard-metric-URGENT').click();
     await expect(page).toHaveURL(/\/batches\?status=URGENT/);
-    await expect(page.getByTestId('batches-filter-status')).toHaveValue('URGENT');
+    await expect(page.getByTestId('batches-filter-status')).toContainText('Expiring soon');
     await expect(page.getByTestId('batches-desktop-table')).toBeVisible();
   });
 
@@ -311,7 +311,7 @@ test.describe('Phase 6 E2E Verification Suite (Core Feature UI & Checks 6, 8, 9)
     await expect(page.getByRole('dialog')).toBeHidden();
 
     await page.goto(`/batches/${batchPass.id}`);
-    await expect(page.getByTestId('batch-quality-snapshot')).toContainText('PASSED');
+    await expect(page.getByTestId('batch-quality-snapshot')).toContainText('Passed');
 
     // 3. Record FAILED inspection on batchFail
     await page.goto('/inspections');
@@ -337,15 +337,18 @@ test.describe('Phase 6 E2E Verification Suite (Core Feature UI & Checks 6, 8, 9)
     await page.getByTestId('sign-out-btn').click();
     await uiSignIn(page, 'coordinator');
 
-    // FAILED batch -> dispatch blocked with 409 QUALITY_HOLD
+    // FAILED batch -> the UI blocks dispatch before any request (redesign R5), and the server still refuses with 409 QUALITY_HOLD
     await page.goto(`/batches/${batchFail.id}`);
-    await page.getByTestId('open-dispatch-dialog-btn').click();
-    await page.getByTestId('dispatch-buyer-input').fill('Quality Hold Test Buyer');
-    await page.getByTestId('dispatch-submit-btn').click();
-    await expect(page.getByTestId('dispatch-error-banner')).toBeVisible();
-    await expect(page.getByTestId('dispatch-error-banner')).toContainText('QUALITY_HOLD');
-    await expect(page.getByTestId('dispatch-submit-btn')).toBeDisabled();
-    await page.getByTestId('dispatch-cancel-btn').click();
+    await expect(page.getByTestId('open-dispatch-dialog-btn')).toBeDisabled();
+    await expect(page.getByTestId('batch-dispatch-block')).toContainText('On hold');
+    const coordToken = await page.evaluate(() => window.sessionStorage.getItem('tx_token'));
+    const holdRes = await fetch(`${E2E_API_BASE}/api/v1/batches/${batchFail.id}/dispatch`, {
+      method: 'PATCH',
+      headers: { Authorization: `Bearer ${coordToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ buyerName: 'Quality Hold Test Buyer' })
+    });
+    expect(holdRes.status).toBe(409);
+    expect(((await holdRes.json()) as { code?: string }).code).toBe('QUALITY_HOLD');
 
     // FLAGGED batch -> shows advisory in dialog and warning banner on dispatch
     await page.goto(`/batches/${batchFlag.id}`);
@@ -379,14 +382,15 @@ test.describe('Phase 6 E2E Verification Suite (Core Feature UI & Checks 6, 8, 9)
 
     await uiSignIn(page, 'coordinator');
     await page.goto('/fefo');
-    await page.getByTestId('fefo-filter-sku').selectOption('RHSLT');
+    await page.getByTestId('fefo-filter-sku').click();
+    await page.getByTestId('fefo-filter-sku-menu').getByRole('button', { name: /\(RHSLT\)/ }).click();
 
     // 1. Out-of-order dispatch of batchLater without overrideReason -> blocked with DISPATCH_OUT_OF_ORDER showing batchEarlier.batchCode
     await page.getByTestId(`fefo-dispatch-btn-${batchLater.batchCode}`).click();
     await page.getByTestId('dispatch-buyer-input').fill('Out Of Order Buyer');
     await page.getByTestId('dispatch-submit-btn').click();
 
-    await expect(page.getByTestId('dispatch-error-banner')).toContainText('DISPATCH_OUT_OF_ORDER');
+    await expect(page.getByTestId('dispatch-error-banner')).toHaveAttribute('data-error-code', 'DISPATCH_OUT_OF_ORDER');
     await expect(page.getByTestId('dispatch-earlier-batch-code')).toContainText(
       batchEarlier.batchCode
     );
@@ -415,11 +419,16 @@ test.describe('Phase 6 E2E Verification Suite (Core Feature UI & Checks 6, 8, 9)
     expect(expiredBatch).toBeDefined();
 
     await page.goto(`/batches/${expiredBatch!.id}`);
-    await page.getByTestId('open-dispatch-dialog-btn').click();
-    await page.getByTestId('dispatch-buyer-input').fill('Expired Attempt Buyer');
-    await page.getByTestId('dispatch-submit-btn').click();
-    await expect(page.getByTestId('dispatch-error-banner')).toContainText('BATCH_EXPIRED');
-    await expect(page.getByTestId('dispatch-submit-btn')).toBeDisabled();
+    await expect(page.getByTestId('open-dispatch-dialog-btn')).toBeDisabled();
+    await expect(page.getByTestId('batch-dispatch-block')).toContainText('Expired');
+    const coordToken = await page.evaluate(() => window.sessionStorage.getItem('tx_token'));
+    const expiredRes = await fetch(`${E2E_API_BASE}/api/v1/batches/${expiredBatch!.id}/dispatch`, {
+      method: 'PATCH',
+      headers: { Authorization: `Bearer ${coordToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ buyerName: 'Expired Attempt Buyer' })
+    });
+    expect(expiredRes.status).toBe(409);
+    expect(((await expiredRes.json()) as { code?: string }).code).toBe('BATCH_EXPIRED');
   });
 
   test('P6-E2E-05: Archive and restore as admin; non-admin sees no archive button and gets 403 on archived route; dispatch-coordinator sees no create-batch or inspect controls', async ({
@@ -440,8 +449,8 @@ test.describe('Phase 6 E2E Verification Suite (Core Feature UI & Checks 6, 8, 9)
     await uiSignIn(page, 'admin');
     await page.goto(`/batches/${batchToArchive.id}`);
     await page.getByTestId('open-archive-dialog-btn').click();
-    await page.getByLabel(/Archive Reason/i).fill('Duplicate E2E test entry');
-    await page.getByRole('button', { name: 'Archive Batch' }).click();
+    await page.getByLabel(/Reason for archiving/i).fill('Duplicate E2E test entry');
+    await page.getByRole('button', { name: 'Archive batch' }).click();
 
     await expect(page).toHaveURL('/batches/archived');
     await expect(page.getByTestId(`archived-code-${batchToArchive.batchCode}`)).toBeVisible();

@@ -15,6 +15,7 @@ import {
   DashboardPage,
   FefoPage,
   ForgotPasswordPage,
+  HomePage,
   ImportPage,
   InspectionsPage,
   LoginPage,
@@ -84,7 +85,7 @@ export function App({ queryClient = defaultQueryClient }: { queryClient?: QueryC
                   {/* Protected Application Shell Routes (Phase 6–8 Core Screens) */}
                   <Route
                     element={
-                      <RequireAuth>
+                      <RequireAuth guestHome={<HomePage />}>
                         <AppShell />
                       </RequireAuth>
                     }

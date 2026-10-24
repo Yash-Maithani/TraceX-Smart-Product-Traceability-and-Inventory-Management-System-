@@ -1,24 +1,27 @@
 /* ==========================================================================
-   TraceX Design System Tokens (SPEC Â§5.1, D-21)
+   TraceX Design System Tokens (SPEC §5.1, DESIGN.md §3)
    - Three Palettes: editorial (warm paper), obsidian (cool slate), emerald (botanical)
    - Two Modes: light, dark (controlled via html[data-theme="light"|"dark"])
    - Accents: auto (follows palette) + 4 fixed choices: cobalt, emerald, amber, rose
    - Radii: 6px maximum on every control, badges included
    - Motion: 150ms or less; 0s when prefers-reduced-motion: reduce
-   - System Font Stack Only (zero external network font requests per D-21)
+   - Fonts: self-hosted IBM Plex Sans and Mono (D-25), system stack as fallback; zero external font requests
+   - UI/UX redesign R1: type scale to 3xl, row heights, on-hold status, sidebar frame
    ========================================================================== */
 
 :root {
-  /* Typography â€” System Font Stack Only (D-21), scale xs to 2xl */
-  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+  /* Typography: self-hosted IBM Plex (D-25) with system fallbacks, scale 2xs to 3xl */
+  --font-sans: 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
 
+  --text-2xs: 0.6875rem;
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-base: 1rem;
   --text-lg: 1.125rem;
   --text-xl: 1.25rem;
   --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
 
   --leading-tight: 1.25;
   --leading-normal: 1.5;
@@ -27,7 +30,7 @@
   --weight-regular: 400;
   --weight-medium: 500;
   --weight-semibold: 600;
-  --weight-bold: 700;
+  --weight-bold: 600;
 
   /* Spacing Scale (4px base) */
   --space-1: 4px;
@@ -68,13 +71,30 @@
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
 
   /* Layout Dimensions */
-  --sidebar-width: 16.5rem;
-  --topbar-height: 3.75rem;
+  --sidebar-width: 15rem;
+  --topbar-height: 3.5rem;
   --touch-target-min: 2.5rem;
+  --content-max-width: 90rem;
+
+  /* Print: always black on white, whatever the screen theme */
+  --print-ink: #000000;
+  --print-paper: #ffffff;
+
+  /* Table row heights (density) */
+  --row-compact: 2rem;
+  --row-default: 2.5rem;
+  --row-comfortable: 3rem;
+}
+
+/* Bigger touch targets on touch-sized layouts */
+@media (max-width: 1023px) {
+  :root {
+    --touch-target-min: 2.75rem;
+  }
 }
 
 /* ==========================================================================
-   Palette 1: Editorial (Default) â€” Light & Dark
+   Palette 1: Editorial (Default): Light & Dark
    ========================================================================== */
 :root,
 html[data-palette="editorial"][data-theme="light"] {
@@ -87,10 +107,10 @@ html[data-palette="editorial"][data-theme="light"] {
   --text-muted: #5c5953;
   --border-subtle: #dcd8ce;
   --border-strong: #736e64;
-  --backdrop-scrim: rgba(20, 20, 19, 0.82);
+  --backdrop-scrim: rgba(20, 20, 19, 0.66);
   --backdrop-fallback-bg: #1b1b18;
   --banner-title: #f8f7f4;
-  --banner-subtitle: #e6e3db;
+  --banner-subtitle: #f1efe9;
   --banner-control-bg: #1b1b18;
   --banner-control-border: #f5f3ee;
   --banner-control-text: #f8f7f4;
@@ -106,7 +126,7 @@ html[data-palette="editorial"][data-theme="dark"] {
   --text-muted: #a6a196;
   --border-subtle: #33322d;
   --border-strong: #8c877b;
-  --backdrop-scrim: rgba(18, 18, 16, 0.84);
+  --backdrop-scrim: rgba(18, 18, 16, 0.74);
   --backdrop-fallback-bg: #1b1b18;
   --banner-title: #f5f3ee;
   --banner-subtitle: #e6e3db;
@@ -116,7 +136,7 @@ html[data-palette="editorial"][data-theme="dark"] {
 }
 
 /* ==========================================================================
-   Palette 2: Obsidian (Cool Slate) â€” Light & Dark
+   Palette 2: Obsidian (Cool Slate): Light & Dark
    ========================================================================== */
 html[data-palette="obsidian"][data-theme="light"] {
   --bg-canvas: #f4f6f9;
@@ -128,10 +148,10 @@ html[data-palette="obsidian"][data-theme="light"] {
   --text-muted: #475569;
   --border-subtle: #cbd5e1;
   --border-strong: #64748b;
-  --backdrop-scrim: rgba(15, 23, 42, 0.82);
+  --backdrop-scrim: rgba(15, 23, 42, 0.66);
   --backdrop-fallback-bg: #111827;
   --banner-title: #f8fafc;
-  --banner-subtitle: #dce4ee;
+  --banner-subtitle: #eaeff5;
   --banner-control-bg: #111827;
   --banner-control-border: #f8fafc;
   --banner-control-text: #f8fafc;
@@ -147,7 +167,7 @@ html[data-palette="obsidian"][data-theme="dark"] {
   --text-muted: #94a3b8;
   --border-subtle: #263248;
   --border-strong: #7c8ea6;
-  --backdrop-scrim: rgba(11, 15, 25, 0.84);
+  --backdrop-scrim: rgba(11, 15, 25, 0.74);
   --backdrop-fallback-bg: #111827;
   --banner-title: #f8fafc;
   --banner-subtitle: #dce4ee;
@@ -157,7 +177,7 @@ html[data-palette="obsidian"][data-theme="dark"] {
 }
 
 /* ==========================================================================
-   Palette 3: Emerald (Botanical Supply Chain) â€” Light & Dark
+   Palette 3: Emerald (Botanical Supply Chain): Light & Dark
    ========================================================================== */
 html[data-palette="emerald"][data-theme="light"] {
   --bg-canvas: #f3f7f5;
@@ -169,10 +189,10 @@ html[data-palette="emerald"][data-theme="light"] {
   --text-muted: #3d5c4f;
   --border-subtle: #c5d9d0;
   --border-strong: #5c7d6f;
-  --backdrop-scrim: rgba(12, 31, 23, 0.82);
+  --backdrop-scrim: rgba(12, 31, 23, 0.66);
   --backdrop-fallback-bg: #102019;
   --banner-title: #eef7f3;
-  --banner-subtitle: #d6e5de;
+  --banner-subtitle: #e7f0ec;
   --banner-control-bg: #102019;
   --banner-control-border: #eef7f3;
   --banner-control-text: #eef7f3;
@@ -188,7 +208,7 @@ html[data-palette="emerald"][data-theme="dark"] {
   --text-muted: #94b5a7;
   --border-subtle: #213b30;
   --border-strong: #6f9686;
-  --backdrop-scrim: rgba(9, 20, 16, 0.84);
+  --backdrop-scrim: rgba(9, 20, 16, 0.74);
   --backdrop-fallback-bg: #102019;
   --banner-title: #eef7f3;
   --banner-subtitle: #d6e5de;
@@ -209,7 +229,7 @@ html[data-accent="cobalt"][data-theme="light"] {
   --accent-subtle-bg: #dbeafe;
   --accent-subtle-text: #1e3a8a;
   --focus-ring: #1d4ed8;
-  --banner-focus-ring: #93c5fd;
+  --banner-focus-ring: #bfdbfe;
 }
 
 html[data-accent="cobalt"][data-theme="dark"] {
@@ -229,7 +249,7 @@ html[data-accent="emerald"][data-theme="light"] {
   --accent-subtle-bg: #d1fae5;
   --accent-subtle-text: #064e3b;
   --focus-ring: #047857;
-  --banner-focus-ring: #6ee7b7;
+  --banner-focus-ring: #a7f3d0;
 }
 
 html[data-accent="emerald"][data-theme="dark"] {
@@ -249,7 +269,7 @@ html[data-accent="amber"][data-theme="light"] {
   --accent-subtle-bg: #fef3c7;
   --accent-subtle-text: #78350f;
   --focus-ring: #b45309;
-  --banner-focus-ring: #fcd34d;
+  --banner-focus-ring: #fde68a;
 }
 
 html[data-accent="amber"][data-theme="dark"] {
@@ -269,7 +289,7 @@ html[data-accent="rose"][data-theme="light"] {
   --accent-subtle-bg: #ffe4e6;
   --accent-subtle-text: #881337;
   --focus-ring: #be123c;
-  --banner-focus-ring: #fda4af;
+  --banner-focus-ring: #fecdd3;
 }
 
 html[data-accent="rose"][data-theme="dark"] {
@@ -283,7 +303,7 @@ html[data-accent="rose"][data-theme="dark"] {
 }
 
 /* ==========================================================================
-   Semantic Status & Freshness Tier Tokens â€” Light & Dark
+   Semantic Status & Freshness Tier Tokens: Light & Dark
    Used by StatusBadge, ErrorState, Toast, etc.
    Every text/bg pair is verified >= 4.5:1
    ========================================================================== */
@@ -321,6 +341,15 @@ html[data-theme="light"] {
   --status-neutral-bg: #e2e8f0;
   --status-neutral-text: #1e293b;
   --status-neutral-border: #64748b;
+
+  /* On hold (latest inspection FAILED): strong fill, distinct from Expired */
+  --status-hold-bg: #3b2416;
+  --status-hold-text: #fde7d7;
+  --status-hold-border: #3b2416;
+
+  /* Shell frame and shelf-life rail */
+  --sidebar-bg: var(--bg-elevated);
+  --rail-track: var(--bg-muted);
 }
 
 html[data-theme="dark"] {
@@ -350,6 +379,13 @@ html[data-theme="dark"] {
   --status-neutral-bg: #273244;
   --status-neutral-text: #e2e8f0;
   --status-neutral-border: #94a3b8;
+
+  --status-hold-bg: #f3d9c8;
+  --status-hold-text: #3b2416;
+  --status-hold-border: #f3d9c8;
+
+  --sidebar-bg: var(--bg-surface);
+  --rail-track: var(--bg-muted);
 }
 
 /* Reduced Motion Support: sets all transition and animation durations to 0s */
@@ -366,5 +402,19 @@ html[data-theme="dark"] {
     animation-iteration-count: 1 !important;
     transition-duration: 0s !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* Print: every palette and mode prints as black text on white paper */
+@media print {
+  html {
+    --text-primary: #000000 !important;
+    --text-secondary: #333333 !important;
+    --text-muted: #555555 !important;
+    --bg-canvas: #ffffff !important;
+    --bg-surface: #ffffff !important;
+    --bg-elevated: #ffffff !important;
+    --border-subtle: #bbbbbb !important;
+    --border-strong: #666666 !important;
   }
 }

@@ -146,7 +146,7 @@ describe('PublicTracePage & LegacyTracePage (Phase 7 Part C & D)', () => {
     await waitFor(() => {
       expect(screen.getByTestId('trace-batch-code')).toHaveTextContent('TX-EXCEPTION-001');
     });
-    expect(screen.getByTestId('trace-status-badge')).toHaveTextContent(/Exception/i);
+    expect(screen.getByTestId('trace-status-badge')).toHaveTextContent(/Missing expiry/i);
     // Expiry date rendered as the empty-value text
     expect(screen.getByTestId('trace-expiry-date')).toHaveTextContent('Not recorded');
     u2();

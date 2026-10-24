@@ -486,9 +486,15 @@ test.describe('Phase 5 E2E Verification Suite (E1–E6 / Checks 5–14)', () => 
     const themeBefore = await page.evaluate(() =>
       document.documentElement.getAttribute('data-theme')
     );
-    const themeBtn = page.getByRole('button', { name: /Switch to (dark|light) theme/i });
+    // UI/UX redesign R1: theme lives in the Display menu in the top bar
+    await page.getByTestId('display-menu-btn').focus();
+    await page.keyboard.press('Enter');
+    const themeBtn = page
+      .getByTestId('display-menu')
+      .getByRole('button', { name: themeBefore === 'dark' ? /Light/ : /Dark/ });
     await themeBtn.focus();
     await page.keyboard.press('Enter');
+    await page.keyboard.press('Escape');
     const themeAfter = await page.evaluate(() =>
       document.documentElement.getAttribute('data-theme')
     );
@@ -538,8 +544,12 @@ test.describe('Phase 5 E2E Verification Suite (E1–E6 / Checks 5–14)', () => 
       'light'
     );
 
-    // Runtime switch and reload persistence
-    await page.getByLabel('Color palette').selectOption('obsidian');
+    // Runtime switch and reload persistence (redesign R4: the palette menu lives in signed-in
+    // Settings, so the stored preference is seeded here and the theme is switched on the page)
+    await page.evaluate(() =>
+      window.localStorage.setItem('tx_ui_prefs', JSON.stringify({ palette: 'obsidian' }))
+    );
+    await page.reload();
     await page.getByRole('button', { name: /Switch to dark theme/i }).click();
     expect(await page.evaluate(() => document.documentElement.getAttribute('data-palette'))).toBe(
       'obsidian'

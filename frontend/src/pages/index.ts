@@ -16,6 +16,7 @@ export {
   PrivacyPage,
   TermsPage
 } from '../features/public/PublicPages';
+export { HomePage } from '../features/public/HomePage';
 export { PublicTracePage } from '../features/public/PublicTracePage';
 export { LegacyTracePage } from '../features/public/LegacyTracePage';
 export { ImportPage } from '../features/import/ImportPage';

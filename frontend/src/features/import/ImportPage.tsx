@@ -1,4 +1,4 @@
-import { useRef, useState, type ChangeEvent, type DragEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type ChangeEvent, type DragEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   AlertTriangle,
@@ -52,6 +52,9 @@ import {
   type CsvRowObject
 } from './csvParser';
 import { EMPTY_VALUE } from '../../lib/format';
+import { IMPORT_STRINGS as S } from '../../strings/import';
+
+const VERDICT_ORDER: Record<string, number> = { error: 0, skip: 1, insert: 2 };
 
 export type ImportWizardStep = 'upload' | 'map' | 'preview' | 'commit' | 'result';
 type PreviewFilter = 'all' | 'insert' | 'skip' | 'error';
@@ -156,16 +159,17 @@ function triggerCsvDownload(filename: string, csvText: string): void {
 }
 
 function renderJobStatusTag(status?: string) {
+  const label = S.history.status[status ?? 'failed'] ?? S.history.status.failed;
   if (status === 'done') {
-    return <span className={`${styles.verdictTag} ${styles.verdictInsert}`}>Done</span>;
+    return <span className={`${styles.verdictTag} ${styles.verdictInsert}`}>{label}</span>;
   }
   if (status === 'running') {
-    return <span className={`${styles.verdictTag} ${styles.verdictSkip}`}>Running</span>;
+    return <span className={`${styles.verdictTag} ${styles.verdictSkip}`}>{label}</span>;
   }
   if (status === 'rolled_back') {
-    return <span className={styles.verdictTag}>Rolled Back</span>;
+    return <span className={styles.verdictTag}>{label}</span>;
   }
-  return <span className={`${styles.verdictTag} ${styles.verdictError}`}>Failed</span>;
+  return <span className={`${styles.verdictTag} ${styles.verdictError}`}>{label}</span>;
 }
 
 function mapRawChunkToCanonical(
@@ -248,23 +252,38 @@ export function ImportPage() {
         queryClient.invalidateQueries({ queryKey: ['fefo'] })
       ]);
       pushToast({
-        title: 'Import rolled back',
-        description: `Archived ${res.archived ?? 0} imported batch(es).`,
+        title: S.rollback.doneTitle,
+        description: S.rollback.doneBody(res.archived ?? 0),
         variant: 'success'
       });
     },
     onError: (err) => {
       setRollbackTargetJob(null);
       pushToast({
-        title: 'Rollback blocked',
-        description:
-          err instanceof Error ? err.message : 'Unable to roll back this import job.',
+        title: S.rollback.blockedTitle,
+        description: err instanceof Error ? err.message : S.rollback.blockedBody,
         variant: 'error'
       });
     }
   });
 
   const schemaColumns: ImportColumnDto[] = schemaQuery.data?.columns ?? FALLBACK_SCHEMA_COLUMNS;
+  // Readers see column names, never field ids such as productSku
+  const fieldLabel = (field: string | undefined) =>
+    schemaColumns.find((c) => c.key === field)?.label ?? field ?? '';
+  const columnHint = (col: ImportColumnDto) => S.hints[col.key ?? ''] ?? col.hint ?? '';
+
+  // Leave guard (RD-2): matched columns and checked rows are lost on reload or tab close
+  const hasUnsavedWork = step === 'map' || step === 'preview' || (step === 'commit' && isBusy);
+  useEffect(() => {
+    if (!hasUnsavedWork) return undefined;
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = S.leaveWarning;
+    };
+    window.addEventListener('beforeunload', onBeforeUnload);
+    return () => window.removeEventListener('beforeunload', onBeforeUnload);
+  }, [hasUnsavedWork]);
 
   const unmappedRequired = schemaColumns
     .filter((col) => {
@@ -331,7 +350,7 @@ export function ImportPage() {
     try {
       text = await file.text();
     } catch {
-      setErrorBanner('Unable to read the selected file.');
+      setErrorBanner(S.errors.readFile);
       return;
     }
 
@@ -351,7 +370,7 @@ export function ImportPage() {
       setStep('map');
     } catch (err) {
       setErrorBanner(
-        err instanceof Error ? err.message : 'Failed to auto-detect CSV headers.'
+        err instanceof Error ? err.message : S.errors.headers
       );
     } finally {
       setIsBusy(false);
@@ -436,7 +455,7 @@ export function ImportPage() {
       setStep('preview');
     } catch (err) {
       setErrorBanner(
-        err instanceof Error ? err.message : 'Failed to validate CSV rows.'
+        err instanceof Error ? err.message : S.errors.validate
       );
     } finally {
       setIsBusy(false);
@@ -494,7 +513,7 @@ export function ImportPage() {
         setIsBusy(false);
         setCommitFailure({
           message:
-            err instanceof Error ? err.message : 'Chunk commit failed unexpectedly.',
+            err instanceof Error ? err.message : S.errors.commit,
           failedChunk: i + 1,
           totalChunks: chunks.length,
           jobId: currentJobId
@@ -526,10 +545,16 @@ export function ImportPage() {
     setStep('result');
   };
 
-  const filteredPreviewRows = previewRows.filter((r) => {
-    if (previewFilter === 'all') return true;
-    return r.verdict === previewFilter;
-  });
+  // Error rows first, then duplicates, then rows to import; file order inside each group
+  const filteredPreviewRows = useMemo(
+    () =>
+      previewRows
+        .filter((r) => previewFilter === 'all' || r.verdict === previewFilter)
+        .map((r, i) => ({ r, i }))
+        .sort((a, b) => (VERDICT_ORDER[a.r.verdict ?? ''] ?? 3) - (VERDICT_ORDER[b.r.verdict ?? ''] ?? 3) || a.i - b.i)
+        .map(({ r }) => r),
+    [previewRows, previewFilter]
+  );
 
   const progressPct =
     commitProgress.totalChunks > 0
@@ -543,8 +568,8 @@ export function ImportPage() {
   return (
     <div className={coreStyles.pageStack} data-testid="import-page">
       <PageHeader
-        title="Bulk CSV Import"
-        subtitle="Upload, map, validate, and import batch records in 200-row chunks"
+        title={S.title}
+        subtitle={S.subtitle}
         backdropKey="import"
         actions={
           <Button
@@ -554,40 +579,35 @@ export function ImportPage() {
             onClick={handleDownloadTemplate}
             data-testid="download-template-btn"
           >
-            Download CSV Template
+            {S.template}
           </Button>
         }
       />
 
-      {/* Step Bar */}
-      <div className={styles.stepBar} aria-label="Import progress steps">
-        {(
-          [
-            { key: 'upload', label: '1. Upload CSV' },
-            { key: 'map', label: '2. Map Columns' },
-            { key: 'preview', label: '3. Preview & Validate' },
-            { key: 'commit', label: '4. Commit Progress' },
-            { key: 'result', label: '5. Result' }
-          ] as const
-        ).map((item, idx) => {
-          const order = ['upload', 'map', 'preview', 'commit', 'result'] as const;
+      {/* Steps: done, current, upcoming */}
+      <ol className={styles.stepBar} aria-label={S.stepsLabel}>
+        {(['upload', 'map', 'preview', 'commit', 'result'] as const).map((key, idx, order) => {
           const activeIdx = order.indexOf(step);
-          const isCurrent = step === item.key;
+          const isCurrent = step === key;
           const isDone = idx < activeIdx;
           return (
-            <span
-              key={item.key}
-              className={`${styles.stepItem} ${
-                isCurrent ? styles.stepItemActive : isDone ? styles.stepItemDone : ''
-              }`}
-              data-testid={`import-step-${item.key}`}
+            <li
+              key={key}
+              className={`${styles.stepItem} ${isCurrent ? styles.stepItemActive : isDone ? styles.stepItemDone : ''}`}
+              aria-current={isCurrent ? 'step' : undefined}
+              data-testid={`import-step-${key}`}
             >
-              {isDone ? <CheckCircle2 size={14} aria-hidden="true" /> : null}
-              <span>{item.label}</span>
-            </span>
+              <span className={styles.stepNumber} aria-hidden="true">
+                {isDone ? <CheckCircle2 size={14} /> : idx + 1}
+              </span>
+              <span>{S.steps[key]}</span>
+              <span className="sr-only">
+                , {isDone ? S.stepState.done : isCurrent ? S.stepState.current : S.stepState.upcoming}
+              </span>
+            </li>
           );
         })}
-      </div>
+      </ol>
 
       {errorBanner ? (
         <div
@@ -605,12 +625,8 @@ export function ImportPage() {
         <section className={coreStyles.sectionCard} data-testid="import-upload-section">
           <div className={coreStyles.sectionHeader}>
             <div>
-              <h2 className={coreStyles.sectionTitle}>Select a UTF-8 CSV File</h2>
-              <p className={coreStyles.sectionSubtitle}>
-                Supports comma, semicolon, and tab delimiters up to{' '}
-                {MAX_IMPORT_ROWS.toLocaleString()} rows per job (chunked at {CHUNK_SIZE} rows per
-                request). Excel (.xls / .xlsx) files are not accepted.
-              </p>
+              <h2 className={coreStyles.sectionTitle}>{S.upload.title}</h2>
+              <p className={coreStyles.sectionSubtitle}>{S.upload.body(MAX_IMPORT_ROWS)}</p>
             </div>
           </div>
 
@@ -635,13 +651,7 @@ export function ImportPage() {
           >
             <Upload size={28} aria-hidden="true" />
             <p className={styles.dropzoneTitle}>
-              {isBusy
-                ? 'Reading and analyzing CSV headers…'
-                : 'Click to select a .csv file or drag and drop here'}
-            </p>
-            <p className={styles.dropzoneHint}>
-              Required columns: Product SKU (or Product Name), Source Lot Code, Farmer Name,
-              Village, Quantity Produced, Unit, Yield %, and Pack Date.
+              {isBusy ? S.upload.reading : S.upload.drop}
             </p>
             <input
               ref={fileInputRef}
@@ -649,25 +659,26 @@ export function ImportPage() {
               accept=".csv,text/csv"
               className={styles.hiddenFileInput}
               onChange={handleFileInputChange}
-              aria-label="Upload CSV file"
+              aria-label={S.upload.fileLabel}
               data-testid="import-file-input"
             />
           </div>
 
           <div>
-            <div className={coreStyles.metaLabel}>Supported Schema Columns</div>
-            <div className={styles.schemaChips}>
+            <h3 className={coreStyles.metaLabel}>{S.upload.columnsTitle}</h3>
+            <ul className={styles.schemaChips}>
               {schemaColumns.map((col) => (
-                <span
-                  key={col.key}
-                  className={`${styles.schemaChip} ${
-                    col.required ? styles.schemaChipRequired : ''
-                  }`}
-                >
-                  {col.label} ({col.key}){col.required ? ' *' : ''}
-                </span>
+                <li key={col.key} className={`${styles.schemaChip} ${col.required ? styles.schemaChipRequired : ''}`}>
+                  {col.label}
+                  {col.required ? <span className={styles.requiredTag}>{S.upload.required}</span> : null}
+                </li>
               ))}
-            </div>
+            </ul>
+            <details className={styles.columnIds}>
+              <summary>{S.upload.columnIdsSummary}</summary>
+              <p className={coreStyles.sectionSubtitle}>{S.upload.columnIdsNote}</p>
+              <code className={styles.columnIdList}>{schemaColumns.map((c) => c.key).filter(Boolean).join(',')}</code>
+            </details>
           </div>
         </section>
       ) : null}
@@ -677,11 +688,8 @@ export function ImportPage() {
         <section className={coreStyles.sectionCard} data-testid="import-map-section">
           <div className={coreStyles.sectionHeader}>
             <div>
-              <h2 className={coreStyles.sectionTitle}>Map CSV Headers to TraceX Fields</h2>
-              <p className={coreStyles.sectionSubtitle}>
-                File: <strong>{fileName}</strong> • {rows.length.toLocaleString()} data row(s) •{' '}
-                {headers.length} column(s)
-              </p>
+              <h2 className={coreStyles.sectionTitle}>{S.map.title}</h2>
+              <p className={coreStyles.sectionSubtitle}>{S.map.fileLine(fileName, rows.length, headers.length)}</p>
             </div>
             <Button
               variant="ghost"
@@ -690,7 +698,7 @@ export function ImportPage() {
               onClick={resetWizard}
               data-testid="import-reset-btn"
             >
-              Choose Different File
+              {S.map.chooseOther}
             </Button>
           </div>
 
@@ -702,8 +710,7 @@ export function ImportPage() {
             >
               <AlertTriangle size={18} aria-hidden="true" />
               <div>
-                Map all required fields before validating. Missing required field(s):{' '}
-                <strong>{unmappedRequired.join(', ')}</strong>
+                {S.map.missing} <strong>{unmappedRequired.map(fieldLabel).join(', ')}</strong>
               </div>
             </div>
           ) : null}
@@ -730,17 +737,17 @@ export function ImportPage() {
                     <div className={styles.mappingColTitle}>
                       <span>{col.label}</span>
                       <span className={coreStyles.metaLabel}>
-                        {col.required ? 'Required' : 'Optional'}
+                        {col.required ? S.map.requiredTag : S.map.optionalTag}
                       </span>
                     </div>
-                    <div className={styles.mappingColHint}>{col.hint}</div>
+                    <div className={styles.mappingColHint}>{columnHint(col)}</div>
                   </div>
 
                   <div>
                     <label>
-                      <span className="sr-only">CSV column for {col.label}</span>
+                      <span className="sr-only">{S.map.columnFor(col.label ?? '')}</span>
                       <select
-                        aria-label={`Map ${col.label}`}
+                        aria-label={S.map.columnFor(col.label ?? '')}
                         className={styles.selectInput}
                         value={selectedHeader}
                         onChange={(e) => {
@@ -752,7 +759,7 @@ export function ImportPage() {
                         }}
                         data-testid={`map-select-${colKey}`}
                       >
-                        <option value="">Ignore this column</option>
+                        <option value="">{S.map.ignore}</option>
                         {headers.map((h) => (
                           <option key={h} value={h}>
                             {h}
@@ -765,9 +772,9 @@ export function ImportPage() {
                   <div className={styles.mappingSample}>
                     {selectedHeader
                       ? sampleValues
-                        ? `Sample: ${sampleValues}`
-                        : 'Sample: (empty in first 2 rows)'
-                      : `e.g. ${col.example ?? ''}`}
+                        ? S.map.sample(sampleValues)
+                        : S.map.sampleEmpty
+                      : S.map.example(col.example ?? '')}
                   </div>
                 </div>
               );
@@ -776,7 +783,7 @@ export function ImportPage() {
 
           <div className={styles.actionRow}>
             <Button variant="secondary" onClick={resetWizard}>
-              Cancel
+              {S.map.cancel}
             </Button>
             <Button
               variant="primary"
@@ -785,7 +792,7 @@ export function ImportPage() {
               onClick={() => void handleValidate()}
               data-testid="import-validate-btn"
             >
-              Validate {rows.length.toLocaleString()} Row{rows.length === 1 ? '' : 's'}
+              {S.map.check(rows.length)}
             </Button>
           </div>
         </section>
@@ -796,11 +803,8 @@ export function ImportPage() {
         <section className={coreStyles.sectionCard} data-testid="import-preview-section">
           <div className={coreStyles.sectionHeader}>
             <div>
-              <h2 className={coreStyles.sectionTitle}>Validation Preview</h2>
-              <p className={coreStyles.sectionSubtitle}>
-                Review row verdicts before committing. Farmer names are hidden from the preview
-                and never written to logs.
-              </p>
+              <h2 className={coreStyles.sectionTitle}>{S.preview.title}</h2>
+              <p className={coreStyles.sectionSubtitle}>{S.preview.body}</p>
             </div>
             <div className={styles.actionGroup}>
               {previewRowErrors.length > 0 ? (
@@ -811,7 +815,7 @@ export function ImportPage() {
                   onClick={() => handleDownloadErrorReport(previewRowErrors)}
                   data-testid="download-error-report-btn"
                 >
-                  Download Error Report ({previewRowErrors.length})
+                  {S.preview.errorReport(previewRowErrors.length)}
                 </Button>
               ) : null}
               <Button
@@ -821,71 +825,73 @@ export function ImportPage() {
                 onClick={() => setStep('map')}
                 data-testid="back-to-map-btn"
               >
-                Adjust Mapping
+                {S.preview.backToMap}
               </Button>
             </div>
           </div>
 
           <div className={coreStyles.metricsGrid} data-testid="preview-summary-metrics">
             <div className={coreStyles.metricCard}>
-              <div className={coreStyles.metricLabelRow}>Total Rows</div>
+              <div className={coreStyles.metricLabelRow}>{S.preview.totals.total}</div>
               <div className={coreStyles.metricValue} data-testid="summary-total-count">
                 {validateSummary.total}
               </div>
             </div>
             <div className={coreStyles.metricCard}>
-              <div className={coreStyles.metricLabelRow}>Will Import</div>
+              <div className={coreStyles.metricLabelRow}>{S.preview.totals.insert}</div>
               <div className={coreStyles.metricValue} data-testid="summary-insert-count">
                 {validateSummary.insert}
               </div>
             </div>
             <div className={coreStyles.metricCard}>
-              <div className={coreStyles.metricLabelRow}>Duplicates (Skipped)</div>
+              <div className={coreStyles.metricLabelRow}>{S.preview.totals.skip}</div>
               <div className={coreStyles.metricValue} data-testid="summary-skip-count">
                 {validateSummary.skip}
               </div>
             </div>
             <div className={coreStyles.metricCard}>
-              <div className={coreStyles.metricLabelRow}>Rows With Errors</div>
+              <div className={coreStyles.metricLabelRow}>{S.preview.totals.error}</div>
               <div className={coreStyles.metricValue} data-testid="summary-error-count">
                 {validateSummary.error}
               </div>
             </div>
           </div>
 
-          <div className={styles.filterTabs} role="group" aria-label="Filter preview rows">
+          <div className={styles.filterTabs} role="group" aria-label={S.preview.filterLabel}>
             {(
               [
-                { key: 'all', label: `All (${validateSummary.total})` },
-                { key: 'insert', label: `Will Import (${validateSummary.insert})` },
-                { key: 'skip', label: `Duplicates (${validateSummary.skip})` },
-                { key: 'error', label: `Errors (${validateSummary.error})` }
+                { key: 'all', count: validateSummary.total },
+                { key: 'error', count: validateSummary.error },
+                { key: 'insert', count: validateSummary.insert },
+                { key: 'skip', count: validateSummary.skip }
               ] as const
             ).map((tab) => (
-              <Button
+              <button
                 key={tab.key}
-                variant={previewFilter === tab.key ? 'primary' : 'secondary'}
-                size="sm"
+                type="button"
+                className={`${styles.filterChip} ${previewFilter === tab.key ? styles.filterChipActive : ''}`}
+                aria-pressed={previewFilter === tab.key}
                 onClick={() => setPreviewFilter(tab.key)}
                 data-testid={`preview-filter-${tab.key}`}
               >
-                {tab.label}
-              </Button>
+                {S.preview.filters[tab.key]} <span className={styles.filterCount}>{tab.count}</span>
+              </button>
             ))}
           </div>
 
           <div className={styles.tableScroll}>
             <table className={styles.dataTable} data-testid="import-preview-table">
+              <caption className="sr-only">{S.preview.caption}</caption>
               <thead>
                 <tr>
-                  <th>Row #</th>
-                  <th>Verdict</th>
-                  <th>Source Lot Code</th>
-                  <th>Product SKU</th>
-                  <th>Pack Date</th>
-                  <th>Village</th>
-                  <th>Qty</th>
-                  <th>Details / Validation Messages</th>
+                  <th scope="col">{S.preview.columns.row}</th>
+                  <th scope="col">{S.preview.columns.result}</th>
+                  <th scope="col">{S.preview.columns.lot}</th>
+                  <th scope="col">{S.preview.columns.product}</th>
+                  <th scope="col">{S.preview.columns.packDate}</th>
+                  <th scope="col">{S.preview.columns.village}</th>
+                  <th scope="col">{S.preview.columns.qty}</th>
+                  <th scope="col">{S.preview.columns.details}</th>
                 </tr>
               </thead>
               <tbody>
@@ -898,15 +904,15 @@ export function ImportPage() {
                     <td>
                       {pRow.verdict === 'insert' ? (
                         <span className={`${styles.verdictTag} ${styles.verdictInsert}`}>
-                          Will Import
+                          {S.preview.verdicts.insert}
                         </span>
                       ) : pRow.verdict === 'skip' ? (
                         <span className={`${styles.verdictTag} ${styles.verdictSkip}`}>
-                          Duplicate (Skip)
+                          {S.preview.verdicts.skip}
                         </span>
                       ) : (
                         <span className={`${styles.verdictTag} ${styles.verdictError}`}>
-                          Error
+                          {S.preview.verdicts.error}
                         </span>
                       )}
                     </td>
@@ -932,17 +938,17 @@ export function ImportPage() {
                     </td>
                     <td>
                       {pRow.verdict === 'skip' ? (
-                        <span>{pRow.reason ?? 'Duplicate row'}</span>
+                        <span>{pRow.reason ?? S.preview.duplicate}</span>
                       ) : pRow.errors && pRow.errors.length > 0 ? (
                         <div>
                           {pRow.errors.map((err, eIdx) => (
                             <div key={`${err.field}-${eIdx}`}>
-                              <strong>{err.field}:</strong> {err.message}
+                              <strong>{fieldLabel(err.field)}:</strong> {err.message}
                             </div>
                           ))}
                         </div>
                       ) : (
-                        <span>Ready to import</span>
+                        <span>{S.preview.ready}</span>
                       )}
                     </td>
                   </tr>
@@ -953,7 +959,7 @@ export function ImportPage() {
 
           <div className={styles.actionRow}>
             <Button variant="secondary" onClick={resetWizard}>
-              Start Over
+              {S.preview.startOver}
             </Button>
             <Button
               variant="primary"
@@ -961,7 +967,7 @@ export function ImportPage() {
               onClick={() => void handleCommit()}
               data-testid="import-commit-btn"
             >
-              Import {validateSummary.insert} Batch{validateSummary.insert === 1 ? '' : 'es'}
+              {S.preview.importN(validateSummary.insert)}
             </Button>
           </div>
         </section>
@@ -973,12 +979,10 @@ export function ImportPage() {
           <div className={coreStyles.sectionHeader}>
             <div>
               <h2 className={coreStyles.sectionTitle}>
-                {commitFailure ? 'Import Stopped Due to Chunk Error' : 'Importing Batches…'}
+                {commitFailure ? S.commit.titleStopped : S.commit.titleRunning}
               </h2>
               <p className={coreStyles.sectionSubtitle}>
-                Chunk {commitProgress.completedChunks} of {commitProgress.totalChunks} completed (
-                {progressPct}%)
-                {commitProgress.jobId ? ` • Job #${commitProgress.jobId}` : ''}
+                {S.commit.progress(commitProgress.completedChunks, commitProgress.totalChunks, progressPct)}
               </p>
             </div>
           </div>
@@ -987,13 +991,13 @@ export function ImportPage() {
             className={styles.progressBar}
             value={progressPct}
             max={100}
-            aria-label="Import chunk progress"
+            aria-label={S.commit.progressLabel}
             data-testid="import-progress-bar"
           />
 
           {isBusy ? (
             <div>
-              <Spinner size="md" label="Committing 200-row chunk…" />
+              <Spinner size="md" label={S.commit.saving} />
             </div>
           ) : null}
 
@@ -1006,21 +1010,16 @@ export function ImportPage() {
               <AlertTriangle size={20} aria-hidden="true" />
               <div>
                 <div>
-                  <strong>
-                    Chunk {commitFailure.failedChunk} of {commitFailure.totalChunks} failed:
-                  </strong>{' '}
+                  <strong>{S.commit.failed(commitFailure.failedChunk, commitFailure.totalChunks)}</strong>{' '}
                   {commitFailure.message}
                 </div>
                 {commitFailure.jobId ? (
                   <div data-testid="failed-chunk-job-id">
-                    Import Job ID: <span className={coreStyles.monoCode}>{commitFailure.jobId}</span>
+                    {S.commit.jobLabel}: <span className={coreStyles.monoCode}>{commitFailure.jobId}</span>
                   </div>
                 ) : null}
                 <div>
-                  Import stopped immediately (no automatic retry).{' '}
-                  {commitFailure.jobId
-                    ? `Job #${commitFailure.jobId} was left in "running" status and will automatically transition to "failed" after the 15-minute stale window, at which point an authorized user can roll back the partial import from Recent Imports below.`
-                    : 'No batches were committed before this failure.'}
+                  {commitFailure.jobId ? S.commit.partialBody : S.commit.noneSaved}
                 </div>
                 <div className={styles.actionGroup}>
                   <Button
@@ -1029,7 +1028,7 @@ export function ImportPage() {
                     onClick={resetWizard}
                     data-testid="failure-start-over-btn"
                   >
-                    Start Over
+                    {S.commit.startOver}
                   </Button>
                 </div>
               </div>
@@ -1043,9 +1042,9 @@ export function ImportPage() {
         <section className={coreStyles.sectionCard} data-testid="import-result-section">
           <div className={coreStyles.sectionHeader}>
             <div>
-              <h2 className={coreStyles.sectionTitle}>Import Complete</h2>
+              <h2 className={coreStyles.sectionTitle}>{S.result.title}</h2>
               <p className={coreStyles.sectionSubtitle}>
-                File: <strong>{fileName}</strong> • Job ID:{' '}
+                {S.result.fileLine(fileName)}{' '}
                 <span className={coreStyles.monoCode} data-testid="result-job-id">
                   {completedCommit.jobId ?? ''}
                 </span>
@@ -1060,7 +1059,7 @@ export function ImportPage() {
                   onClick={() => handleDownloadErrorReport(resultRowErrors, fileName)}
                   data-testid="result-download-error-report-btn"
                 >
-                  Download Error Report ({resultRowErrors.length})
+                  {S.result.errorReport(resultRowErrors.length)}
                 </Button>
               ) : null}
               <Button
@@ -1070,32 +1069,32 @@ export function ImportPage() {
                 onClick={resetWizard}
                 data-testid="import-another-btn"
               >
-                Import Another File
+                {S.result.another}
               </Button>
             </div>
           </div>
 
           <div className={coreStyles.metricsGrid} data-testid="import-result-metrics">
             <div className={coreStyles.metricCard}>
-              <div className={coreStyles.metricLabelRow}>Batches Inserted</div>
+              <div className={coreStyles.metricLabelRow}>{S.result.totals.inserted}</div>
               <div className={coreStyles.metricValue} data-testid="result-inserted-count">
                 {completedCommit.totals?.inserted ?? completedCommit.chunkInserted ?? 0}
               </div>
             </div>
             <div className={coreStyles.metricCard}>
-              <div className={coreStyles.metricLabelRow}>Duplicates Skipped</div>
+              <div className={coreStyles.metricLabelRow}>{S.result.totals.skipped}</div>
               <div className={coreStyles.metricValue} data-testid="result-skipped-count">
                 {completedCommit.totals?.skipped ?? completedCommit.chunkSkipped ?? 0}
               </div>
             </div>
             <div className={coreStyles.metricCard}>
-              <div className={coreStyles.metricLabelRow}>Row Errors</div>
+              <div className={coreStyles.metricLabelRow}>{S.result.totals.errored}</div>
               <div className={coreStyles.metricValue} data-testid="result-errored-count">
                 {completedCommit.totals?.errored ?? completedCommit.chunkErrored ?? 0}
               </div>
             </div>
             <div className={coreStyles.metricCard}>
-              <div className={coreStyles.metricLabelRow}>Total Rows Processed</div>
+              <div className={coreStyles.metricLabelRow}>{S.result.totals.total}</div>
               <div className={coreStyles.metricValue} data-testid="result-total-count">
                 {completedCommit.totals?.totalRows ?? rows.length}
               </div>
@@ -1107,10 +1106,10 @@ export function ImportPage() {
               <table className={styles.dataTable} data-testid="result-row-errors-table">
                 <thead>
                   <tr>
-                    <th>Row #</th>
-                    <th>Source Lot Code</th>
-                    <th>Field</th>
-                    <th>Message</th>
+                    <th scope="col">{S.preview.columns.row}</th>
+                    <th scope="col">{S.preview.columns.lot}</th>
+                    <th scope="col">{S.errorTable.column}</th>
+                    <th scope="col">{S.errorTable.problem}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1118,7 +1117,7 @@ export function ImportPage() {
                     <tr key={`${err.rowNumber}-${err.field}-${idx}`}>
                       <td className={coreStyles.monoCode}>{err.rowNumber ?? EMPTY_VALUE}</td>
                       <td className={coreStyles.monoCode}>{err.sourceLotCode ?? EMPTY_VALUE}</td>
-                      <td className={coreStyles.monoCode}>{err.field}</td>
+                      <td>{fieldLabel(err.field)}</td>
                       <td>{err.message}</td>
                     </tr>
                   ))}
@@ -1133,34 +1132,32 @@ export function ImportPage() {
       <section className={coreStyles.sectionCard} data-testid="recent-imports-section">
         <div className={coreStyles.sectionHeader}>
           <div>
-            <h2 className={coreStyles.sectionTitle}>Recent Import Jobs</h2>
-            <p className={coreStyles.sectionSubtitle}>
-              Audit history of bulk CSV imports. Completed or failed imports with inserted batches
-              can be rolled back if none of their batches have been dispatched.
-            </p>
+            <h2 className={coreStyles.sectionTitle}>{S.history.title}</h2>
+            <p className={coreStyles.sectionSubtitle}>{S.history.body}</p>
           </div>
         </div>
 
         {historyQuery.isLoading ? (
-          <Spinner size="md" label="Loading import history…" />
+          <Spinner size="md" label={S.history.loading} />
         ) : historyJobs.length === 0 ? (
           <EmptyState
-            title="No import jobs recorded yet"
-            description="Upload a CSV file above to create your first bulk batch import."
+            title={S.history.emptyTitle}
+            description={S.history.emptyBody}
           />
         ) : (
           <div className={styles.tableScroll}>
             <table className={styles.dataTable} data-testid="recent-imports-table">
+              <caption className="sr-only">{S.history.caption}</caption>
               <thead>
                 <tr>
-                  <th>File Name</th>
-                  <th>Status</th>
-                  <th>Inserted</th>
-                  <th>Skipped</th>
-                  <th>Errored</th>
-                  <th>Total</th>
-                  <th>Actor / Started</th>
-                  <th>Actions</th>
+                  <th scope="col">{S.history.columns.file}</th>
+                  <th scope="col">{S.history.columns.status}</th>
+                  <th scope="col">{S.history.columns.inserted}</th>
+                  <th scope="col">{S.history.columns.skipped}</th>
+                  <th scope="col">{S.history.columns.errored}</th>
+                  <th scope="col">{S.history.columns.total}</th>
+                  <th scope="col">{S.history.columns.by}</th>
+                  <th scope="col">{S.history.columns.actions}</th>
                 </tr>
               </thead>
               <tbody>
@@ -1178,7 +1175,7 @@ export function ImportPage() {
                         <div>
                           <strong>{job.fileName}</strong>
                         </div>
-                        <div className={coreStyles.metaLabel}>{jobId}</div>
+                        <div className={coreStyles.metaLabel}>{formatTimestamp(job.createdAt)}</div>
                       </td>
                       <td data-testid={`import-job-status-${jobId}`}>
                         {renderJobStatusTag(job.status)}
@@ -1187,33 +1184,30 @@ export function ImportPage() {
                       <td className={coreStyles.monoCode}>{job.skipped ?? 0}</td>
                       <td className={coreStyles.monoCode}>{job.errored ?? 0}</td>
                       <td className={coreStyles.monoCode}>{job.totalRows ?? 0}</td>
-                      <td>
-                        <div>{job.createdBy}</div>
-                        <div className={coreStyles.metaLabel}>
-                          {formatTimestamp(job.createdAt)}
-                        </div>
-                      </td>
+                      <td>{job.createdBy}</td>
                       <td>
                         <div className={styles.actionGroup}>
                           <Button
-                            variant="secondary"
+                            variant="ghost"
                             size="sm"
                             leftIcon={<Eye size={14} />}
                             onClick={() => setDetailDialogJobId(jobId)}
+                            aria-label={S.history.detailsLabel(job.fileName ?? '')}
                             data-testid={`view-job-detail-${jobId}`}
                           >
-                            Details
+                            {S.history.details}
                           </Button>
                           {allowRollback ? (
                             <Button
-                              variant="danger"
+                              variant="ghost"
                               size="sm"
                               leftIcon={<RotateCcw size={14} />}
                               disabled={!canRollbackThisJob || rollbackMutation.isPending}
                               onClick={() => setRollbackTargetJob(job)}
+                              aria-label={S.history.undoLabel(job.fileName ?? '')}
                               data-testid={`rollback-job-btn-${jobId}`}
                             >
-                              Rollback
+                              {S.history.undo}
                             </Button>
                           ) : null}
                         </div>
@@ -1231,12 +1225,8 @@ export function ImportPage() {
       <Dialog
         open={Boolean(detailDialogJobId)}
         onClose={() => setDetailDialogJobId(null)}
-        title="Import Job Details"
-        description={
-          jobDetailQuery.data
-            ? `${jobDetailQuery.data.fileName ?? ''} (${jobDetailQuery.data.id ?? ''})`
-            : 'Loading import job details…'
-        }
+        title={S.detail.title}
+        description={jobDetailQuery.data ? jobDetailQuery.data.fileName ?? '' : S.detail.loading}
         actions={
           <>
             {jobDetailQuery.data?.rowErrors && jobDetailQuery.data.rowErrors.length > 0 ? (
@@ -1251,34 +1241,34 @@ export function ImportPage() {
                 }
                 data-testid="detail-download-error-report-btn"
               >
-                Download Error Report
+                {S.detail.errorReport}
               </Button>
             ) : null}
             <Button variant="primary" onClick={() => setDetailDialogJobId(null)}>
-              Close
+              {S.detail.close}
             </Button>
           </>
         }
       >
         {jobDetailQuery.isLoading ? (
-          <Spinner size="md" label="Loading job details…" />
+          <Spinner size="md" label={S.detail.loading} />
         ) : jobDetailQuery.data ? (
           <div className={coreStyles.pageStack} data-testid="import-job-detail-dialog">
             <div className={coreStyles.metricsGrid}>
               <div className={coreStyles.metricCard}>
-                <div className={coreStyles.metricLabelRow}>Status</div>
+                <div className={coreStyles.metricLabelRow}>{S.detail.totals.status}</div>
                 <div>{renderJobStatusTag(jobDetailQuery.data.status)}</div>
               </div>
               <div className={coreStyles.metricCard}>
-                <div className={coreStyles.metricLabelRow}>Inserted</div>
+                <div className={coreStyles.metricLabelRow}>{S.detail.totals.inserted}</div>
                 <div className={coreStyles.metricValue}>{jobDetailQuery.data.inserted ?? 0}</div>
               </div>
               <div className={coreStyles.metricCard}>
-                <div className={coreStyles.metricLabelRow}>Skipped</div>
+                <div className={coreStyles.metricLabelRow}>{S.detail.totals.skipped}</div>
                 <div className={coreStyles.metricValue}>{jobDetailQuery.data.skipped ?? 0}</div>
               </div>
               <div className={coreStyles.metricCard}>
-                <div className={coreStyles.metricLabelRow}>Errors</div>
+                <div className={coreStyles.metricLabelRow}>{S.detail.totals.errored}</div>
                 <div className={coreStyles.metricValue}>{jobDetailQuery.data.errored ?? 0}</div>
               </div>
             </div>
@@ -1288,10 +1278,10 @@ export function ImportPage() {
                 <table className={styles.dataTable} data-testid="detail-row-errors-table">
                   <thead>
                     <tr>
-                      <th>Row #</th>
-                      <th>Source Lot Code</th>
-                      <th>Field</th>
-                      <th>Message</th>
+                      <th scope="col">{S.preview.columns.row}</th>
+                      <th scope="col">{S.preview.columns.lot}</th>
+                      <th scope="col">{S.errorTable.column}</th>
+                      <th scope="col">{S.errorTable.problem}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1299,7 +1289,7 @@ export function ImportPage() {
                       <tr key={`${err.rowNumber}-${err.field}-${idx}`}>
                         <td className={coreStyles.monoCode}>{err.rowNumber ?? EMPTY_VALUE}</td>
                         <td className={coreStyles.monoCode}>{err.sourceLotCode ?? EMPTY_VALUE}</td>
-                        <td className={coreStyles.monoCode}>{err.field}</td>
+                        <td>{fieldLabel(err.field)}</td>
                         <td>{err.message}</td>
                       </tr>
                     ))}
@@ -1308,7 +1298,7 @@ export function ImportPage() {
               </div>
             ) : (
               <p className={coreStyles.sectionSubtitle}>
-                No row validation errors were recorded for this import job.
+                {S.detail.noErrors}
               </p>
             )}
           </div>
@@ -1319,13 +1309,14 @@ export function ImportPage() {
       <ConfirmDialog
         open={Boolean(rollbackTargetJob)}
         onClose={() => setRollbackTargetJob(null)}
-        title="Rollback Import Job"
-        description={
+        title={
           rollbackTargetJob
-            ? `This will archive all ${rollbackTargetJob.inserted ?? 0} batch(es) created by "${rollbackTargetJob.fileName ?? ''}" (#${rollbackTargetJob.id ?? ''}) so their lot codes can be re-imported. Rollback will be blocked with 409 Conflict if any batch from this import has already been dispatched.`
+            ? S.rollback.title(rollbackTargetJob.fileName ?? '', rollbackTargetJob.createdAt ? formatTimestamp(rollbackTargetJob.createdAt) : '')
             : ''
         }
-        confirmLabel="Confirm Rollback"
+        description={rollbackTargetJob ? S.rollback.body(rollbackTargetJob.inserted ?? 0) : ''}
+        confirmLabel={S.rollback.confirm}
+        cancelLabel={S.rollback.cancel}
         variant="danger"
         isLoading={rollbackMutation.isPending}
         onConfirm={() => {

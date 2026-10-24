@@ -1,0 +1,356 @@
+/* Batches list, archived and detail (UI/UX redesign R3, DESIGN.md §6.3 to §6.5). Tokens only. */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.page > [data-testid='page-header'] {
+  margin-bottom: var(--space-2);
+}
+
+.countChip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.375rem;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-xs);
+  background-color: var(--bg-elevated);
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Active / Archived links */
+.listTabs {
+  display: flex;
+  gap: var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.listTab {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target-min);
+  margin-bottom: -1px;
+  padding: 0 var(--space-1);
+  border-bottom: 2px solid transparent;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  text-decoration: none;
+}
+
+.listTab:hover {
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.listTabActive {
+  color: var(--text-primary);
+  border-bottom-color: var(--accent-primary);
+  font-weight: var(--weight-semibold);
+}
+
+/* Toolbar */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.searchBox {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 1 1 16rem;
+  max-width: 24rem;
+  min-height: 2.25rem;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background-color: var(--bg-surface);
+  color: var(--text-muted);
+}
+
+.searchBox:focus-within {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.searchBox input {
+  flex: 1;
+  min-width: 0;
+  min-height: 2.125rem;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+}
+
+.searchBox input:focus,
+.searchBox input:focus-visible {
+  outline: none;
+}
+
+.chipGroup {
+  composes: chipGroup from '../../components/ui/console.module.css';
+}
+
+.chip {
+  composes: chip from '../../components/ui/console.module.css';
+}
+
+.chipActive {
+  composes: chipActive from '../../components/ui/console.module.css';
+}
+
+.chipValue {
+  composes: chipValue from '../../components/ui/console.module.css';
+}
+
+.chipClear {
+  composes: chipClear from '../../components/ui/console.module.css';
+}
+
+.clearLink {
+  min-height: 2rem;
+  padding: 0 var(--space-2);
+  border: none;
+  background: transparent;
+  color: var(--accent-primary);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+}
+
+.clearLink:hover {
+  text-decoration: underline;
+}
+
+/* Table cells */
+.code {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.code:hover,
+.code:focus-visible {
+  text-decoration: underline;
+}
+
+.product {
+  display: flex;
+  flex-direction: column;
+  min-width: 10rem;
+}
+
+.muted {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+}
+
+.qty {
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--meta-text, var(--text-secondary));
+}
+
+/* Desktop table vs phone cards */
+.desktopOnly {
+  display: block;
+  min-width: 0;
+}
+
+.mobileList {
+  display: none;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-surface);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.card:first-child {
+  border-top: none;
+}
+
+.cardTop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.badges {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.cardProduct {
+  font-size: var(--text-sm);
+}
+
+.cardBottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+@media (max-width: 767px) {
+  .desktopOnly {
+    display: none;
+  }
+
+  .mobileList {
+    display: block;
+  }
+
+  .searchBox {
+    max-width: none;
+    flex-basis: 100%;
+  }
+}
+
+/* Batch detail (DESIGN.md §6.4) */
+.headerMeta {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.dangerGhost,
+.dangerGhost:hover:not(:disabled) {
+  color: var(--status-danger-text);
+}
+
+.inlineLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 2rem;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+
+.detailLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.detailMain,
+.detailSide {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+@media (max-width: 1100px) {
+  .detailLayout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Detail facts read as a compact two-column list in the side column */
+.detailSide :global([data-testid='batch-overview-section']) > div:last-child {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+/* Print: a clean A4 batch sheet, or a 50 x 30 mm QR label */
+.printLabel {
+  display: none;
+}
+
+@media print {
+  .detailLayout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .detailLayout button,
+  .detailLayout textarea,
+  .detailLayout form,
+  .page [data-testid='page-header'] button {
+    display: none !important;
+  }
+
+  .detailLayout section {
+    break-inside: avoid;
+    border-color: var(--border-strong);
+  }
+
+  :global(html[data-print='label']) body * {
+    visibility: hidden;
+  }
+
+  :global(html[data-print='label']) .printLabel,
+  :global(html[data-print='label']) .printLabel * {
+    visibility: visible;
+  }
+
+  :global(html[data-print='label']) .printLabel {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 50mm;
+    height: 30mm;
+    gap: 2mm;
+    align-items: center;
+    padding: 1.5mm;
+    font-size: 7pt;
+    line-height: 1.2;
+    color: var(--print-ink);
+    background-color: var(--print-paper);
+  }
+
+  .printLabel img {
+    width: 26mm;
+    height: 26mm;
+  }
+
+  .printLabelCode {
+    font-family: var(--font-mono);
+    font-weight: var(--weight-semibold);
+  }
+}
+
+/* Dispatch action on batch detail: a blocked batch shows why (redesign R5) */
+.dispatchAction {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1);
+}
+
+.dispatchBlock {
+  font-size: var(--text-xs);
+  color: var(--meta-text, var(--text-secondary));
+}

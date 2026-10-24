@@ -22,6 +22,12 @@ export const BACKDROP_KEYS = [
 
 export type BackdropKey = (typeof BACKDROP_KEYS)[number];
 
+/**
+ * Photo banners behind signed-in page headers. Switched off on 2026-10-23, back on 2026-10-24 with
+ * real licensed photos (D-20 reopened, docs/06-ui/IMAGERY.md). Set to false to hide them again.
+ */
+export const SIGNED_IN_PAGE_BANNERS = true;
+
 export type BackdropVariant = 'banner' | 'side' | 'full';
 
 export interface RouteBackdropRule {

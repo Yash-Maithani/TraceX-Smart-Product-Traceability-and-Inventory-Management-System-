@@ -1,7 +1,7 @@
 /**
  * UI Preferences storage (SPEC §5.1, §5.2, Phase 5 & Phase 5.1).
  * This is the ONLY module in the application permitted to access `localStorage`,
- * and it stores ONLY non-sensitive visual preferences (theme mode, palette, accent, sidebar state, showPageImages).
+ * and it stores ONLY non-sensitive visual preferences (theme mode, palette, accent, sidebar state, showPageImages, table density).
  * Authentication tokens are NEVER stored here (they live exclusively in sessionStorage via tokenStore.ts).
  */
 
@@ -9,6 +9,8 @@ export type ThemeMode = 'light' | 'dark';
 export type ThemePalette = 'editorial' | 'obsidian' | 'emerald';
 export type ThemeAccent = 'auto' | 'cobalt' | 'emerald' | 'amber' | 'rose';
 export type ResolvedAccent = 'cobalt' | 'emerald' | 'amber' | 'rose';
+/** Table row height (DESIGN.md §3.4). Stays on this device; not saved to the account. */
+export type TableDensity = 'compact' | 'default' | 'comfortable';
 
 export interface UiPreferences {
   mode: ThemeMode;
@@ -17,6 +19,7 @@ export interface UiPreferences {
   accent: ThemeAccent;
   sidebarCollapsed: boolean;
   showPageImages: boolean;
+  tableDensity: TableDensity;
 }
 
 const PREFS_STORAGE_KEY = 'tx_ui_prefs';
@@ -68,12 +71,14 @@ export const DEFAULT_UI_PREFERENCES: UiPreferences = {
   palette: 'editorial',
   accent: 'auto',
   sidebarCollapsed: false,
-  showPageImages: true
+  showPageImages: true,
+  tableDensity: 'default'
 };
 
 const VALID_MODES: readonly ThemeMode[] = ['light', 'dark'];
 const VALID_PALETTES: readonly ThemePalette[] = ['editorial', 'obsidian', 'emerald'];
 const VALID_ACCENTS: readonly ThemeAccent[] = ['auto', 'cobalt', 'emerald', 'amber', 'rose'];
+const VALID_DENSITIES: readonly TableDensity[] = ['compact', 'default', 'comfortable'];
 
 export function loadUiPreferences(): UiPreferences {
   const systemMode = getSystemThemeMode();
@@ -100,7 +105,10 @@ export function loadUiPreferences(): UiPreferences {
         ? (parsed.accent as ThemeAccent)
         : DEFAULT_UI_PREFERENCES.accent,
       sidebarCollapsed: typeof parsed.sidebarCollapsed === 'boolean' ? parsed.sidebarCollapsed : false,
-      showPageImages: typeof parsed.showPageImages === 'boolean' ? parsed.showPageImages : true
+      showPageImages: typeof parsed.showPageImages === 'boolean' ? parsed.showPageImages : true,
+      tableDensity: VALID_DENSITIES.includes(parsed.tableDensity as TableDensity)
+        ? (parsed.tableDensity as TableDensity)
+        : DEFAULT_UI_PREFERENCES.tableDensity
     };
   } catch {
     return { ...DEFAULT_UI_PREFERENCES, mode: systemMode, modeSource: 'system' };

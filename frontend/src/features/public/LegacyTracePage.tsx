@@ -19,7 +19,7 @@ export function LegacyTracePage() {
       <SkipLink targetId="main-content" />
       <OfflineBanner />
       <header className={publicStyles.publicHeader}>
-        <Link to="/login" className={publicStyles.brandLink}>
+        <Link to="/" className={publicStyles.brandLink}>
           {STRINGS.app.name}
         </Link>
         <ThemeToggle />

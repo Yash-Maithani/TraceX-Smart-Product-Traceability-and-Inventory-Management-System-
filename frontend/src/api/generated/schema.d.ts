@@ -1423,8 +1423,8 @@ export interface components {
             preferences?: components["schemas"]["Preferences"];
             googleEmail?: string;
             active?: boolean;
-            deleted?: boolean;
             superAdmin?: boolean;
+            deleted?: boolean;
         };
         ResendOtpDto: {
             email: string;
@@ -1964,6 +1964,8 @@ export interface components {
             /** Format: int64 */
             dispatched?: number;
             /** Format: int64 */
+            dispatchedToday?: number;
+            /** Format: int64 */
             totalActive?: number;
             statusCounts?: components["schemas"]["StatusCounts"];
             inspectionVerdicts?: components["schemas"]["InspectionVerdictCounts"];
@@ -2249,6 +2251,8 @@ export interface operations {
                 page?: number;
                 limit?: number;
                 status?: string;
+                from?: string;
+                to?: string;
             };
             header?: never;
             path?: never;
@@ -2394,6 +2398,8 @@ export interface operations {
                 sku?: string;
                 search?: string;
                 sort?: string;
+                expiryFrom?: string;
+                expiryTo?: string;
             };
             header?: never;
             path?: never;
@@ -3289,6 +3295,8 @@ export interface operations {
             query?: {
                 page?: number;
                 limit?: number;
+                from?: string;
+                to?: string;
             };
             header?: never;
             path?: never;

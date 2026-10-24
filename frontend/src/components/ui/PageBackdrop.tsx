@@ -12,6 +12,8 @@ export interface PageBackdropProps {
   children?: ReactNode;
   className?: string | undefined;
   testId?: string | undefined;
+  /** Side variant only: content drawn over the photo (on the scrim), e.g. the sign-in product preview. */
+  mediaContent?: ReactNode;
 }
 
 export function PageBackdrop({
@@ -20,7 +22,8 @@ export function PageBackdrop({
   priority,
   children,
   className = '',
-  testId
+  testId,
+  mediaContent
 }: PageBackdropProps) {
   const { prefs } = useTheme();
   const [failedKey, setFailedKey] = useState<string | null>(null);
@@ -84,11 +87,20 @@ export function PageBackdrop({
         data-images-active={shouldRenderImage ? 'true' : 'false'}
       >
         <div
-          className={styles.backdropSideMedia}
-          aria-hidden="true"
+          className={`${styles.backdropSideMedia} ${mediaContent ? styles.backdropSideMediaWithContent : ''}`}
+          aria-hidden={mediaContent ? undefined : 'true'}
           data-testid={`backdrop-side-media-${backdropKey}`}
         >
-          {renderMedia()}
+          {mediaContent ? (
+            <>
+              <div className={styles.backdropMediaLayer} aria-hidden="true">
+                {renderMedia()}
+              </div>
+              <div className={styles.backdropSideOverlay}>{mediaContent}</div>
+            </>
+          ) : (
+            renderMedia()
+          )}
         </div>
         <div className={styles.backdropSidePanel}>{children}</div>
       </div>

@@ -113,7 +113,8 @@ test.describe('Phase 5.1 E2E Verification Suite (Checks 3–9: Per-Page Photo Ba
         expect(metrics.imagesActive).toBe('true');
 
         if ('expectedMediaHeight' in vp) {
-          expect(metrics.mediaHeight).toBe(vp.expectedMediaHeight);
+          // Redesign R4: the photo band holds the product preview, so its height is a minimum
+          expect(metrics.mediaHeight).toBeGreaterThanOrEqual(vp.expectedMediaHeight);
         } else {
           expect(Math.abs(metrics.mediaWidth / metrics.rootWidth - vp.expectedLeftRatio)).toBeLessThan(
             0.02
@@ -489,7 +490,10 @@ test.describe('Phase 5.1 E2E Verification Suite (Checks 3–9: Per-Page Photo Ba
         res.request().method() === 'PATCH' &&
         (res.request().postData() ?? '').includes('"showPageImages":true')
     );
+    // UI/UX redesign R1: the page-photos toggle lives in the Display menu in the top bar
+    await page.getByTestId('display-menu-btn').click();
     await page.getByTestId('user-menu-page-images-toggle').click();
+    await expect(page.locator('html')).toHaveAttribute('data-page-images', 'on');
     await expect(page.locator('picture')).toHaveCount(1);
     await savedOn;
 
@@ -501,6 +505,7 @@ test.describe('Phase 5.1 E2E Verification Suite (Checks 3–9: Per-Page Photo Ba
         (res.request().postData() ?? '').includes('"showPageImages":false')
     );
     await page.getByTestId('user-menu-page-images-toggle').click();
+    await expect(page.locator('html')).toHaveAttribute('data-page-images', 'off');
     await expect(page.locator('picture')).toHaveCount(0);
     await savedOff;
 

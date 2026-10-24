@@ -121,7 +121,7 @@ describe('Messages and record comments (Phase 10.1)', () => {
     render(<MessagesPage />, { wrapper });
 
     expect(await screen.findByTestId('channel-tab-dispatch-coordinator')).toBeInTheDocument();
-    expect(screen.getByTestId('channel-tab-manager')).toHaveTextContent('(4)');
+    expect(screen.getByTestId('channel-tab-manager')).toHaveTextContent('4');
     fireEvent.click(screen.getByTestId('channel-tab-quality-inspector'));
     await waitFor(() => expect(feedSpy).toHaveBeenCalledWith('quality-inspector'));
   });

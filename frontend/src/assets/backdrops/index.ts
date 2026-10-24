@@ -19,7 +19,7 @@ export const BACKDROP_ASSETS: Record<string, BackdropAssetEntry> = {
   'auth': {
     key: 'auth',
     objectPosition: 'center center',
-    placeholder: true,
+    placeholder: false,
     avif: {
       640: new URL('./auth-640.avif', import.meta.url).href,
       1280: new URL('./auth-1280.avif', import.meta.url).href,
@@ -39,7 +39,7 @@ export const BACKDROP_ASSETS: Record<string, BackdropAssetEntry> = {
   'auth-recovery': {
     key: 'auth-recovery',
     objectPosition: 'center center',
-    placeholder: true,
+    placeholder: false,
     avif: {
       640: new URL('./auth-recovery-640.avif', import.meta.url).href,
       1280: new URL('./auth-recovery-1280.avif', import.meta.url).href,
@@ -59,7 +59,7 @@ export const BACKDROP_ASSETS: Record<string, BackdropAssetEntry> = {
   'dashboard': {
     key: 'dashboard',
     objectPosition: 'center center',
-    placeholder: true,
+    placeholder: false,
     avif: {
       640: new URL('./dashboard-640.avif', import.meta.url).href,
       1280: new URL('./dashboard-1280.avif', import.meta.url).href,
@@ -79,7 +79,7 @@ export const BACKDROP_ASSETS: Record<string, BackdropAssetEntry> = {
   'batches': {
     key: 'batches',
     objectPosition: 'center center',
-    placeholder: true,
+    placeholder: false,
     avif: {
       640: new URL('./batches-640.avif', import.meta.url).href,
       1280: new URL('./batches-1280.avif', import.meta.url).href,
@@ -99,7 +99,7 @@ export const BACKDROP_ASSETS: Record<string, BackdropAssetEntry> = {
   'fefo': {
     key: 'fefo',
     objectPosition: 'center center',
-    placeholder: true,
+    placeholder: false,
     avif: {
       640: new URL('./fefo-640.avif', import.meta.url).href,
       1280: new URL('./fefo-1280.avif', import.meta.url).href,
@@ -119,7 +119,7 @@ export const BACKDROP_ASSETS: Record<string, BackdropAssetEntry> = {
   'inspections': {
     key: 'inspections',
     objectPosition: 'center center',
-    placeholder: true,
+    placeholder: false,
     avif: {
       640: new URL('./inspections-640.avif', import.meta.url).href,
       1280: new URL('./inspections-1280.avif', import.meta.url).href,
@@ -139,7 +139,7 @@ export const BACKDROP_ASSETS: Record<string, BackdropAssetEntry> = {
   'dispatch': {
     key: 'dispatch',
     objectPosition: 'center center',
-    placeholder: true,
+    placeholder: false,
     avif: {
       640: new URL('./dispatch-640.avif', import.meta.url).href,
       1280: new URL('./dispatch-1280.avif', import.meta.url).href,
@@ -159,7 +159,7 @@ export const BACKDROP_ASSETS: Record<string, BackdropAssetEntry> = {
   'qr': {
     key: 'qr',
     objectPosition: 'center center',
-    placeholder: true,
+    placeholder: false,
     avif: {
       640: new URL('./qr-640.avif', import.meta.url).href,
       1280: new URL('./qr-1280.avif', import.meta.url).href,
@@ -179,7 +179,7 @@ export const BACKDROP_ASSETS: Record<string, BackdropAssetEntry> = {
   'trace-public': {
     key: 'trace-public',
     objectPosition: 'center center',
-    placeholder: true,
+    placeholder: false,
     avif: {
       640: new URL('./trace-public-640.avif', import.meta.url).href,
       1280: new URL('./trace-public-1280.avif', import.meta.url).href,
@@ -199,7 +199,7 @@ export const BACKDROP_ASSETS: Record<string, BackdropAssetEntry> = {
   'team': {
     key: 'team',
     objectPosition: 'center center',
-    placeholder: true,
+    placeholder: false,
     avif: {
       640: new URL('./team-640.avif', import.meta.url).href,
       1280: new URL('./team-1280.avif', import.meta.url).href,
@@ -219,7 +219,7 @@ export const BACKDROP_ASSETS: Record<string, BackdropAssetEntry> = {
   'import': {
     key: 'import',
     objectPosition: 'center center',
-    placeholder: true,
+    placeholder: false,
     avif: {
       640: new URL('./import-640.avif', import.meta.url).href,
       1280: new URL('./import-1280.avif', import.meta.url).href,
@@ -239,7 +239,7 @@ export const BACKDROP_ASSETS: Record<string, BackdropAssetEntry> = {
   'notifications': {
     key: 'notifications',
     objectPosition: 'center center',
-    placeholder: true,
+    placeholder: false,
     avif: {
       640: new URL('./notifications-640.avif', import.meta.url).href,
       1280: new URL('./notifications-1280.avif', import.meta.url).href,
@@ -259,7 +259,7 @@ export const BACKDROP_ASSETS: Record<string, BackdropAssetEntry> = {
   'settings': {
     key: 'settings',
     objectPosition: 'center center',
-    placeholder: true,
+    placeholder: false,
     avif: {
       640: new URL('./settings-640.avif', import.meta.url).href,
       1280: new URL('./settings-1280.avif', import.meta.url).href,
@@ -279,7 +279,7 @@ export const BACKDROP_ASSETS: Record<string, BackdropAssetEntry> = {
   'default': {
     key: 'default',
     objectPosition: 'center center',
-    placeholder: true,
+    placeholder: false,
     avif: {
       640: new URL('./default-640.avif', import.meta.url).href,
       1280: new URL('./default-1280.avif', import.meta.url).href,

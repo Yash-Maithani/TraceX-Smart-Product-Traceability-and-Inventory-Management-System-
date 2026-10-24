@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { RotateCcw, Truck } from 'lucide-react';
+import { Lock, Truck } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
-import coreStyles from '../core/core.module.css';
+import batchStyles from '../batches/batches.module.css';
+import styles from './fefo.module.css';
 import { ApiError } from '../../api/client';
 import { fetchFefoQueue, fetchProducts } from '../../api/endpoints';
 import type { BatchSummaryDto } from '../../api/types';
@@ -12,19 +13,38 @@ import {
   Button,
   EmptyState,
   ErrorState,
-  Field,
+  FilterChip,
   PageHeader,
-  Select,
+  ShelfLifeRail,
   Skeleton,
   StatusBadge,
   Table,
+  Tabs,
+  isOnHold,
   type StatusBadgeValue,
   type TableColumn
 } from '../../components/ui';
 import { formatBusinessDate } from '../../lib/dates';
+import { FEFO_STRINGS as S } from '../../strings/fefo';
+import { RAIL_STRINGS } from '../../strings/status';
 import { DispatchDialog } from '../batches/DispatchDialog';
-import { EMPTY_VALUE, formatDays } from '../../lib/format';
 import { AiAuditPanel } from './AiAuditPanel';
+import { nextToShipIds } from './queueModel';
+
+type FefoTab = 'queue' | 'expired' | 'missing';
+const TAB_IDS: readonly FefoTab[] = ['queue', 'expired', 'missing'];
+
+/** "Expired N days ago" from the server's day count; nothing when the count is missing. */
+function expiredAgoText(days: number | null | undefined): string | null {
+  return days === null || days === undefined ? null : RAIL_STRINGS.expiredAgo(Math.abs(days));
+}
+
+function QualityCell({ row }: { row: BatchSummaryDto }) {
+  const verdict = row.qualityCheck?.status;
+  if (isOnHold(row)) return <StatusBadge status="ON_HOLD" />;
+  if (verdict) return <StatusBadge status={verdict as StatusBadgeValue} />;
+  return <span className={batchStyles.muted}>{S.notInspected}</span>;
+}
 
 export function FefoPage() {
   const { user } = useAuth();
@@ -34,128 +54,159 @@ export function FefoPage() {
 
   const sku = searchParams.get('sku') ?? '';
   const category = searchParams.get('category') ?? '';
+  const tabParam = searchParams.get('tab') as FefoTab | null;
+  const tab: FefoTab = tabParam && TAB_IDS.includes(tabParam) ? tabParam : 'queue';
 
-  const updateFilter = (key: 'sku' | 'category', value: string) => {
+  const updateParams = (changes: Record<string, string>) => {
     const next = new URLSearchParams(searchParams);
-    if (!value.trim()) {
-      next.delete(key);
-    } else {
-      next.set(key, value.trim());
+    for (const [key, value] of Object.entries(changes)) {
+      if (value.trim()) next.set(key, value.trim());
+      else next.delete(key);
     }
-    setSearchParams(next);
+    setSearchParams(next, { replace: true });
   };
 
-  const productsQuery = useQuery({
-    queryKey: ['products'],
-    queryFn: fetchProducts
-  });
+  const productsQuery = useQuery({ queryKey: ['products'], queryFn: fetchProducts });
 
-  const categories = useMemo(() => {
+  const categoryOptions = useMemo(() => {
     const set = new Set<string>();
     for (const p of productsQuery.data ?? []) {
       if (p.category) set.add(p.category);
     }
-    return Array.from(set).sort();
+    return Array.from(set)
+      .sort()
+      .map((c) => ({ value: c, label: c }));
   }, [productsQuery.data]);
+
+  const productOptions = useMemo(
+    () =>
+      (productsQuery.data ?? [])
+        .filter((p) => p.sku)
+        .map((p) => ({ value: p.sku as string, label: `${p.productName ?? p.sku} (${p.sku})` })),
+    [productsQuery.data]
+  );
 
   const fefoQuery = useQuery({
     queryKey: ['fefo', { sku, category }],
-    queryFn: () =>
-      fetchFefoQueue({
-        sku: sku || undefined,
-        category: category || undefined
-      })
+    queryFn: () => fetchFefoQueue({ sku: sku || undefined, category: category || undefined })
   });
 
-  // Render strictly in server order — zero client-side sorting or freshness logic
+  // Rows stay in server order; the page only groups them to mark the next batch per product
   const queue = fefoQuery.data?.queue ?? [];
   const expired = fefoQuery.data?.expired ?? [];
   const exceptions = fefoQuery.data?.exceptions ?? [];
+  const nextIds = useMemo(() => nextToShipIds(fefoQuery.data?.queue ?? []), [fefoQuery.data]);
   const allowDispatch = canDispatchBatch(user);
+  const anyFilter = Boolean(sku || category);
+
+  const dispatchCell = (row: BatchSummaryDto, compact = false) => {
+    if (!allowDispatch) return <span className={batchStyles.muted}>{S.viewOnly}</span>;
+    const held = isOnHold(row);
+    const isNext = Boolean(row.id && nextIds.has(row.id));
+    const reasonId = `fefo-hold-${row.id ?? row.batchCode}${compact ? '-m' : ''}`;
+    return (
+      <span className={styles.actionCell}>
+        <Button
+          variant={isNext ? 'primary' : 'secondary'}
+          size="sm"
+          leftIcon={held ? <Lock size={14} /> : <Truck size={14} />}
+          onClick={() => setDispatchTarget(row)}
+          disabled={held}
+          aria-label={S.dispatchBatch(row.batchCode ?? '')}
+          aria-describedby={held ? reasonId : undefined}
+          title={held ? S.onHoldReason : undefined}
+          data-testid={compact ? undefined : `fefo-dispatch-btn-${row.batchCode}`}
+        >
+          {S.dispatch}
+        </Button>
+        {held ? (
+          <span id={reasonId} className={styles.holdNote} data-testid={compact ? undefined : `fefo-hold-note-${row.batchCode}`}>
+            {S.onHoldReason}
+          </span>
+        ) : null}
+      </span>
+    );
+  };
 
   const queueColumns: TableColumn<BatchSummaryDto>[] = [
     {
       key: 'rank',
-      header: 'FEFO Rank',
+      header: S.columns.order,
+      nowrap: true,
+      numeric: true,
       render: (row) => (
-        <span className={coreStyles.rankPill} data-testid={`fefo-rank-${row.batchCode}`}>
+        <span className={styles.rank} data-testid={`fefo-rank-${row.batchCode}`} aria-label={S.orderLabel(row.rank ?? 0)}>
           #{row.rank}
         </span>
       )
     },
     {
-      key: 'batchCode',
-      header: 'Batch Code',
+      key: 'batch',
+      header: S.columns.batch,
       render: (row) => (
-        <Link to={`/batches/${row.id}`} className={coreStyles.codeLink}>
-          {row.batchCode}
-        </Link>
-      )
-    },
-    {
-      key: 'productName',
-      header: 'Product & SKU',
-      render: (row) => (
-        <div>
-          <div>
-            <strong>{row.productName}</strong>
-          </div>
-          <div className={coreStyles.metaLabel}>{row.sku}</div>
+        <div className={batchStyles.product}>
+          <span className={styles.codeRow}>
+            <Link to={`/batches/${row.id}`} className={batchStyles.code}>
+              {row.batchCode}
+            </Link>
+            {row.id && nextIds.has(row.id) ? (
+              <span className={styles.nextTag} data-testid={`fefo-next-${row.batchCode}`}>
+                {S.nextForProduct}
+              </span>
+            ) : null}
+          </span>
+          <span>{row.productName}</span>
+          <span className={batchStyles.muted}>{row.sku}</span>
         </div>
       )
     },
     {
-      key: 'status',
-      header: 'Freshness Tier',
-      render: (row) => (row.status ? <StatusBadge status={row.status} /> : <span>{EMPTY_VALUE}</span>)
+      key: 'shelf',
+      header: S.columns.shelfLife,
+      render: (row) => (
+        <ShelfLifeRail packDate={row.packDate} expiryDate={row.expiryDate} daysUntilExpiry={row.daysUntilExpiry} status={row.status} />
+      )
     },
     {
-      key: 'expiryDate',
-      header: 'Expiry Date',
+      key: 'expires',
+      header: S.columns.expires,
+      nowrap: true,
       render: (row) => (
-        <div>
-          <div>{formatBusinessDate(row.expiryDate)}</div>
-          <div className={coreStyles.metaLabel}>
-            {formatDays(row.daysUntilExpiry, ' days remaining')}
-          </div>
-        </div>
+        <span className={styles.expiryCell}>
+          <span>{formatBusinessDate(row.expiryDate)}</span>
+          {row.status ? <StatusBadge status={row.status} /> : null}
+        </span>
       )
     },
     {
       key: 'quality',
-      header: 'Quality Verdict',
-      render: (row) =>
-        row.qualityCheck?.status ? (
-          <StatusBadge status={row.qualityCheck.status as StatusBadgeValue} />
-        ) : (
-          <span className={coreStyles.metaLabel}>Uninspected</span>
-        )
+      header: S.columns.quality,
+      nowrap: true,
+      render: (row) => <QualityCell row={row} />
     },
     {
       key: 'actions',
-      header: 'Dispatch',
-      render: (row) =>
-        allowDispatch ? (
-          <Button
-            variant="primary"
-            size="sm"
-            leftIcon={<Truck size={14} />}
-            onClick={() => setDispatchTarget(row)}
-            data-testid={`fefo-dispatch-btn-${row.batchCode}`}
-          >
-            Dispatch
-          </Button>
-        ) : (
-          <span className={coreStyles.metaLabel}>View only</span>
-        )
+      header: S.columns.action,
+      render: (row) => dispatchCell(row)
     }
   ];
 
+  const tabs = [
+    { id: 'queue', label: S.tabs.queue, count: queue.length, testId: 'fefo-tab-queue' },
+    { id: 'expired', label: S.tabs.expired, count: expired.length, testId: 'fefo-tab-expired' },
+    { id: 'missing', label: S.tabs.missing, count: exceptions.length, testId: 'fefo-tab-missing' }
+  ];
+
   return (
-    <div className={coreStyles.pageStack} data-testid="fefo-page">
+    <div className={batchStyles.page} data-testid="fefo-page">
       <PageHeader
-        title="FEFO Dispatch Queue"
-        subtitle="First-Expired, First-Out dispatch ordering computed by the server. Expired and exception batches are isolated below."
+        title={S.title}
+        subtitle={S.subtitle}
+        meta={
+          fefoQuery.data ? (
+            <span data-testid="fefo-summary">{S.summary(queue.length, expired.length, exceptions.length)}</span>
+          ) : undefined
+        }
         backdropKey="fefo"
         priority
       />
@@ -163,246 +214,173 @@ export function FefoPage() {
       <AiAuditPanel />
 
       {lastDispatchWarning ? (
-        <div
-          className={`${coreStyles.alertBanner} ${coreStyles.alertWarning}`}
-          role="status"
-          data-testid="fefo-flagged-warning-banner"
-        >
-          <strong>Dispatch Advisory:</strong> {lastDispatchWarning}
+        <div className={styles.warning} role="status" data-testid="fefo-flagged-warning-banner">
+          <strong>{S.warningTitle}.</strong> {lastDispatchWarning}
         </div>
       ) : null}
 
-      <section className={coreStyles.filterBar} aria-label="FEFO filters">
-        <Field label="Filter by Category">
-          <Select
-            value={category}
-            onChange={(e) => updateFilter('category', e.target.value)}
-            data-testid="fefo-filter-category"
-          >
-            <option value="">All Categories</option>
-            {categories.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ))}
-          </Select>
-        </Field>
-
-        <Field label="Filter by SKU">
-          <Select
-            value={sku}
-            onChange={(e) => updateFilter('sku', e.target.value)}
-            data-testid="fefo-filter-sku"
-          >
-            <option value="">All SKUs</option>
-            {(productsQuery.data ?? []).map((p) => (
-              <option key={p.sku} value={p.sku}>
-                {p.sku} · {p.productName}
-              </option>
-            ))}
-          </Select>
-        </Field>
-
-        <div className={coreStyles.filterActions}>
-          <Button
-            variant="secondary"
-            size="sm"
-            leftIcon={<RotateCcw size={14} />}
-            onClick={() => setSearchParams(new URLSearchParams())}
+      <section className={batchStyles.toolbar} aria-label={S.filtersLabel}>
+        <FilterChip
+          label={S.categoryFilter}
+          value={category}
+          options={categoryOptions}
+          onChange={(v) => updateParams({ category: v })}
+          testId="fefo-filter-category"
+        />
+        <FilterChip
+          label={S.productFilter}
+          value={sku}
+          options={productOptions}
+          onChange={(v) => updateParams({ sku: v })}
+          testId="fefo-filter-sku"
+        />
+        {anyFilter ? (
+          <button
+            type="button"
+            className={batchStyles.clearLink}
+            onClick={() => updateParams({ sku: '', category: '' })}
             data-testid="fefo-reset-filters-btn"
           >
-            Reset Filters
-          </Button>
-        </div>
+            {S.clearFilters}
+          </button>
+        ) : null}
       </section>
 
+      <Tabs label={S.tabsLabel} tabs={tabs} selectedId={tab} onSelect={(id) => updateParams({ tab: id === 'queue' ? '' : id })} idPrefix="fefo" />
+
       {fefoQuery.isPending ? (
-        <div className={coreStyles.sectionCard} aria-busy="true">
-          <Skeleton label="Loading FEFO dispatch queue" />
+        <div className={styles.panel} aria-busy="true">
+          <Skeleton label={S.loading} />
         </div>
       ) : fefoQuery.isError ? (
         <ErrorState
-          title="Unable to load FEFO dispatch queue"
-          description={
-            fefoQuery.error instanceof Error
-              ? fefoQuery.error.message
-              : 'Failed to load FEFO queue.'
-          }
-          requestId={
-            fefoQuery.error instanceof ApiError ? fefoQuery.error.requestId : undefined
-          }
+          title={S.errorTitle}
+          description={fefoQuery.error instanceof ApiError ? fefoQuery.error.message : S.errorBody}
+          requestId={fefoQuery.error instanceof ApiError ? fefoQuery.error.requestId : undefined}
           onRetry={() => void fefoQuery.refetch()}
         />
-      ) : (
-        <>
-          <section className={coreStyles.sectionCard} data-testid="fefo-queue-section">
-            <div className={coreStyles.sectionHeader}>
-              <div>
-                <h2 className={coreStyles.sectionTitle}>
-                  1. Eligible FEFO Dispatch Queue ({queue.length})
-                </h2>
-                <p className={coreStyles.sectionSubtitle}>
-                  Ranked by server freshness tier (URGENT → WARNING → READY) and earliest expiry
-                  date. Out-of-order dispatches within a SKU require an audited override reason.
-                </p>
-              </div>
-            </div>
-
-            {queue.length === 0 ? (
+      ) : tab === 'queue' ? (
+        <section
+          id="fefo-panel-queue"
+          role="tabpanel"
+          aria-labelledby="fefo-tab-queue"
+          className={styles.panelPlain}
+          data-testid="fefo-queue-section"
+        >
+          {queue.length === 0 ? (
+            anyFilter ? (
               <EmptyState
-                title="No eligible batches in FEFO queue"
-                description="No active URGENT, WARNING, or READY batches match the selected filters."
+                title={S.emptyNoMatchTitle}
+                description={S.emptyNoMatchBody}
+                action={
+                  <Button variant="secondary" onClick={() => updateParams({ sku: '', category: '' })}>
+                    {S.clearFilters}
+                  </Button>
+                }
               />
             ) : (
-              <>
-                <div className={coreStyles.desktopTableWrap}>
-                  <Table
-                    caption="Eligible FEFO dispatch queue"
-                    columns={queueColumns}
-                    data={queue}
-                    rowKey={(row) => row.id ?? row.batchCode ?? ''}
-                  />
-                </div>
-
-                <div className={coreStyles.mobileCardList}>
-                  {queue.map((row) => (
-                    <article
-                      key={row.id ?? row.batchCode}
-                      className={coreStyles.itemCard}
-                      data-testid={`fefo-mobile-card-${row.batchCode}`}
-                    >
-                      <div className={coreStyles.itemCardHeader}>
-                        <div className={coreStyles.inlineRow}>
-                          <span className={coreStyles.rankPill}>#{row.rank}</span>
-                          <Link to={`/batches/${row.id}`} className={coreStyles.codeLink}>
-                            {row.batchCode}
-                          </Link>
-                        </div>
+              <EmptyState title={S.emptyQueueTitle} description={S.emptyQueueBody} />
+            )
+          ) : (
+            <>
+              <div className={batchStyles.desktopOnly}>
+                <Table caption={S.caption} columns={queueColumns} data={queue} rowKey={(row) => row.id ?? row.batchCode ?? ''} />
+              </div>
+              <ul className={batchStyles.mobileList}>
+                {queue.map((row) => (
+                  <li key={row.id ?? row.batchCode} className={batchStyles.card} data-testid={`fefo-mobile-card-${row.batchCode}`}>
+                    <div className={batchStyles.cardTop}>
+                      <span className={styles.codeRow}>
+                        <span className={styles.rank}>#{row.rank}</span>
+                        <Link to={`/batches/${row.id}`} className={batchStyles.code}>
+                          {row.batchCode}
+                        </Link>
+                      </span>
+                      <span className={batchStyles.badges}>
                         {row.status ? <StatusBadge status={row.status} /> : null}
-                      </div>
-                      <div>
-                        <strong>{row.productName}</strong> ({row.sku})
-                      </div>
-                      <div className={coreStyles.itemCardMetaGrid}>
-                        <div className={coreStyles.metaItem}>
-                          <span className={coreStyles.metaLabel}>Expiry Date</span>
-                          <span className={coreStyles.metaValue}>
-                            {formatBusinessDate(row.expiryDate)} ({formatDays(row.daysUntilExpiry, 'd')})
-                          </span>
-                        </div>
-                        <div className={coreStyles.metaItem}>
-                          <span className={coreStyles.metaLabel}>Quality</span>
-                          <span className={coreStyles.metaValue}>
-                            {row.qualityCheck?.status ?? 'Uninspected'}
-                          </span>
-                        </div>
-                      </div>
-                      {allowDispatch ? (
-                        <div>
-                          <Button
-                            variant="primary"
-                            size="sm"
-                            leftIcon={<Truck size={14} />}
-                            onClick={() => setDispatchTarget(row)}
-                          >
-                            Dispatch
-                          </Button>
-                        </div>
-                      ) : null}
-                    </article>
-                  ))}
-                </div>
-              </>
-            )}
-          </section>
-
-          <section className={coreStyles.sectionCard} data-testid="fefo-expired-section">
-            <div className={coreStyles.sectionHeader}>
-              <div>
-                <h2 className={coreStyles.sectionTitle}>
-                  2. Expired Batches: Blocked from Dispatch ({expired.length})
-                </h2>
-                <p className={coreStyles.sectionSubtitle}>
-                  These batches have passed their expiry date and cannot be dispatched.
-                </p>
-              </div>
-            </div>
-
-            {expired.length === 0 ? (
-              <p className={coreStyles.sectionSubtitle}>No expired batches.</p>
-            ) : (
-              <ul className={coreStyles.timelineList} data-testid="fefo-expired-list">
-                {expired.map((item) => (
-                  <li
-                    key={item.id ?? item.batchCode}
-                    className={coreStyles.timelineItem}
-                    data-testid={`fefo-expired-item-${item.batchCode}`}
-                  >
-                    <div className={coreStyles.itemCardHeader}>
-                      <div className={coreStyles.inlineRow}>
-                        <Link to={`/batches/${item.id}`} className={coreStyles.codeLink}>
-                          {item.batchCode}
-                        </Link>
-                        <span>
-                          <strong>{item.productName}</strong> ({item.sku})
-                        </span>
-                      </div>
-                      <StatusBadge status="EXPIRED" />
+                        <QualityCell row={row} />
+                      </span>
                     </div>
-                    <div className={coreStyles.timelineHeader}>
-                      <span>Expiry: {formatBusinessDate(item.expiryDate)}</span>
-                      <span>Days: {item.daysUntilExpiry ?? EMPTY_VALUE}</span>
+                    <div className={batchStyles.cardProduct}>
+                      {row.productName} <span className={batchStyles.muted}>{row.sku}</span>
+                      {row.id && nextIds.has(row.id) ? <span className={styles.nextTag}>{S.nextForProduct}</span> : null}
                     </div>
+                    <ShelfLifeRail packDate={row.packDate} expiryDate={row.expiryDate} daysUntilExpiry={row.daysUntilExpiry} status={row.status} />
+                    {dispatchCell(row, true)}
                   </li>
                 ))}
               </ul>
-            )}
-          </section>
-
-          <section className={coreStyles.sectionCard} data-testid="fefo-exceptions-section">
-            <div className={coreStyles.sectionHeader}>
-              <div>
-                <h2 className={coreStyles.sectionTitle}>
-                  3. Data Exceptions: Missing or Corrupted Expiry ({exceptions.length})
-                </h2>
-                <p className={coreStyles.sectionSubtitle}>
-                  Batches with missing, null, or unparseable expiry dates are isolated here until
-                  corrected via Raw-Material Correction.
-                </p>
-              </div>
-            </div>
-
-            {exceptions.length === 0 ? (
-              <p className={coreStyles.sectionSubtitle}>No data exception batches.</p>
-            ) : (
-              <ul className={coreStyles.timelineList} data-testid="fefo-exceptions-list">
-                {exceptions.map((item) => (
-                  <li
-                    key={item.id ?? item.batchCode}
-                    className={coreStyles.timelineItem}
-                    data-testid={`fefo-exception-item-${item.batchCode}`}
-                  >
-                    <div className={coreStyles.itemCardHeader}>
-                      <div className={coreStyles.inlineRow}>
-                        <Link to={`/batches/${item.id}`} className={coreStyles.codeLink}>
-                          {item.batchCode}
-                        </Link>
-                        <span>
-                          <strong>{item.productName}</strong> ({item.sku})
-                        </span>
-                      </div>
-                      <StatusBadge status="EXCEPTION" />
-                    </div>
-                    <div className={coreStyles.metaValue}>
-                      <strong>Exception Reason:</strong>{' '}
-                      {item.exceptionReason ?? 'Invalid expiryDate'}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-        </>
+            </>
+          )}
+        </section>
+      ) : tab === 'expired' ? (
+        <section
+          id="fefo-panel-expired"
+          role="tabpanel"
+          aria-labelledby="fefo-tab-expired"
+          className={styles.panel}
+          data-testid="fefo-expired-section"
+        >
+          <p className={styles.intro}>{S.expiredIntro}</p>
+          {expired.length === 0 ? (
+            <p className={batchStyles.muted}>{S.expiredEmpty}</p>
+          ) : (
+            <ul className={styles.list} data-testid="fefo-expired-list">
+              {expired.map((item) => (
+                <li key={item.id ?? item.batchCode} className={styles.listRow} data-testid={`fefo-expired-item-${item.batchCode}`}>
+                  <span className={batchStyles.product}>
+                    <Link to={`/batches/${item.id}`} className={batchStyles.code}>
+                      {item.batchCode}
+                    </Link>
+                    <span>
+                      {item.productName} <span className={batchStyles.muted}>{item.sku}</span>
+                    </span>
+                  </span>
+                  <span className={styles.listMeta}>
+                    <span>{formatBusinessDate(item.expiryDate)}</span>
+                    <span className={batchStyles.muted}>
+                      {expiredAgoText(item.daysUntilExpiry)}
+                    </span>
+                  </span>
+                  <StatusBadge status="EXPIRED" />
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      ) : (
+        <section
+          id="fefo-panel-missing"
+          role="tabpanel"
+          aria-labelledby="fefo-tab-missing"
+          className={styles.panel}
+          data-testid="fefo-exceptions-section"
+        >
+          <p className={styles.intro}>{S.missingIntro}</p>
+          {exceptions.length === 0 ? (
+            <p className={batchStyles.muted}>{S.missingEmpty}</p>
+          ) : (
+            <ul className={styles.list} data-testid="fefo-exceptions-list">
+              {exceptions.map((item) => (
+                <li key={item.id ?? item.batchCode} className={styles.listRow} data-testid={`fefo-exception-item-${item.batchCode}`}>
+                  <span className={batchStyles.product}>
+                    <Link to={`/batches/${item.id}`} className={batchStyles.code}>
+                      {item.batchCode}
+                    </Link>
+                    <span>
+                      {item.productName} <span className={batchStyles.muted}>{item.sku}</span>
+                    </span>
+                  </span>
+                  <span className={styles.listMeta}>
+                    <span className={batchStyles.muted}>{S.missingReason}</span>
+                    <span>{item.exceptionReason ?? S.missingReasonFallback}</span>
+                  </span>
+                  <StatusBadge status="EXCEPTION" />
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
       )}
 
       <DispatchDialog

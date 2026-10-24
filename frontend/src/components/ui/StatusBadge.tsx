@@ -15,7 +15,7 @@ export function StatusBadge({ status, labelOverride }: StatusBadgeProps) {
 
   return (
     <span className={`${styles.badge} ${cfg.toneClass}`} data-status={status}>
-      <Icon size={13} aria-hidden="true" />
+      <Icon size={14} aria-hidden="true" />
       <span>{text}</span>
     </span>
   );

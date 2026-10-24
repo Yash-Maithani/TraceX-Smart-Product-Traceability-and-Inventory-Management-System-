@@ -6,7 +6,13 @@ import { dispatchBatch } from '../../api/endpoints';
 import type { BatchDetailDto, BatchSummaryDto } from '../../api/types';
 import { useAuth } from '../../auth/AuthContext';
 import { canDispatchBatch } from '../../auth/permissions.generated';
-import { Button, Dialog, Field, Input, Textarea, useToast } from '../../components/ui';
+import { Button, Dialog, Field, Input, Textarea, isOnHold, useToast } from '../../components/ui';
+import { formatBusinessDate } from '../../lib/dates';
+import { EMPTY_VALUE } from '../../lib/format';
+import { FEFO_STRINGS } from '../../strings/fefo';
+import { RAIL_STRINGS, STATUS_STRINGS } from '../../strings/status';
+
+const S = FEFO_STRINGS.dialog;
 
 export interface DispatchDialogProps {
   open: boolean;
@@ -75,14 +81,14 @@ export function DispatchDialog({
       const warningMsg = res.data.warning;
       if (warningMsg) {
         pushToast({
-          title: 'Batch dispatched with quality warning',
+          title: S.warningTitle,
           description: warningMsg,
           variant: 'warning'
         });
       } else {
         pushToast({
-          title: 'Batch dispatched',
-          description: `${res.data.batchCode ?? 'Batch'} dispatched to ${res.data.buyerName ?? buyerName.trim()}.`,
+          title: S.successTitle,
+          description: S.successBody(res.data.batchCode ?? batch?.batchCode ?? '', res.data.buyerName ?? buyerName.trim()),
           variant: 'success'
         });
       }
@@ -132,10 +138,10 @@ export function DispatchDialog({
 
     const nextFieldErrors: Record<string, string> = {};
     if (!buyerName.trim()) {
-      nextFieldErrors.buyerName = 'Buyer name is required.';
+      nextFieldErrors.buyerName = S.buyerRequired;
     }
     if (requiresOverride && !overrideReason.trim()) {
-      nextFieldErrors.overrideReason = 'An override reason is required for out-of-order FEFO dispatch.';
+      nextFieldErrors.overrideReason = S.overrideRequired;
     }
     if (Object.keys(nextFieldErrors).length > 0) {
       setFieldErrors(nextFieldErrors);
@@ -149,13 +155,37 @@ export function DispatchDialog({
 
   if (!batch) return null;
 
+  // Blocked before any request: the server would refuse these anyway (QUALITY_HOLD, BATCH_EXPIRED)
+  const blockedCode = isOnHold(batch) ? 'QUALITY_HOLD' : batch.status === 'EXPIRED' ? 'BATCH_EXPIRED' : null;
+  const shownCode = errorCode ?? blockedCode;
+  const code = batch.batchCode ?? '';
+  const verdict = batch.qualityCheck?.status;
+  const quality = verdict
+    ? (STATUS_STRINGS as Record<string, string>)[verdict] ?? verdict
+    : FEFO_STRINGS.notInspected;
+  const days = batch.daysUntilExpiry;
+  const left =
+    days === null || days === undefined
+      ? EMPTY_VALUE
+      : batch.status === 'EXPIRED'
+        ? RAIL_STRINGS.expiredAgo(Math.abs(days))
+        : RAIL_STRINGS.daysLeft(days);
+  const errorBody =
+    shownCode === 'DISPATCH_OUT_OF_ORDER' && earlierBatchCode
+      ? S.outOfOrderBody(earlierBatchCode, code, batch.sku ?? '')
+      : shownCode === 'QUALITY_HOLD'
+        ? S.holdBody
+        : shownCode === 'BATCH_EXPIRED'
+          ? S.expiredBody
+          : serverError;
+
   return (
     <Dialog
       open={open}
       onClose={() => {
         if (!mutation.isPending) onClose();
       }}
-      title={`Dispatch Batch ${batch.batchCode ?? ''}`}
+      title={requiresOverride ? S.titleOutOfOrder(code) : S.title(code)}
       description={`${batch.productName ?? ''} (${batch.sku ?? ''})`}
       actions={
         <>
@@ -165,64 +195,57 @@ export function DispatchDialog({
             disabled={mutation.isPending}
             data-testid="dispatch-cancel-btn"
           >
-            Cancel
+            {S.cancel}
           </Button>
           <Button
             variant="primary"
             type="submit"
             form="dispatch-batch-form"
             isLoading={mutation.isPending}
-            disabled={
-              mutation.isPending ||
-              errorCode === 'BATCH_EXPIRED' ||
-              errorCode === 'QUALITY_HOLD'
-            }
+            disabled={mutation.isPending || shownCode === 'BATCH_EXPIRED' || shownCode === 'QUALITY_HOLD'}
             data-testid="dispatch-submit-btn"
           >
-            {requiresOverride ? 'Confirm Override & Dispatch' : 'Confirm Dispatch'}
+            {requiresOverride ? S.confirmWithReason : S.confirm}
           </Button>
         </>
       }
     >
       <form id="dispatch-batch-form" onSubmit={handleSubmit} className={coreStyles.pageStack} noValidate>
-        {batch.qualityCheck?.status === 'FLAGGED' ? (
+        <p className={coreStyles.sectionSubtitle} data-testid="dispatch-summary">
+          {S.summary(formatBusinessDate(batch.expiryDate), left, quality)}
+        </p>
+
+        {verdict === 'FLAGGED' && !shownCode ? (
           <div
             className={`${coreStyles.alertBanner} ${coreStyles.alertWarning}`}
             role="status"
             data-testid="dispatch-flagged-advisory"
           >
-            <strong>Quality Advisory (FLAGGED):</strong> Latest inspection verdict is FLAGGED.
-            Dispatch is permitted, and the server will record a quality advisory warning.
+            {S.flagged}
           </div>
         ) : null}
 
-        {serverError ? (
+        {shownCode || serverError ? (
           <div
             className={`${coreStyles.alertBanner} ${
-              errorCode === 'DISPATCH_OUT_OF_ORDER'
-                ? coreStyles.alertWarning
-                : coreStyles.alertDanger
+              shownCode === 'DISPATCH_OUT_OF_ORDER' ? coreStyles.alertWarning : coreStyles.alertDanger
             }`}
             role="alert"
             data-testid="dispatch-error-banner"
+            data-error-code={shownCode ?? undefined}
           >
             <div>
-              <strong>{errorCode ?? 'Dispatch Error'}:</strong> {serverError}
+              <strong>{(shownCode && S.errors[shownCode]) || S.errors.fallback}.</strong>{' '}
+              <span
+                data-testid={shownCode === 'DISPATCH_OUT_OF_ORDER' && earlierBatchCode ? 'dispatch-earlier-batch-code' : undefined}
+              >
+                {errorBody}
+              </span>
             </div>
-            {errorCode === 'DISPATCH_OUT_OF_ORDER' && earlierBatchCode ? (
-              <div data-testid="dispatch-earlier-batch-code">
-                Earlier eligible batch for SKU <strong>{batch.sku}</strong>:{' '}
-                <strong className={coreStyles.monoCode}>{earlierBatchCode}</strong>
-              </div>
-            ) : null}
           </div>
         ) : null}
 
-        <Field
-          label="Buyer / Recipient Name"
-          required
-          error={fieldErrors.buyerName}
-        >
+        <Field label={S.buyer} required error={fieldErrors.buyerName}>
           <Input
             value={buyerName}
             onChange={(e) => {
@@ -235,33 +258,24 @@ export function DispatchDialog({
                 });
               }
             }}
-            placeholder="e.g. Himalayan Organic Retail Co."
-            disabled={mutation.isPending}
+            placeholder={S.buyerPlaceholder}
+            disabled={mutation.isPending || Boolean(blockedCode)}
             data-testid="dispatch-buyer-input"
           />
         </Field>
 
-        <Field
-          label="Dispatch Date (optional)"
-          hint="Format: YYYY-MM-DD. Defaults to the current business date on the server if left blank."
-          error={fieldErrors.dispatchDate}
-        >
+        <Field label={S.date} hint={S.dateHint} error={fieldErrors.dispatchDate}>
           <Input
             type="date"
             value={dispatchDate}
             onChange={(e) => setDispatchDate(e.target.value)}
-            disabled={mutation.isPending}
+            disabled={mutation.isPending || Boolean(blockedCode)}
             data-testid="dispatch-date-input"
           />
         </Field>
 
         {requiresOverride && canOverride ? (
-          <Field
-            label="FEFO Out-of-Order Override Reason"
-            required
-            hint="Required because an earlier-expiring batch of the same SKU is still in the queue. The reason is recorded in the audit log."
-            error={fieldErrors.overrideReason}
-          >
+          <Field label={S.overrideReason} required hint={S.overrideHint} error={fieldErrors.overrideReason}>
             <Textarea
               value={overrideReason}
               onChange={(e) => {
@@ -274,7 +288,7 @@ export function DispatchDialog({
                   });
                 }
               }}
-              placeholder="Explain why this batch is being dispatched ahead of the earlier-expiring batch…"
+              placeholder={S.overridePlaceholder}
               disabled={mutation.isPending}
               data-testid="dispatch-override-reason-input"
             />

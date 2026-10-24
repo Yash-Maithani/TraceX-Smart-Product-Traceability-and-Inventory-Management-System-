@@ -1,14 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   Archive,
   Bell,
   Boxes,
   ClipboardCheck,
   Home,
+  Keyboard,
   LogOut,
   Menu,
   MessageSquare,
+  Search,
   Settings,
   Shield,
   ShieldOff,
@@ -18,6 +20,7 @@ import {
   X
 } from 'lucide-react';
 import styles from './AppShell.module.css';
+import consoleStyles from '../components/ui/console.module.css';
 import { useAuth } from '../auth/AuthContext';
 import { useLiveUpdates } from '../hooks/useLiveUpdates';
 import { usePreferencesSync } from '../hooks/usePreferencesSync';
@@ -25,17 +28,24 @@ import { NotificationBell } from './NotificationBell';
 import { getEnabledNavRoutes, type NavRouteItem } from '../routes/navConfig';
 import {
   Button,
+  CommandPalette,
   ConfirmDialog,
+  DisplayMenu,
+  Kbd,
+  LiveIndicator,
   OfflineBanner,
-  PageImagesToggle,
-  SkipLink,
-  StatusBadge,
-  ThemeToggle
+  ShortcutsDialog,
+  SkipLink
 } from '../components/ui';
 import { STRINGS } from '../strings/en';
+import { SHELL_STRINGS } from '../strings/common';
 
 const FOCUSABLE_SELECTOR =
   'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+/** "G then X" go-to shortcuts (RESEARCH.md Theme 1); kept to four so they stay learnable. */
+const GO_TO: Record<string, string> = { d: '/', b: '/batches', f: '/fefo', i: '/inspections' };
+const GO_TO_WINDOW_MS = 1200;
 
 function renderNavIcon(iconName: NavRouteItem['iconName']) {
   switch (iconName) {
@@ -64,23 +74,73 @@ function renderNavIcon(iconName: NavRouteItem['iconName']) {
   }
 }
 
+function isTypingTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false;
+  const tag = target.tagName;
+  return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || target.isContentEditable;
+}
+
+function initialsOf(name: string): string {
+  const parts = name.replace(/\[[^\]]*\]/g, '').trim().split(/\s+/).filter(Boolean);
+  const first = parts[0]?.[0] ?? '';
+  const last = parts.length > 1 ? (parts[parts.length - 1]?.[0] ?? '') : '';
+  return `${first}${last}`.toUpperCase() || '?';
+}
+
 export function AppShell() {
   const { user, logout, logoutAll } = useAuth();
   usePreferencesSync();
   useLiveUpdates();
   const location = useLocation();
+  const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [confirmLogoutAllOpen, setConfirmLogoutAllOpen] = useState(false);
   const [isRevokingAll, setIsRevokingAll] = useState(false);
   const drawerRef = useRef<HTMLDivElement | null>(null);
   const menuBtnRef = useRef<HTMLButtonElement | null>(null);
+  const goPendingAt = useRef<number>(0);
 
   const navItems = getEnabledNavRoutes(user);
+  const operationsItems = navItems.filter((item) => item.group === 'operations');
+  const teamItems = navItems.filter((item) => item.group === 'team');
 
   // Close drawer when route changes
   useEffect(() => {
     setDrawerOpen(false);
   }, [location.pathname]);
+
+  // Global shortcuts: Ctrl/Cmd+K or "/" search, "?" shortcut list, "G then D/B/F/I" go to a page
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setPaletteOpen(true);
+        return;
+      }
+      if (e.ctrlKey || e.metaKey || e.altKey || isTypingTarget(e.target)) return;
+      if (document.querySelector('[aria-modal="true"]')) return;
+      if (e.key === '/') {
+        e.preventDefault();
+        setPaletteOpen(true);
+      } else if (e.key === '?') {
+        e.preventDefault();
+        setShortcutsOpen(true);
+      } else if (e.key.toLowerCase() === 'g') {
+        goPendingAt.current = Date.now();
+      } else if (goPendingAt.current && Date.now() - goPendingAt.current < GO_TO_WINDOW_MS) {
+        const dest = GO_TO[e.key.toLowerCase()];
+        goPendingAt.current = 0;
+        if (dest && navItems.some((n) => n.path === dest)) {
+          e.preventDefault();
+          navigate(dest);
+        }
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [navigate, navItems]);
 
   // Focus trap and Escape handling for mobile navigation drawer
   useEffect(() => {
@@ -119,53 +179,55 @@ export function AppShell() {
 
   const roleLabel = user?.role ? (STRINGS.roles[user.role] ?? user.role) : '';
 
+  const renderNavGroup = (label: string, items: NavRouteItem[]) =>
+    items.length === 0 ? null : (
+      <div className={styles.navGroup}>
+        <div className={styles.navGroupLabel}>{label}</div>
+        <ul className={styles.navList}>
+          {items.map((item) => (
+            <li key={item.path}>
+              <NavLink
+                to={item.path}
+                end={item.path === '/' || item.path === '/batches'}
+                className={({ isActive }) => `${styles.navLink} ${isActive ? styles.navLinkActive : ''}`}
+              >
+                {renderNavIcon(item.iconName)}
+                <span>{item.label}</span>
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+
   const renderNavigationLinks = () => (
-    <ul className={styles.navList}>
-      {navItems.map((item) => (
-        <li key={item.path}>
-          <NavLink
-            to={item.path}
-            end={item.path === '/' || item.path === '/batches'}
-            className={({ isActive }) =>
-              `${styles.navLink} ${isActive ? styles.navLinkActive : ''}`
-            }
-          >
-            {renderNavIcon(item.iconName)}
-            <span>{item.label}</span>
-          </NavLink>
-        </li>
-      ))}
-    </ul>
+    <>
+      {renderNavGroup(SHELL_STRINGS.navGroups.operations, operationsItems)}
+      {renderNavGroup(SHELL_STRINGS.navGroups.team, teamItems)}
+    </>
   );
 
   const renderUserSection = (scope: 'desktop' | 'mobile' = 'desktop') => (
     <div className={styles.sidebarFooter}>
       {user ? (
         <div className={styles.userCard} data-testid={scope === 'desktop' ? 'shell-user-card' : 'mobile-shell-user-card'}>
-          <div className={styles.userName} data-testid={scope === 'desktop' ? 'shell-user-name' : 'mobile-shell-user-name'}>
-            {user.name}
-          </div>
-          <div className={styles.userMeta} data-testid={scope === 'desktop' ? 'shell-user-role' : 'mobile-shell-user-role'}>
-            {roleLabel}
-          </div>
-          <div>
-            <StatusBadge status={user.active === false ? 'inactive' : 'active'} />
+          <span className={styles.userAvatar} aria-hidden="true">
+            {initialsOf(user.name ?? '')}
+          </span>
+          <div className={styles.userText}>
+            <div className={styles.userName} data-testid={scope === 'desktop' ? 'shell-user-name' : 'mobile-shell-user-name'}>
+              {user.name}
+            </div>
+            <div className={styles.userMeta} data-testid={scope === 'desktop' ? 'shell-user-role' : 'mobile-shell-user-role'}>
+              {roleLabel}
+            </div>
           </div>
         </div>
       ) : null}
-      <nav aria-label="Legal" className={styles.legalLinks}>
-        <NavLink to="/privacy">Privacy Policy</NavLink>
-        <NavLink to="/terms">Terms and Conditions</NavLink>
-      </nav>
       <div className={styles.userActions}>
-        <PageImagesToggle
-          fullWidth
-          testId={scope === 'desktop' ? 'user-menu-page-images-toggle' : 'mobile-user-menu-page-images-toggle'}
-        />
         <Button
-          variant="secondary"
+          variant="ghost"
           size="sm"
-          fullWidth
           onClick={logout}
           leftIcon={<LogOut size={15} />}
           data-testid={scope === 'desktop' ? 'sign-out-btn' : 'mobile-sign-out-btn'}
@@ -175,7 +237,6 @@ export function AppShell() {
         <Button
           variant="ghost"
           size="sm"
-          fullWidth
           onClick={() => setConfirmLogoutAllOpen(true)}
           leftIcon={<ShieldOff size={15} />}
           data-testid={scope === 'desktop' ? 'sign-out-all-btn' : 'mobile-sign-out-all-btn'}
@@ -183,6 +244,10 @@ export function AppShell() {
           {STRINGS.common.signOutAll}
         </Button>
       </div>
+      <nav aria-label={SHELL_STRINGS.legalNavLabel} className={styles.legalLinks}>
+        <NavLink to="/privacy">{SHELL_STRINGS.privacy}</NavLink>
+        <NavLink to="/terms">{SHELL_STRINGS.terms}</NavLink>
+      </nav>
     </div>
   );
 
@@ -192,10 +257,9 @@ export function AppShell() {
       <OfflineBanner />
       <div className={styles.shellBody}>
         <aside className={styles.desktopSidebar} aria-label="Sidebar" data-testid="desktop-sidebar">
-          <div>
+          <div className={styles.sidebarScroll}>
             <div className={styles.brandBlock}>
               <span className={styles.brandName}>{STRINGS.app.name}</span>
-              <span className={styles.brandTagline}>{STRINGS.app.tagline}</span>
             </div>
             <nav aria-label={STRINGS.nav.sidebarLabel}>{renderNavigationLinks()}</nav>
           </div>
@@ -218,17 +282,38 @@ export function AppShell() {
                 data-testid="mobile-menu-btn"
               />
               <span className={styles.mobileBrand}>{STRINGS.app.name}</span>
+              <button
+                type="button"
+                className={consoleStyles.searchTrigger}
+                onClick={() => setPaletteOpen(true)}
+                aria-label={SHELL_STRINGS.searchHint}
+                aria-haspopup="dialog"
+                data-testid="command-palette-trigger"
+              >
+                <Search size={16} aria-hidden="true" />
+                <span className={consoleStyles.searchTriggerLabel}>{SHELL_STRINGS.search}</span>
+                <Kbd keys={['Ctrl', 'K']} />
+              </button>
             </div>
             <div className={styles.topBarRight}>
+              <LiveIndicator />
               <NotificationBell />
-              <ThemeToggle />
+              <Button
+                variant="secondary"
+                size="sm"
+                iconOnly
+                className={styles.desktopOnly}
+                aria-label={SHELL_STRINGS.shortcutsOpen}
+                onClick={() => setShortcutsOpen(true)}
+                leftIcon={<Keyboard size={16} />}
+                data-testid="shortcuts-btn"
+              />
+              <DisplayMenu />
             </div>
           </header>
 
           <main id="main-content" tabIndex={-1} className={styles.mainContent}>
-            <div key={location.pathname} className={styles.pageEnter}>
-              <Outlet />
-            </div>
+            <Outlet />
           </main>
         </div>
       </div>
@@ -273,11 +358,14 @@ export function AppShell() {
         </div>
       ) : null}
 
+      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
+      <ShortcutsDialog open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
+
       <ConfirmDialog
         open={confirmLogoutAllOpen}
         onClose={() => setConfirmLogoutAllOpen(false)}
-        title={STRINGS.common.signOutAll}
-        description="This will immediately revoke your active sessions across all browsers and devices."
+        title={SHELL_STRINGS.signOutAllTitle}
+        description={SHELL_STRINGS.signOutAllBody}
         confirmLabel={STRINGS.common.signOutAll}
         variant="danger"
         isLoading={isRevokingAll}

@@ -137,9 +137,10 @@ describe('Phase 6 & 7 API Endpoints Client Wrappers', () => {
     const insps = await fetchInspections({ status: 'PASSED', page: 1, limit: 20 });
     expect(insps.data).toHaveLength(1);
 
-    mockJsonFetch([{ id: 'i1', status: 'PASSED' }]);
-    const myInsps = await fetchMyInspections();
-    expect(myInsps).toHaveLength(1);
+    mockJsonFetch({ data: [{ id: 'i1', status: 'PASSED' }], total: 1, page: 1, limit: 20 });
+    const myInsps = await fetchMyInspections({ from: '2026-10-01', to: '2026-10-31' });
+    expect(myInsps.data).toHaveLength(1);
+    expect(myInsps.total).toBe(1);
 
     mockJsonFetch({ id: 'i1', status: 'PASSED' });
     const inspById = await fetchInspectionById('i1');

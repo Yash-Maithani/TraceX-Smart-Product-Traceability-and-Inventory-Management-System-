@@ -1,5 +1,6 @@
 import { useEffect, type ReactNode } from 'react';
-import { AlertTriangle, Image, ImageOff, Inbox, Moon, RefreshCw, ShieldAlert, Sun, WifiOff } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { AlertTriangle, ChevronRight, Image, ImageOff, Inbox, Moon, RefreshCw, ShieldAlert, Sun, WifiOff } from 'lucide-react';
 import styles from './ui.module.css';
 import { Button } from './Button';
 import { PageBackdrop } from './PageBackdrop';
@@ -7,7 +8,7 @@ import { STRINGS } from '../../strings/en';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { useTheme } from '../../hooks/useTheme';
 import type { ThemeAccent, ThemePalette } from '../../lib/prefs';
-import type { BackdropKey } from '../../routes/backdrops';
+import { SIGNED_IN_PAGE_BANNERS, type BackdropKey } from '../../routes/backdrops';
 import { apiRequest } from '../../api/client';
 
 export interface EmptyStateProps {
@@ -137,8 +138,32 @@ export interface PageHeaderProps {
   subtitle?: string | undefined;
   breadcrumbs?: BreadcrumbItem[] | undefined;
   actions?: ReactNode;
+  /** Count chips or other real figures from the API, shown under the title (DESIGN.md §4). */
+  meta?: ReactNode;
   backdropKey?: BackdropKey | undefined;
   priority?: boolean | undefined;
+}
+
+export function Breadcrumbs({ items, onBanner = false }: { items: BreadcrumbItem[]; onBanner?: boolean }) {
+  return (
+    <nav aria-label="Breadcrumb">
+      <ol className={`${styles.breadcrumbs} ${onBanner ? styles.bannerBreadcrumbs : ''}`}>
+        {items.map((item, idx) => {
+          const isLast = idx === items.length - 1;
+          return (
+            <li key={`${item.label}-${idx}`}>
+              {item.href && !isLast ? (
+                <Link to={item.href}>{item.label}</Link>
+              ) : (
+                <span aria-current={isLast ? 'page' : undefined}>{item.label}</span>
+              )}
+              {!isLast ? <ChevronRight size={12} aria-hidden="true" /> : null}
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
+  );
 }
 
 export function PageHeader({
@@ -146,28 +171,19 @@ export function PageHeader({
   subtitle,
   breadcrumbs,
   actions,
+  meta,
   backdropKey,
   priority
 }: PageHeaderProps) {
-  if (backdropKey) {
+  if (backdropKey && SIGNED_IN_PAGE_BANNERS) {
     return (
       <header className={styles.pageHeaderWithBackdrop} data-testid="page-header">
         <PageBackdrop backdropKey={backdropKey} variant="banner" priority={priority}>
           <div className={styles.bannerHeaderCopy}>
-            {breadcrumbs && breadcrumbs.length > 0 ? (
-              <nav aria-label="Breadcrumb">
-                <ol className={`${styles.breadcrumbs} ${styles.bannerBreadcrumbs}`}>
-                  {breadcrumbs.map((item, idx) => (
-                    <li key={`${item.label}-${idx}`}>
-                      {item.label}
-                      {idx < breadcrumbs.length - 1 ? ' / ' : ''}
-                    </li>
-                  ))}
-                </ol>
-              </nav>
-            ) : null}
+            {breadcrumbs && breadcrumbs.length > 0 ? <Breadcrumbs items={breadcrumbs} onBanner /> : null}
             <h1 className={styles.bannerTitle}>{title}</h1>
             {subtitle ? <p className={styles.bannerSubtitle}>{subtitle}</p> : null}
+            {meta ? <div className={styles.pageHeaderMeta}>{meta}</div> : null}
           </div>
           {actions ? <div className={styles.bannerActions}>{actions}</div> : null}
         </PageBackdrop>
@@ -177,23 +193,13 @@ export function PageHeader({
 
   return (
     <header className={styles.pageHeader} data-testid="page-header">
-      <div>
-        {breadcrumbs && breadcrumbs.length > 0 ? (
-          <nav aria-label="Breadcrumb">
-            <ol className={styles.breadcrumbs}>
-              {breadcrumbs.map((item, idx) => (
-                <li key={`${item.label}-${idx}`}>
-                  {item.label}
-                  {idx < breadcrumbs.length - 1 ? ' / ' : ''}
-                </li>
-              ))}
-            </ol>
-          </nav>
-        ) : null}
+      <div className={styles.pageHeaderCopy}>
+        {breadcrumbs && breadcrumbs.length > 0 ? <Breadcrumbs items={breadcrumbs} /> : null}
         <h1 className={styles.pageTitle}>{title}</h1>
         {subtitle ? <p className={styles.pageSubtitle}>{subtitle}</p> : null}
+        {meta ? <div className={styles.pageHeaderMeta}>{meta}</div> : null}
       </div>
-      {actions ? <div>{actions}</div> : null}
+      {actions ? <div className={styles.pageHeaderActions}>{actions}</div> : null}
     </header>
   );
 }

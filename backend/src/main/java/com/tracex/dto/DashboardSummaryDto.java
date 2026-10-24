@@ -19,6 +19,8 @@ public class DashboardSummaryDto {
     private long ready;
     private long exception;
     private long dispatched;
+    /** Batches with a dispatch recorded on today's business date (UI/UX redesign, backend request B-1). */
+    private long dispatchedToday;
     private long totalActive;
 
     private StatusCounts statusCounts;
@@ -116,6 +118,8 @@ public class DashboardSummaryDto {
     public void setException(long exception) { this.exception = exception; }
     public long getDispatched() { return dispatched; }
     public void setDispatched(long dispatched) { this.dispatched = dispatched; }
+    public long getDispatchedToday() { return dispatchedToday; }
+    public void setDispatchedToday(long dispatchedToday) { this.dispatchedToday = dispatchedToday; }
     public long getTotalActive() { return totalActive; }
     public void setTotalActive(long totalActive) { this.totalActive = totalActive; }
     public StatusCounts getStatusCounts() { return statusCounts; }

@@ -42,6 +42,7 @@ public class DashboardService {
         long exception = countBatchesForStatus("EXCEPTION", activeClock);
         long dispatched = countBatchesForStatus("DISPATCHED", activeClock);
         long totalActive = expired + urgent + warning + ready + exception;
+        long dispatchedToday = countBatchesDispatchedOn(LocalDate.now(activeClock));
 
         long passed = countBatchesForVerdict("PASSED");
         long failed = countBatchesForVerdict("FAILED");
@@ -68,6 +69,7 @@ public class DashboardService {
         dto.setReady(ready);
         dto.setException(exception);
         dto.setDispatched(dispatched);
+        dto.setDispatchedToday(dispatchedToday);
         dto.setTotalActive(totalActive);
         dto.setStatusCounts(new DashboardSummaryDto.StatusCounts(
                 expired, urgent, warning, ready, exception, dispatched
@@ -88,6 +90,18 @@ public class DashboardService {
         Query query = new Query();
         query.addCriteria(Criteria.where("isDeleted").is(false));
         BatchFreshness.applyStatusFilter(query, status, activeClock);
+        return mongoTemplate.count(query, Batch.class);
+    }
+
+    /**
+     * Non-archived batches with at least one dispatch on the given business date. Dispatch dates are
+     * stored as "YYYY-MM-DD" strings (D-17), so this is an exact string match on the history entries.
+     */
+    private long countBatchesDispatchedOn(LocalDate businessDate) {
+        Query query = new Query(
+                Criteria.where("isDeleted").is(false)
+                        .and("dispatchHistory.dispatchDate").is(businessDate.toString())
+        );
         return mongoTemplate.count(query, Batch.class);
     }
 

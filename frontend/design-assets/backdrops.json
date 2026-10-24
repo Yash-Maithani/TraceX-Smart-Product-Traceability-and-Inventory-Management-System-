@@ -1,184 +1,274 @@
 [
   {
     "key": "auth",
-    "routes": ["/login", "/request-access", "/activate", "/verify-otp"],
+    "routes": [
+      "/login",
+      "/request-access",
+      "/activate",
+      "/verify-otp"
+    ],
     "variant": "side",
-    "source": "",
-    "author": "",
-    "licence": "",
-    "licenceUrl": "",
-    "approvedByOwner": false,
+    "source": "Unsplash: \"Terrace farming in hills\", Uttarakhand (photo 9qndr_Qh7Rg)",
+    "author": "Ketan Pandey",
+    "licence": "Unsplash License",
+    "licenceUrl": "https://unsplash.com/license",
+    "approvedByOwner": true,
     "objectPosition": "center center",
-    "placeholder": true,
-    "placeholderToken": "--bg-muted"
+    "placeholder": false,
+    "sourceUrl": "https://unsplash.com/photos/9qndr_Qh7Rg",
+    "aiGenerated": false
   },
   {
     "key": "auth-recovery",
-    "routes": ["/forgot-password", "/reset-password"],
+    "routes": [
+      "/forgot-password",
+      "/reset-password"
+    ],
     "variant": "side",
-    "source": "",
-    "author": "",
-    "licence": "",
-    "licenceUrl": "",
-    "approvedByOwner": false,
+    "source": "Wikimedia Commons: Terrace farming and irrigation in Himalayan state of Uttarakhand India",
+    "author": "Sharada Prasad CS",
+    "licence": "CC BY 2.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0/",
+    "approvedByOwner": true,
     "objectPosition": "center center",
-    "placeholder": true,
-    "placeholderToken": "--bg-elevated"
+    "placeholder": false,
+    "sourceUrl": "https://commons.wikimedia.org/w/index.php?curid=33485713",
+    "aiGenerated": false
   },
   {
     "key": "dashboard",
-    "routes": ["/", "/dashboard"],
+    "routes": [
+      "/",
+      "/dashboard"
+    ],
     "variant": "banner",
-    "source": "",
-    "author": "",
-    "licence": "",
-    "licenceUrl": "",
-    "approvedByOwner": false,
+    "source": "Unsplash: Tea plantations at Samse, Chikkamagaluru (photo nPUPi2FKfGI)",
+    "author": "Vasanth Kedige",
+    "licence": "Unsplash License",
+    "licenceUrl": "https://unsplash.com/license",
+    "approvedByOwner": true,
     "objectPosition": "center center",
-    "placeholder": true,
-    "placeholderToken": "--bg-muted"
+    "placeholder": false,
+    "sourceUrl": "https://unsplash.com/photos/nPUPi2FKfGI",
+    "aiGenerated": false,
+    "crop": {
+      "top": 0.15,
+      "height": 0.7
+    }
   },
   {
     "key": "batches",
-    "routes": ["/batches", "/batches/new", "/batches/archived", "/batches/:id"],
+    "routes": [
+      "/batches",
+      "/batches/new",
+      "/batches/archived",
+      "/batches/:id"
+    ],
     "variant": "banner",
-    "source": "",
-    "author": "",
-    "licence": "",
-    "licenceUrl": "",
-    "approvedByOwner": false,
+    "source": "Pexels: Photo of warehouse (photo 4481326)",
+    "author": "Tiger Lily",
+    "licence": "Pexels License",
+    "licenceUrl": "https://www.pexels.com/license/",
+    "approvedByOwner": true,
     "objectPosition": "center center",
-    "placeholder": true,
-    "placeholderToken": "--bg-elevated"
+    "placeholder": false,
+    "sourceUrl": "https://www.pexels.com/photo/4481326/",
+    "aiGenerated": false,
+    "crop": {
+      "top": 0.3,
+      "height": 0.55
+    }
   },
   {
     "key": "fefo",
-    "routes": ["/fefo", "/dispatch/fefo"],
+    "routes": [
+      "/fefo",
+      "/dispatch/fefo"
+    ],
     "variant": "banner",
-    "source": "",
-    "author": "",
-    "licence": "",
-    "licenceUrl": "",
-    "approvedByOwner": false,
+    "source": "Pexels: A warehouse with full stocks (photo 11432049)",
+    "author": "Bill Powers",
+    "licence": "Pexels License",
+    "licenceUrl": "https://www.pexels.com/license/",
+    "approvedByOwner": true,
     "objectPosition": "center center",
-    "placeholder": true,
-    "placeholderToken": "--bg-muted"
+    "placeholder": false,
+    "sourceUrl": "https://www.pexels.com/photo/11432049/",
+    "aiGenerated": false,
+    "crop": {
+      "top": 0.05,
+      "height": 0.6
+    }
   },
   {
     "key": "inspections",
-    "routes": ["/inspections"],
+    "routes": [
+      "/inspections"
+    ],
     "variant": "banner",
-    "source": "",
-    "author": "",
-    "licence": "",
-    "licenceUrl": "",
-    "approvedByOwner": false,
+    "source": "Pexels: Plastic crates with vegetables on a field (photo 10041323)",
+    "author": "Los Muertos Crew",
+    "licence": "Pexels License",
+    "licenceUrl": "https://www.pexels.com/license/",
+    "approvedByOwner": true,
     "objectPosition": "center center",
-    "placeholder": true,
-    "placeholderToken": "--bg-elevated"
+    "placeholder": false,
+    "sourceUrl": "https://www.pexels.com/photo/10041323/",
+    "aiGenerated": false,
+    "crop": {
+      "top": 0.15,
+      "height": 0.55
+    }
   },
   {
     "key": "dispatch",
-    "routes": ["/dispatch"],
+    "routes": [
+      "/dispatch"
+    ],
     "variant": "banner",
-    "source": "",
-    "author": "",
-    "licence": "",
-    "licenceUrl": "",
-    "approvedByOwner": false,
+    "source": "Pexels: Cartons near warehouse gates (photo 12585837)",
+    "author": "BOOM Photography",
+    "licence": "Pexels License",
+    "licenceUrl": "https://www.pexels.com/license/",
+    "approvedByOwner": true,
     "objectPosition": "center center",
-    "placeholder": true,
-    "placeholderToken": "--bg-muted"
+    "placeholder": false,
+    "sourceUrl": "https://www.pexels.com/photo/12585837/",
+    "aiGenerated": false,
+    "crop": {
+      "top": 0.0,
+      "height": 0.62
+    }
   },
   {
     "key": "qr",
-    "routes": ["/qr"],
+    "routes": [
+      "/qr"
+    ],
     "variant": "banner",
-    "source": "",
-    "author": "",
-    "licence": "",
-    "licenceUrl": "",
-    "approvedByOwner": false,
+    "source": "Pexels: Clear glass mason jars (photo 48817)",
+    "author": "Pixabay",
+    "licence": "Pexels License",
+    "licenceUrl": "https://www.pexels.com/license/",
+    "approvedByOwner": true,
     "objectPosition": "center center",
-    "placeholder": true,
-    "placeholderToken": "--bg-elevated"
+    "placeholder": false,
+    "sourceUrl": "https://www.pexels.com/photo/48817/",
+    "aiGenerated": false
   },
   {
     "key": "trace-public",
-    "routes": ["/trace/:token", "/trace/t/:token"],
+    "routes": [
+      "/trace/:token",
+      "/trace/t/:token"
+    ],
     "variant": "full",
-    "source": "",
-    "author": "",
-    "licence": "",
-    "licenceUrl": "",
-    "approvedByOwner": false,
+    "source": "Wikimedia Commons: Apple orchards in Chaubatia, Ranikhet, Uttarakhand",
+    "author": "Harshit SR",
+    "licence": "CC BY-SA 4.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "approvedByOwner": true,
     "objectPosition": "center center",
-    "placeholder": true,
-    "placeholderToken": "--bg-muted"
+    "placeholder": false,
+    "sourceUrl": "https://commons.wikimedia.org/w/index.php?curid=124021499",
+    "aiGenerated": false
   },
   {
     "key": "team",
-    "routes": ["/team", "/users"],
+    "routes": [
+      "/team",
+      "/users"
+    ],
     "variant": "banner",
-    "source": "",
-    "author": "",
-    "licence": "",
-    "licenceUrl": "",
-    "approvedByOwner": false,
+    "source": "Unsplash: A desk with a notebook, headphones and a potted plant (photo T7yUACjd3hU)",
+    "author": "Kelly Sikkema",
+    "licence": "Unsplash License",
+    "licenceUrl": "https://unsplash.com/license",
+    "approvedByOwner": true,
     "objectPosition": "center center",
-    "placeholder": true,
-    "placeholderToken": "--bg-elevated"
+    "placeholder": false,
+    "sourceUrl": "https://unsplash.com/photos/T7yUACjd3hU",
+    "aiGenerated": false,
+    "crop": {
+      "top": 0.25,
+      "height": 0.5
+    }
   },
   {
     "key": "import",
-    "routes": ["/import"],
+    "routes": [
+      "/import"
+    ],
     "variant": "banner",
-    "source": "",
-    "author": "",
-    "licence": "",
-    "licenceUrl": "",
-    "approvedByOwner": false,
+    "source": "Unsplash: Fresh, ripe tomatoes fill these crates (photo VV-KRDpSuek)",
+    "author": "Serghey Savchuk",
+    "licence": "Unsplash License",
+    "licenceUrl": "https://unsplash.com/license",
+    "approvedByOwner": true,
     "objectPosition": "center center",
-    "placeholder": true,
-    "placeholderToken": "--bg-muted"
+    "placeholder": false,
+    "sourceUrl": "https://unsplash.com/photos/VV-KRDpSuek",
+    "aiGenerated": false,
+    "crop": {
+      "top": 0.1,
+      "height": 0.7
+    }
   },
   {
     "key": "notifications",
-    "routes": ["/notifications", "/messages"],
+    "routes": [
+      "/notifications",
+      "/messages"
+    ],
     "variant": "banner",
-    "source": "",
-    "author": "",
-    "licence": "",
-    "licenceUrl": "",
-    "approvedByOwner": false,
+    "source": "Pexels: Stationery near mug and plant (photo 7319189)",
+    "author": "Angela Roma",
+    "licence": "Pexels License",
+    "licenceUrl": "https://www.pexels.com/license/",
+    "approvedByOwner": true,
     "objectPosition": "center center",
-    "placeholder": true,
-    "placeholderToken": "--bg-elevated"
+    "placeholder": false,
+    "sourceUrl": "https://www.pexels.com/photo/7319189/",
+    "aiGenerated": false,
+    "crop": {
+      "top": 0.1,
+      "height": 0.7
+    }
   },
   {
     "key": "settings",
-    "routes": ["/profile", "/settings"],
+    "routes": [
+      "/profile",
+      "/settings"
+    ],
     "variant": "banner",
-    "source": "",
-    "author": "",
-    "licence": "",
-    "licenceUrl": "",
-    "approvedByOwner": false,
+    "source": "Pexels: Fountain pen on top of notebook beside drinking mug (photo 64776)",
+    "author": "FreePhotos.cc",
+    "licence": "Pexels License",
+    "licenceUrl": "https://www.pexels.com/license/",
+    "approvedByOwner": true,
     "objectPosition": "center center",
-    "placeholder": true,
-    "placeholderToken": "--bg-muted"
+    "placeholder": false,
+    "sourceUrl": "https://www.pexels.com/photo/64776/",
+    "aiGenerated": false
   },
   {
     "key": "default",
-    "routes": ["/privacy", "/terms", "/_styleguide", "*"],
+    "routes": [
+      "/privacy",
+      "/terms",
+      "/_styleguide",
+      "*"
+    ],
     "variant": "banner",
-    "source": "",
-    "author": "",
-    "licence": "",
-    "licenceUrl": "",
-    "approvedByOwner": false,
+    "source": "Wikimedia Commons: Garhwal Himalayas Uttarakhand",
+    "author": "Paul Hamilton",
+    "licence": "CC BY-SA 2.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+    "approvedByOwner": true,
     "objectPosition": "center center",
-    "placeholder": true,
-    "placeholderToken": "--bg-elevated"
+    "placeholder": false,
+    "sourceUrl": "https://commons.wikimedia.org/w/index.php?curid=34232827",
+    "aiGenerated": false
   }
 ]

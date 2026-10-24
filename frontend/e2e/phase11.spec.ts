@@ -44,7 +44,7 @@ test.describe('Phase 11 AI Audit and Google Sign-in (switched off) E2E Suite', (
 
     await uiSignIn(page, 'coordinator');
     await page.goto('/fefo');
-    await expect(page.getByRole('heading', { name: 'FEFO Dispatch Queue' }).first()).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Dispatch queue' }).first()).toBeVisible();
     await expect(page.getByTestId('ai-audit-panel')).toHaveCount(0);
     await page.goto('/profile');
     await expect(page.getByTestId('profile-google-card')).toHaveCount(0);

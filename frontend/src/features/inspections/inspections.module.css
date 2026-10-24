@@ -1,0 +1,86 @@
+/* Inspections (redesign R5, DESIGN.md §6.7). Tokens only; list styles come from batches.module.css. */
+
+.checklist {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  border: none;
+  min-width: 0;
+}
+
+.hint {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.checklistGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-2);
+}
+
+@media (min-width: 900px) {
+  .checklistGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.checkItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-surface);
+  min-width: 0;
+}
+
+.checkLabel {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+
+.guard {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--status-warning-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--status-warning-bg);
+  color: var(--status-warning-text);
+  font-size: var(--text-sm);
+}
+
+.resultList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.resultRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-1) var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+}
+
+.resultRow + .resultRow {
+  border-top: 1px solid var(--border-subtle);
+}
+
+.resultFail {
+  color: var(--text-primary);
+  text-decoration: underline;
+}
+
+.resultNote {
+  grid-column: 1 / -1;
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}

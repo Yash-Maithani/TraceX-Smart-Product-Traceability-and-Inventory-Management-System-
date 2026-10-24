@@ -4,6 +4,7 @@ import { openAuthorizedStream } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import { useToast } from '../components/ui';
 import { openEventStream, type StreamEvent } from '../lib/eventStream';
+import { liveStatus } from '../lib/liveStatus';
 import { logger } from '../lib/logger';
 
 /** Query keys each live event makes stale (SPEC §8.5 event names). */
@@ -66,11 +67,22 @@ export function useLiveUpdates(): void {
 
   useEffect(() => {
     if (!userId) return undefined;
+    liveStatus.connecting();
     const close = openEventStream({
       open: (signal) => openAuthorizedStream('/api/v1/notifications/stream', signal),
-      onEvent: (event) => applyLiveEvent(queryClient, event, pushToast),
-      onAuthFailure: () => logger.warn('Live updates stopped: session is no longer valid')
+      onEvent: (event) => {
+        liveStatus.eventReceived();
+        applyLiveEvent(queryClient, event, pushToast);
+      },
+      onStatus: (connected) => liveStatus.connected(connected),
+      onAuthFailure: () => {
+        liveStatus.stopped();
+        logger.warn('Live updates stopped: session is no longer valid');
+      }
     });
-    return close;
+    return () => {
+      close();
+      liveStatus.stopped();
+    };
   }, [userId, queryClient, pushToast]);
 }

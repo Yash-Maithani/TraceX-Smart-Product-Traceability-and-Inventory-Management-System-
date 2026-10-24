@@ -3,7 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
-import { NotificationsPage, notificationLink } from './NotificationsPage';
+import { NotificationsPage, groupByDay, notificationLink } from './NotificationsPage';
 import { NotificationBell } from '../../layouts/NotificationBell';
 import { ToastProvider } from '../../components/ui';
 import { ThemeProvider } from '../../hooks/useTheme';
@@ -126,10 +126,25 @@ describe('Notifications and live updates (Phase 10)', () => {
     expect(bell).toHaveAttribute('aria-label', 'Notifications, 4 unread');
   });
 
+  it('groupByDay splits notifications into Today, Yesterday and earlier dates (redesign R2)', () => {
+    const now = new Date(2026, 9, 24, 15, 0, 0);
+    const groups = groupByDay(
+      [
+        { id: 'a', createdAt: new Date(2026, 9, 24, 9, 0, 0).toISOString() },
+        { id: 'b', createdAt: new Date(2026, 9, 24, 8, 0, 0).toISOString() },
+        { id: 'c', createdAt: new Date(2026, 9, 23, 20, 0, 0).toISOString() },
+        { id: 'd', createdAt: new Date(2026, 9, 20, 10, 0, 0).toISOString() }
+      ],
+      now
+    );
+    expect(groups.map((g) => g.label)).toEqual(['Today', 'Yesterday', 'Tuesday, Oct 20']);
+    expect(groups[0]?.items.map((n) => n.id)).toEqual(['a', 'b']);
+  });
+
   it('notificationLink sends batch notifications to the batch, imports to Bulk Import, requests to Team', () => {
     expect(notificationLink({ refType: 'batch', refId: 'b-1' })).toBe('/batches/b-1');
     expect(notificationLink({ refType: 'import', refId: 'j-1' })).toBe('/import');
-    expect(notificationLink({ refType: 'access_request', refId: 'r-1' })).toBe('/team');
+    expect(notificationLink({ refType: 'access_request', refId: 'r-1' })).toBe('/team?tab=requests');
     expect(notificationLink({ refType: 'other' })).toBeNull();
   });
 });

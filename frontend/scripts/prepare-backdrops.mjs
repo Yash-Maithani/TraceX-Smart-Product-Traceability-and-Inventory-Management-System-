@@ -76,35 +76,52 @@ function findOriginalFile(key) {
   return null;
 }
 
-async function generateVariant(inputSource, isOriginal, width, height, format, outPath) {
-  let pipeline;
-  if (isOriginal) {
-    pipeline = sharp(inputSource).resize(width, height, {
-      fit: 'cover',
-      position: 'centre'
-    });
-  } else {
-    pipeline = sharp({
-      create: {
-        width,
-        height,
-        channels: 3,
-        background: inputSource
-      }
-    });
-  }
+/**
+ * Optional manifest "crop": { top, height } as fractions of the original's height. Used to keep
+ * incidental text or logos (box stickers, signage) out of every generated size (IMAGERY.md §3).
+ */
+async function loadOriginal(file, crop) {
+  const base = sharp(file).rotate();
+  if (!crop) return base;
+  const meta = await sharp(file).rotate().toBuffer({ resolveWithObject: true });
+  const h = meta.info.height;
+  const top = Math.max(0, Math.round(h * (crop.top ?? 0)));
+  const height = Math.min(h - top, Math.round(h * (crop.height ?? 1)));
+  return sharp(meta.data).extract({ left: 0, top, width: meta.info.width, height });
+}
 
+// Quality ladders: start high and step down until the file fits its budget. Photos sit under a
+// dark scrim, so the lower steps are not visible in use (IMAGERY.md §5).
+const QUALITY_LADDER = {
+  avif: [68, 60, 52, 45, 40, 35, 30, 25],
+  webp: [82, 74, 66, 58, 52, 46, 40, 34, 28],
+  jpg: [85, 78, 70, 62, 56, 50, 44, 38, 32]
+};
+
+async function encode(pipelineFactory, format, quality, outPath) {
+  let pipeline = await pipelineFactory();
   if (format === 'avif') {
-    pipeline = pipeline.avif({ quality: 68, effort: 2 });
+    pipeline = pipeline.avif({ quality, effort: 4 });
   } else if (format === 'webp') {
-    pipeline = pipeline.webp({ quality: 82 });
+    pipeline = pipeline.webp({ quality });
   } else {
-    pipeline = pipeline.jpeg({ quality: 85, mozjpeg: true });
+    pipeline = pipeline.jpeg({ quality, mozjpeg: true });
   }
-
   await pipeline.toFile(outPath);
-  const stat = fs.statSync(outPath);
-  return stat.size;
+  return fs.statSync(outPath).size;
+}
+
+async function generateVariant(inputSource, isOriginal, width, height, format, outPath, crop, budgetBytes) {
+  const factory = async () =>
+    isOriginal
+      ? (await loadOriginal(inputSource, crop)).resize(width, height, { fit: 'cover', position: 'centre' })
+      : sharp({ create: { width, height, channels: 3, background: inputSource } });
+  let size = 0;
+  for (const quality of QUALITY_LADDER[format]) {
+    size = await encode(factory, format, quality, outPath);
+    if (!budgetBytes || size <= budgetBytes) break;
+  }
+  return size;
 }
 
 function buildGeneratedIndexTs(manifest) {
@@ -204,7 +221,9 @@ async function main() {
           width,
           height,
           format,
-          outPath
+          outPath,
+          entry.crop,
+          budgetBytes
         );
         const sizeKb = (bytes / 1024).toFixed(2);
         const overBudget = bytes > budgetBytes;

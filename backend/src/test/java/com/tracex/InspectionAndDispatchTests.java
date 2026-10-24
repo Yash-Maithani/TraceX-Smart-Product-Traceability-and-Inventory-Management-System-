@@ -794,6 +794,40 @@ public class InspectionAndDispatchTests {
     }
 
     @Test
+    @DisplayName("B-3: an earlier batch on quality hold does not make a later batch of the same SKU out of order")
+    void testHeldEarlierBatchDoesNotForceOverride() throws Exception {
+        Instant now = Instant.now();
+        Batch heldEarly = saveBatch("TX-B3-HELD", "KMGC", "Kashmiri Garlic Cloves",
+                now.minus(5, ChronoUnit.DAYS), now.plus(4, ChronoUnit.DAYS), "ACTIVE", false);
+        Batch late = saveBatch("TX-B3-LATE", "KMGC", "Kashmiri Garlic Cloves",
+                now.minus(5, ChronoUnit.DAYS), now.plus(20, ChronoUnit.DAYS), "ACTIVE", false);
+
+        InspectionCreateDto failDto = new InspectionCreateDto();
+        failDto.setBatchId(heldEarly.getId());
+        failDto.setStatus("FAILED");
+        failDto.setRating(1);
+        failDto.setChecklist(defaultChecklist(false));
+        inspectionService.createInspection(failDto, inspector1);
+
+        BatchDispatchDto noOverrideReq = new BatchDispatchDto("Buyer B3", null, null);
+        mockMvc.perform(patch("/api/v1/batches/" + late.getId() + "/dispatch")
+                        .header("Authorization", "Bearer " + coordinatorToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(noOverrideReq)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.lifecycleState").value("DISPATCHED"))
+                .andExpect(jsonPath("$.data.dispatchHistory[0].outOfOrder").value(false));
+
+        // The held batch itself is still refused
+        mockMvc.perform(patch("/api/v1/batches/" + heldEarly.getId() + "/dispatch")
+                        .header("Authorization", "Bearer " + coordinatorToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(noOverrideReq)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value(ErrorCode.QUALITY_HOLD.name()));
+    }
+
+    @Test
     @DisplayName("Check 4: Race test - 2-thread concurrent dispatch on the same batch repeated 100 times: every iteration produces one 200, one 409 CONFLICT, and 1 dispatchHistory entry")
     void testConcurrentDispatchRaceRepeated100Times() throws Exception {
         Instant now = Instant.now();

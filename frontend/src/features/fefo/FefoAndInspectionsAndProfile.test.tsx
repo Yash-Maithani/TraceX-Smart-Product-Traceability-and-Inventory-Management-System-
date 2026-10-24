@@ -85,6 +85,33 @@ describe('FefoPage, InspectionsPage, and ProfilePage (Phase 6 Part D)', () => {
           status: 'READY',
           daysUntilExpiry: 40,
           qualityCheck: { status: 'PASSED' }
+        },
+        {
+          rank: 3,
+          id: 'b-3',
+          batchCode: 'TX-2026-10-007',
+          productName: 'Apricot Jam',
+          sku: 'ABHJAM',
+          quantityProduced: 50,
+          unit: 'Kg',
+          packDate: '2026-05-01',
+          expiryDate: '2026-11-20',
+          status: 'READY',
+          daysUntilExpiry: 45,
+          qualityCheck: { status: 'FAILED' }
+        },
+        {
+          rank: 4,
+          id: 'b-4',
+          batchCode: 'TX-2026-10-008',
+          productName: 'Apricot Jam',
+          sku: 'ABHJAM',
+          quantityProduced: 50,
+          unit: 'Kg',
+          packDate: '2026-05-01',
+          expiryDate: '2026-11-25',
+          status: 'READY',
+          daysUntilExpiry: 50
         }
       ],
       expired: [
@@ -124,11 +151,27 @@ describe('FefoPage, InspectionsPage, and ProfilePage (Phase 6 Part D)', () => {
       expect(screen.getByTestId('fefo-rank-TX-2026-10-001')).toHaveTextContent('#1');
     });
 
-    expect(screen.getByTestId('fefo-expired-item-TX-2026-10-011')).toBeInTheDocument();
-    expect(screen.getByTestId('fefo-exception-item-TX-2026-10-012')).toBeInTheDocument();
+    // Redesign R5: tab counts, next batch per product, and on-hold rows blocked
+    expect(screen.getByTestId('fefo-tab-queue')).toHaveTextContent('4');
+    expect(screen.getByTestId('fefo-tab-expired')).toHaveTextContent('1');
+    expect(screen.getByTestId('fefo-tab-missing')).toHaveTextContent('1');
+    expect(screen.getByTestId('fefo-summary')).toHaveTextContent('4 ready, 1 expired, 1 missing an expiry date');
+    expect(screen.getByTestId('fefo-next-TX-2026-10-001')).toBeInTheDocument();
+    expect(screen.queryByTestId('fefo-next-TX-2026-10-005')).not.toBeInTheDocument();
+    expect(screen.getByTestId('fefo-dispatch-btn-TX-2026-10-007')).toBeDisabled();
+    expect(screen.getByTestId('fefo-hold-note-TX-2026-10-007')).toHaveTextContent('Latest inspection failed');
+    // The held batch is skipped, so the next batch of that product is marked next
+    expect(screen.getByTestId('fefo-next-TX-2026-10-008')).toBeInTheDocument();
 
-    fireEvent.click(screen.getByTestId('fefo-dispatch-btn-TX-2026-10-001'));
+    fireEvent.click(screen.getByTestId('fefo-tab-expired'));
+    expect(await screen.findByTestId('fefo-expired-item-TX-2026-10-011')).toHaveTextContent('Expired 35 days ago');
+    fireEvent.click(screen.getByTestId('fefo-tab-missing'));
+    expect(await screen.findByTestId('fefo-exception-item-TX-2026-10-012')).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId('fefo-tab-queue'));
+
+    fireEvent.click(await screen.findByTestId('fefo-dispatch-btn-TX-2026-10-001'));
     expect(screen.getByTestId('dispatch-buyer-input')).toBeInTheDocument();
+    expect(screen.getByTestId('dispatch-summary')).toHaveTextContent('4 days left');
   });
 
   it('renders InspectionsPage tabs, filters, read-only detail dialog, and Record Inspection dialog with 422 checklist error', async () => {
@@ -154,7 +197,7 @@ describe('FefoPage, InspectionsPage, and ProfilePage (Phase 6 Part D)', () => {
       limit: 20,
       count: 1
     });
-    vi.spyOn(Endpoints, 'fetchMyInspections').mockResolvedValue([]);
+    vi.spyOn(Endpoints, 'fetchMyInspections').mockResolvedValue({ data: [], total: 0, page: 1, limit: 20 });
     vi.spyOn(Endpoints, 'fetchBatches').mockResolvedValue({
       data: [
         {

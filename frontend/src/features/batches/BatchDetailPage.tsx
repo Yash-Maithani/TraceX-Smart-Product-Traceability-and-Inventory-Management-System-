@@ -1,7 +1,22 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Archive, ArrowLeft, Copy, Download, Edit3, ExternalLink, FileText, Truck } from 'lucide-react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import {
+  Archive,
+  ClipboardCheck,
+  Copy,
+  Download,
+  Edit3,
+  ExternalLink,
+  FileText,
+  Lock,
+  Package,
+  Printer,
+  ScanLine,
+  Tag,
+  Truck
+} from 'lucide-react';
+import { useNavigate, useParams } from 'react-router-dom';
+import styles from './batches.module.css';
 import coreStyles from '../core/core.module.css';
 import { ApiError } from '../../api/client';
 import {
@@ -31,16 +46,23 @@ import {
   Input,
   PageHeader,
   Select,
+  ShelfLifeRail,
   Skeleton,
   StatusBadge,
   Textarea,
+  Timeline,
+  type TimelineEntry,
   useToast,
   type StatusBadgeValue
 } from '../../components/ui';
+import { isOnHold } from '../../components/ui/statusMap';
+import { FEFO_STRINGS } from '../../strings/fefo';
 import { formatBusinessDate, formatTimestamp } from '../../lib/dates';
 import { DispatchDialog } from './DispatchDialog';
 import { EMPTY_VALUE, formatDays } from '../../lib/format';
 import { RecordComments } from '../messages/RecordComments';
+import { DETAIL_STRINGS as D } from '../../strings/batchDetail';
+import { STATUS_STRINGS } from '../../strings/status';
 
 const UNIT_OPTIONS = ['Kg', 'Units', 'Liters'] as const;
 
@@ -98,6 +120,13 @@ export function BatchDetailPage() {
   });
 
   const batch = batchQuery.data;
+  const dispatchBlock = !batch
+    ? null
+    : isOnHold(batch)
+      ? FEFO_STRINGS.blocked.onHold
+      : batch.status === 'EXPIRED'
+        ? FEFO_STRINGS.blocked.expired
+        : null;
 
   const handleDownloadQr = () => {
     if (!qrQuery.data?.qrCodeDataUrl) return;
@@ -114,8 +143,8 @@ export function BatchDetailPage() {
     try {
       await navigator.clipboard.writeText(qrQuery.data.qrAbsoluteUrl);
       pushToast({
-        title: 'URL copied',
-        description: 'Public trace URL copied to clipboard.',
+        title: D.qr.copied,
+        description: D.qr.copiedBody,
         variant: 'success'
       });
     } catch {
@@ -146,8 +175,8 @@ export function BatchDetailPage() {
         queryClient.invalidateQueries({ queryKey: ['batches'] })
       ]);
       pushToast({
-        title: 'Traceability note updated',
-        description: 'The updated note has been saved and appended to noteHistory.',
+        title: D.note.saved,
+        description: D.note.savedBody,
         variant: 'success'
       });
     },
@@ -187,8 +216,8 @@ export function BatchDetailPage() {
         queryClient.invalidateQueries({ queryKey: ['dashboard', 'summary'] })
       ]);
       pushToast({
-        title: 'Raw-material fields corrected',
-        description: 'Provenance and shelf-life fields have been updated.',
+        title: D.correction.saved,
+        description: D.correction.savedBody,
         variant: 'success'
       });
     },
@@ -221,20 +250,131 @@ export function BatchDetailPage() {
         queryClient.invalidateQueries({ queryKey: ['dashboard', 'summary'] })
       ]);
       pushToast({
-        title: 'Batch archived',
-        description: `${batch?.batchCode ?? 'Batch'} moved to Archived Batches.`,
+        title: D.archiveDialog.done,
+        description: D.archiveDialog.doneBody(batch?.batchCode ?? ''),
         variant: 'success'
       });
       navigate('/batches/archived');
     },
     onError: (err) => {
       pushToast({
-        title: 'Archive failed',
+        title: D.archiveDialog.failed,
         description: err instanceof Error ? err.message : 'Unable to archive batch.',
         variant: 'error'
       });
     }
   });
+
+  // Unsaved-changes guard (DESIGN.md §2.3): warn before the tab closes or reloads while the note
+  // or the correction form has edits that are not saved.
+  const noteDirty = Boolean(batch) && noteInput.trim() !== (batch?.traceabilityNote ?? '').trim();
+  const rawDirty =
+    rawMaterialOpen &&
+    Boolean(batch) &&
+    (farmerName !== (batch?.farmerName ?? '') ||
+      village !== (batch?.village ?? '') ||
+      sourceLotCode !== (batch?.sourceLotCode ?? '') ||
+      quantityProduced !== String(batch?.quantityProduced ?? '') ||
+      yieldPercent !== String(batch?.yieldPercent ?? '') ||
+      expiryDate !== (batch?.expiryDate ?? '') ||
+      rawReason.trim() !== '');
+  const [discardOpen, setDiscardOpen] = useState(false);
+  useEffect(() => {
+    if (!noteDirty && !rawDirty) return undefined;
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', onBeforeUnload);
+    return () => window.removeEventListener('beforeunload', onBeforeUnload);
+  }, [noteDirty, rawDirty]);
+
+  const closeRawMaterial = () => {
+    if (rawMaterialMutation.isPending) return;
+    if (rawDirty) {
+      setDiscardOpen(true);
+      return;
+    }
+    setRawMaterialOpen(false);
+  };
+
+  // One story per batch: packed, notes, inspections, dispatches and scans, newest first
+  const history = useMemo<TimelineEntry[]>(() => {
+    if (!batch) return [];
+    const items: (TimelineEntry & { at: string })[] = [];
+    if (batch.packDate) {
+      items.push({
+        id: 'packed',
+        at: `${batch.packDate}T00:00:00`,
+        icon: <Package size={16} aria-hidden="true" />,
+        iconLabel: D.history.packedLabel,
+        title: D.history.packed(D.quantity(batch.quantityProduced, batch.unit)),
+        time: formatBusinessDate(batch.packDate),
+        body: D.history.packedBody(batch.sourceLotCode ?? '', batch.village ?? '')
+      });
+    }
+    (batch.noteHistory ?? []).forEach((n, i) => {
+      items.push({
+        id: `note-${i}`,
+        at: n.editedAt ?? '',
+        icon: <FileText size={16} aria-hidden="true" />,
+        iconLabel: D.history.noteLabel,
+        title: D.history.note(n.editedBy ?? ''),
+        time: formatTimestamp(n.editedAt),
+        body: n.note,
+        condensed: true
+      });
+    });
+    (inspectionsQuery.data ?? []).forEach((insp) => {
+      const tone = insp.status === 'PASSED' ? 'success' : insp.status === 'FAILED' ? 'danger' : 'warning';
+      items.push({
+        id: `insp-${insp.id}`,
+        at: insp.createdAt ?? '',
+        icon: <ClipboardCheck size={16} aria-hidden="true" />,
+        iconLabel: D.history.inspectionLabel(insp.status ?? ''),
+        title: D.history.inspection(insp.status ?? '', insp.rating ?? 0),
+        time: formatTimestamp(insp.createdAt),
+        body: insp.findings ?? undefined,
+        tone
+      });
+    });
+    (batch.dispatchHistory ?? []).forEach((d, i) => {
+      items.push({
+        id: `dispatch-${i}`,
+        at: d.dispatchedAt ?? `${d.dispatchDate ?? ''}T00:00:00`,
+        icon: <Truck size={16} aria-hidden="true" />,
+        iconLabel: D.history.dispatchLabel,
+        title: D.history.dispatch(d.buyerName ?? ''),
+        time: formatBusinessDate(d.dispatchDate),
+        body: d.outOfOrder ? D.history.override(d.overrideReason ?? '') : D.history.dispatchedBy(d.dispatchedBy ?? ''),
+        tone: d.outOfOrder ? 'warning' : 'info'
+      });
+    });
+    if (scansQuery.data?.lastScannedAt && scansQuery.data.total) {
+      items.push({
+        id: 'scans',
+        at: scansQuery.data.lastScannedAt,
+        icon: <ScanLine size={16} aria-hidden="true" />,
+        iconLabel: D.history.scanLabel,
+        title: D.history.scans(scansQuery.data.total),
+        time: formatTimestamp(scansQuery.data.lastScannedAt),
+        condensed: true
+      });
+    }
+    return items.sort((a, b) => (a.at < b.at ? 1 : a.at > b.at ? -1 : 0));
+  }, [batch, inspectionsQuery.data, scansQuery.data]);
+
+  const printSheet = () => window.print();
+  const printLabel = () => {
+    const root = document.documentElement;
+    root.setAttribute('data-print', 'label');
+    const clear = () => {
+      root.removeAttribute('data-print');
+      window.removeEventListener('afterprint', clear);
+    };
+    window.addEventListener('afterprint', clear);
+    window.print();
+  };
 
   const handleNoteSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -258,72 +398,91 @@ export function BatchDetailPage() {
   return (
     <div className={coreStyles.pageStack} data-testid="batch-detail-page">
       <PageHeader
-        title={batch?.batchCode ? `Batch ${batch.batchCode}` : 'Batch Details'}
-        subtitle={
-          batch
-            ? `${batch.productName ?? ''} (${batch.sku ?? ''})`
-            : 'Provenance, freshness status, quality checks, and dispatch history'
-        }
+        title={batch?.batchCode ?? D.titleLoading}
+        subtitle={batch ? `${batch.productName ?? ''} (${batch.sku ?? ''})` : undefined}
         breadcrumbs={[
-          { label: 'Batches', href: '/batches' },
+          { label: D.breadcrumbBatches, href: '/batches' },
           { label: batch?.batchCode ?? id }
         ]}
+        meta={
+          batch ? (
+            <span className={styles.headerMeta}>
+              {batch.status ? <StatusBadge status={batch.status} /> : null}
+              {batch.qualityCheck?.status === 'FAILED' ? <StatusBadge status="ON_HOLD" /> : null}
+              <ShelfLifeRail
+                packDate={batch.packDate}
+                expiryDate={batch.expiryDate}
+                daysUntilExpiry={batch.daysUntilExpiry}
+                status={batch.status}
+                testId="detail-shelf-life"
+              />
+              <span className={styles.qty}>{D.quantity(batch.quantityProduced, batch.unit)}</span>
+            </span>
+          ) : undefined
+        }
         backdropKey="batches"
         priority
         actions={
-          <div className={coreStyles.inlineRow}>
-            <Link to="/batches">
-              <Button variant="secondary" size="sm" leftIcon={<ArrowLeft size={15} />}>
-                Back to Batches
+          batch ? (
+            <>
+              <Button variant="ghost" size="sm" leftIcon={<Printer size={15} />} onClick={printSheet} data-testid="print-batch-btn">
+                {D.print}
               </Button>
-            </Link>
-            {batch && canEditRawMaterial(user) && !batch.deleted ? (
-              <Button
-                variant="secondary"
-                size="sm"
-                leftIcon={<Edit3 size={15} />}
-                onClick={() => setRawMaterialOpen(true)}
-                data-testid="open-raw-material-btn"
-              >
-                Correct Raw Material
-              </Button>
-            ) : null}
-            {batch &&
-            canDispatchBatch(user) &&
-            batch.lifecycleState !== 'DISPATCHED' &&
-            !batch.deleted ? (
-              <Button
-                variant="primary"
-                size="sm"
-                leftIcon={<Truck size={15} />}
-                onClick={() => setDispatchOpen(true)}
-                data-testid="open-dispatch-dialog-btn"
-              >
-                Dispatch Batch
-              </Button>
-            ) : null}
-            {batch && canArchiveBatch(user) && !batch.deleted ? (
-              <Button
-                variant="danger"
-                size="sm"
-                leftIcon={<Archive size={15} />}
-                onClick={() => setArchiveOpen(true)}
-                data-testid="open-archive-dialog-btn"
-              >
-                Archive
-              </Button>
-            ) : null}
-          </div>
+              {canEditRawMaterial(user) && !batch.deleted ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  leftIcon={<Edit3 size={15} />}
+                  onClick={() => setRawMaterialOpen(true)}
+                  data-testid="open-raw-material-btn"
+                >
+                  {D.correct}
+                </Button>
+              ) : null}
+              {canArchiveBatch(user) && !batch.deleted ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={styles.dangerGhost}
+                  leftIcon={<Archive size={15} />}
+                  onClick={() => setArchiveOpen(true)}
+                  data-testid="open-archive-dialog-btn"
+                >
+                  {D.archive}
+                </Button>
+              ) : null}
+              {canDispatchBatch(user) && batch.lifecycleState !== 'DISPATCHED' && !batch.deleted ? (
+                <span className={styles.dispatchAction}>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    leftIcon={dispatchBlock ? <Lock size={15} /> : <Truck size={15} />}
+                    onClick={() => setDispatchOpen(true)}
+                    disabled={Boolean(dispatchBlock)}
+                    aria-describedby={dispatchBlock ? 'batch-dispatch-block' : undefined}
+                    data-testid="open-dispatch-dialog-btn"
+                  >
+                    {D.dispatch}
+                  </Button>
+                  {dispatchBlock ? (
+                    <span id="batch-dispatch-block" className={styles.dispatchBlock} data-testid="batch-dispatch-block">
+                      {dispatchBlock}
+                    </span>
+                  ) : null}
+                </span>
+              ) : null}
+            </>
+          ) : null
         }
       />
 
       {batchQuery.isPending ? (
         <div className={coreStyles.sectionCard} aria-busy="true">
-          <Skeleton label="Loading batch details" />
+          <Skeleton label={D.loading} />
         </div>
       ) : batchQuery.isError || !batch ? (
         <ErrorState
-          title="Unable to load batch details"
+          title={D.errorTitle}
           description={
             batchQuery.error instanceof Error
               ? batchQuery.error.message
@@ -342,7 +501,7 @@ export function BatchDetailPage() {
               role="status"
               data-testid="batch-dispatch-warning"
             >
-              <strong>Dispatch Quality Advisory:</strong> {dispatchWarning ?? batch.warning}
+              <strong>{D.advisory}</strong> {dispatchWarning ?? batch.warning}
             </div>
           ) : null}
 
@@ -352,24 +511,146 @@ export function BatchDetailPage() {
               role="alert"
               data-testid="batch-exception-banner"
             >
-              <strong>Freshness Data Exception:</strong>{' '}
-              {batch.exceptionReason ?? 'Missing or unparseable expiry date.'}
+              <strong>{D.exception}</strong> {batch.exceptionReason ?? D.exceptionFallback}
             </div>
           ) : null}
 
+          <div className={styles.detailLayout}>
+            <div className={styles.detailMain}>
+            <section className={coreStyles.sectionCard} data-testid="batch-timeline-section">
+              <div className={coreStyles.sectionHeader}>
+                <div>
+                  <h2 className={coreStyles.sectionTitle}>{D.history.heading}</h2>
+                  <p className={coreStyles.sectionSubtitle}>{D.history.subtitle}</p>
+                </div>
+              </div>
+              {history.length === 0 ? (
+                <p className={coreStyles.sectionSubtitle}>{D.history.empty}</p>
+              ) : (
+                <Timeline label={D.history.heading} entries={history} testId="batch-timeline" />
+              )}
+            </section>
+
+            <section className={coreStyles.sectionCard} data-testid="batch-inspections-section">
+              <div className={coreStyles.sectionHeader}>
+                <div>
+                  <h2 className={coreStyles.sectionTitle}>{D.inspections.heading}</h2>
+                  <p className={coreStyles.sectionSubtitle}>{D.inspections.subtitle}</p>
+                </div>
+              </div>
+
+              {!allowBatchInspections ? (
+                <p className={coreStyles.sectionSubtitle} data-testid="inspections-role-restricted-msg">
+                  {D.inspections.restricted}
+                </p>
+              ) : inspectionsQuery.isPending ? (
+                <Skeleton label="Loading batch inspections" />
+              ) : inspectionsQuery.isError ? (
+                <ErrorState
+                  title="Unable to load batch inspections"
+                  description={
+                    inspectionsQuery.error instanceof Error
+                      ? inspectionsQuery.error.message
+                      : 'Failed to load inspections.'
+                  }
+                  onRetry={() => void inspectionsQuery.refetch()}
+                />
+              ) : !inspectionsQuery.data || inspectionsQuery.data.length === 0 ? (
+                <EmptyState
+                  title={D.inspections.emptyTitle}
+                  description={D.inspections.emptyBody}
+                />
+              ) : (
+                <ul className={coreStyles.timelineList} data-testid="batch-inspections-list">
+                  {inspectionsQuery.data.map((insp) => (
+                    <li key={insp.id} className={coreStyles.timelineItem}>
+                      <div className={coreStyles.itemCardHeader}>
+                        <div className={coreStyles.inlineRow}>
+                          {insp.status ? (
+                            <StatusBadge status={insp.status as StatusBadgeValue} />
+                          ) : null}
+                          <span>Rating: {insp.rating}/5</span>
+                          {insp.isLatest ? (
+                            <span className={coreStyles.metaLabel}>(Latest)</span>
+                          ) : null}
+                        </div>
+                        <span className={coreStyles.metaLabel}>
+                          {formatTimestamp(insp.createdAt)}
+                        </span>
+                      </div>
+                      <div className={coreStyles.metaLabel}>
+                        Inspector: {insp.inspectedBy?.name ?? insp.inspectedBy?.username ?? EMPTY_VALUE}
+                      </div>
+                      {insp.findings ? (
+                        <div>
+                          <strong>Findings:</strong> {insp.findings}
+                        </div>
+                      ) : null}
+                      {insp.recommendation ? (
+                        <div>
+                          <strong>Recommendation:</strong> {insp.recommendation}
+                        </div>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+
+            <section className={coreStyles.sectionCard} data-testid="batch-dispatch-history-section">
+              <div className={coreStyles.sectionHeader}>
+                <div>
+                  <h2 className={coreStyles.sectionTitle}>{D.dispatches.heading}</h2>
+                  <p className={coreStyles.sectionSubtitle}>{D.dispatches.subtitle}</p>
+                </div>
+              </div>
+
+              {batch.dispatchHistory && batch.dispatchHistory.length > 0 ? (
+                <ul className={coreStyles.timelineList} data-testid="batch-dispatch-history-list">
+                  {batch.dispatchHistory.map((d, idx) => (
+                    <li key={`${d.dispatchedAt ?? idx}-${idx}`} className={coreStyles.timelineItem}>
+                      <div className={coreStyles.timelineHeader}>
+                        <strong>Buyer: {d.buyerName}</strong>
+                        <span>Dispatch Date: {formatBusinessDate(d.dispatchDate)}</span>
+                      </div>
+                      <div className={coreStyles.timelineHeader}>
+                        <span>Dispatched by: {d.dispatchedBy}</span>
+                        <span>Recorded: {formatTimestamp(d.dispatchedAt)}</span>
+                      </div>
+                      {d.outOfOrder ? (
+                        <div className={coreStyles.metaValue}>
+                          <strong>FEFO Override Reason:</strong> {d.overrideReason}
+                        </div>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <EmptyState
+                  title={D.dispatches.emptyTitle}
+                  description={D.dispatches.emptyBody}
+                />
+              )}
+            </section>
+
+            {batch.id ? (
+              <section className={coreStyles.sectionCard} data-testid="batch-comments-section">
+                <div className={coreStyles.sectionHeader}>
+                  <div>
+                    <h2 className={coreStyles.sectionTitle}>{D.comments.heading}</h2>
+                    <p className={coreStyles.sectionSubtitle}>{D.comments.subtitle}</p>
+                  </div>
+                </div>
+                <RecordComments refType="batch" refId={batch.id} />
+              </section>
+            ) : null}
+            </div>
+            <div className={styles.detailSide}>
           <section className={coreStyles.sectionCard} data-testid="batch-overview-section">
             <div className={coreStyles.sectionHeader}>
               <div>
-                <h2 className={coreStyles.sectionTitle}>Provenance & Freshness Summary</h2>
-                <p className={coreStyles.sectionSubtitle}>
-                  Freshness status and where the raw material came from
-                </p>
-              </div>
-              <div className={coreStyles.inlineRow}>
-                {batch.status ? <StatusBadge status={batch.status} /> : null}
-                {batch.qualityCheck?.status ? (
-                  <StatusBadge status={batch.qualityCheck.status as StatusBadgeValue} />
-                ) : null}
+                <h2 className={coreStyles.sectionTitle}>{D.details.heading}</h2>
+                <p className={coreStyles.sectionSubtitle}>{D.details.subtitle}</p>
               </div>
             </div>
 
@@ -424,10 +705,6 @@ export function BatchDetailPage() {
                   {batch.farmerName}, {batch.village}
                 </span>
               </div>
-              <div className={coreStyles.metaItem}>
-                <span className={coreStyles.metaLabel}>Lifecycle State</span>
-                <span className={coreStyles.metaValue}>{batch.lifecycleState}</span>
-              </div>
               {batch.buyerName ? (
                 <div className={coreStyles.metaItem}>
                   <span className={coreStyles.metaLabel}>Dispatched To</span>
@@ -439,14 +716,11 @@ export function BatchDetailPage() {
             </div>
           </section>
 
-          <div className={coreStyles.twoColumnGrid}>
             <section className={coreStyles.sectionCard} data-testid="batch-quality-snapshot">
               <div className={coreStyles.sectionHeader}>
                 <div>
-                  <h2 className={coreStyles.sectionTitle}>Latest Quality Check Snapshot</h2>
-                  <p className={coreStyles.sectionSubtitle}>
-                    Embedded verdict snapshot on the batch document
-                  </p>
+                  <h2 className={coreStyles.sectionTitle}>{D.quality.heading}</h2>
+                  <p className={coreStyles.sectionSubtitle}>{D.quality.subtitle}</p>
                 </div>
                 {batch.qualityCheck?.status ? (
                   <StatusBadge status={batch.qualityCheck.status as StatusBadgeValue} />
@@ -457,7 +731,9 @@ export function BatchDetailPage() {
                 <div className={coreStyles.detailGrid}>
                   <div className={coreStyles.metaItem}>
                     <span className={coreStyles.metaLabel}>Verdict</span>
-                    <span className={coreStyles.metaValue}>{batch.qualityCheck.status}</span>
+                    <span className={coreStyles.metaValue}>
+                      {STATUS_STRINGS[batch.qualityCheck.status as keyof typeof STATUS_STRINGS] ?? batch.qualityCheck.status}
+                    </span>
                   </div>
                   <div className={coreStyles.metaItem}>
                     <span className={coreStyles.metaLabel}>Rating</span>
@@ -480,81 +756,17 @@ export function BatchDetailPage() {
                 </div>
               ) : (
                 <EmptyState
-                  title="No quality check recorded yet"
-                  description="This batch has not been inspected by a quality inspector."
+                  title={D.quality.emptyTitle}
+                  description={D.quality.emptyBody}
                 />
               )}
             </section>
 
-            <section className={coreStyles.sectionCard} data-testid="batch-note-section">
-              <div className={coreStyles.sectionHeader}>
-                <div>
-                  <h2 className={coreStyles.sectionTitle}>Traceability Note & History</h2>
-                  <p className={coreStyles.sectionSubtitle}>
-                    Current note: <strong>{batch.traceabilityNote || 'None'}</strong>
-                  </p>
-                </div>
-                <FileText size={18} aria-hidden="true" />
-              </div>
-
-              {canEditBatchNote(user) && !batch.deleted ? (
-                <form onSubmit={handleNoteSubmit} className={coreStyles.pageStack} noValidate>
-                  <Field
-                    label="Add / Update Traceability Note"
-                    error={noteError ?? undefined}
-                  >
-                    <Textarea
-                      value={noteInput}
-                      onChange={(e) => {
-                        setNoteInput(e.target.value);
-                        if (noteError) setNoteError(null);
-                      }}
-                      placeholder="Enter updated traceability note…"
-                      disabled={noteMutation.isPending}
-                      data-testid="batch-note-input"
-                    />
-                  </Field>
-                  <div>
-                    <Button
-                      type="submit"
-                      variant="secondary"
-                      size="sm"
-                      isLoading={noteMutation.isPending}
-                      disabled={noteMutation.isPending}
-                      data-testid="save-batch-note-btn"
-                    >
-                      Save Note
-                    </Button>
-                  </div>
-                </form>
-              ) : null}
-
-              {batch.noteHistory && batch.noteHistory.length > 0 ? (
-                <ul className={coreStyles.timelineList} data-testid="batch-note-history">
-                  {batch.noteHistory.map((entry, idx) => (
-                    <li key={`${entry.editedAt ?? idx}-${idx}`} className={coreStyles.timelineItem}>
-                      <div className={coreStyles.timelineHeader}>
-                        <strong>{entry.editedBy}</strong>
-                        <span>{formatTimestamp(entry.editedAt)}</span>
-                      </div>
-                      <div>{entry.note}</div>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className={coreStyles.sectionSubtitle}>No note edits recorded yet.</p>
-              )}
-            </section>
-          </div>
-
-          <div className={coreStyles.twoColumnGrid}>
             <section className={coreStyles.sectionCard} data-testid="batch-qr-section">
               <div className={coreStyles.sectionHeader}>
                 <div>
-                  <h2 className={coreStyles.sectionTitle}>Batch QR Code</h2>
-                  <p className={coreStyles.sectionSubtitle}>
-                    Cryptographic public traceability link and scannable packaging QR code
-                  </p>
+                  <h2 className={coreStyles.sectionTitle}>{D.qr.heading}</h2>
+                  <p className={coreStyles.sectionSubtitle}>{D.qr.subtitle}</p>
                 </div>
               </div>
 
@@ -582,29 +794,23 @@ export function BatchDetailPage() {
                     {qrQuery.data.qrAbsoluteUrl}
                   </div>
                   <div className={coreStyles.filterActionGroup}>
-                    <Button
-                      variant="secondary"
-                      onClick={handleCopyQrUrl}
-                      data-testid="copy-qr-url-btn"
-                    >
-                      <Copy className={coreStyles.buttonIcon} /> Copy Link
+                    <Button variant="secondary" size="sm" leftIcon={<Copy size={15} />} onClick={handleCopyQrUrl} data-testid="copy-qr-url-btn">
+                      {D.qr.copy}
                     </Button>
-                    <Button
-                      variant="secondary"
-                      onClick={handleDownloadQr}
-                      data-testid="download-qr-btn"
-                    >
-                      <Download className={coreStyles.buttonIcon} /> Download PNG
+                    <Button variant="secondary" size="sm" leftIcon={<Download size={15} />} onClick={handleDownloadQr} data-testid="download-qr-btn">
+                      {D.qr.download}
+                    </Button>
+                    <Button variant="secondary" size="sm" leftIcon={<Tag size={15} />} onClick={printLabel} data-testid="print-label-btn">
+                      {D.qr.printLabel}
                     </Button>
                     <a
                       href={qrQuery.data.qrAbsoluteUrl}
                       target="_blank"
                       rel="noopener noreferrer"
+                      className={styles.inlineLink}
                       data-testid="open-public-trace-link"
                     >
-                      <Button variant="secondary">
-                        <ExternalLink className={coreStyles.buttonIcon} /> Open Public Page
-                      </Button>
+                      <ExternalLink size={15} aria-hidden="true" /> {D.qr.open}
                     </a>
                   </div>
                 </div>
@@ -619,10 +825,8 @@ export function BatchDetailPage() {
             <section className={coreStyles.sectionCard} data-testid="batch-scans-section">
               <div className={coreStyles.sectionHeader}>
                 <div>
-                  <h2 className={coreStyles.sectionTitle}>Scan Activity</h2>
-                  <p className={coreStyles.sectionSubtitle}>
-                    Consumer and logistics scan counts, timestamps, and device analytics
-                  </p>
+                  <h2 className={coreStyles.sectionTitle}>{D.scans.heading}</h2>
+                  <p className={coreStyles.sectionSubtitle}>{D.scans.subtitle}</p>
                 </div>
               </div>
 
@@ -641,8 +845,8 @@ export function BatchDetailPage() {
               ) : !scansQuery.data || scansQuery.data.total === 0 ? (
                 <div data-testid="scans-empty-state">
                   <EmptyState
-                    title="No scans recorded yet"
-                    description="This QR code has not been scanned by any buyers or consumers yet."
+                    title={D.scans.emptyTitle}
+                    description={D.scans.emptyBody}
                   />
                 </div>
               ) : (
@@ -722,129 +926,75 @@ export function BatchDetailPage() {
                 </div>
               )}
             </section>
+            <section className={coreStyles.sectionCard} data-testid="batch-note-section">
+              <div className={coreStyles.sectionHeader}>
+                <div>
+                  <h2 className={coreStyles.sectionTitle}>{D.note.heading}</h2>
+                  <p className={coreStyles.sectionSubtitle}>
+                    Current note: <strong>{batch.traceabilityNote || 'None'}</strong>
+                  </p>
+                </div>
+                <FileText size={18} aria-hidden="true" />
+              </div>
+
+              {canEditBatchNote(user) && !batch.deleted ? (
+                <form onSubmit={handleNoteSubmit} className={coreStyles.pageStack} noValidate>
+                  <Field
+                    label="Add / Update Traceability Note"
+                    error={noteError ?? undefined}
+                  >
+                    <Textarea
+                      value={noteInput}
+                      onChange={(e) => {
+                        setNoteInput(e.target.value);
+                        if (noteError) setNoteError(null);
+                      }}
+                      placeholder="Enter updated traceability note…"
+                      disabled={noteMutation.isPending}
+                      data-testid="batch-note-input"
+                    />
+                  </Field>
+                  <div>
+                    <Button
+                      type="submit"
+                      variant="secondary"
+                      size="sm"
+                      isLoading={noteMutation.isPending}
+                      disabled={noteMutation.isPending}
+                      data-testid="save-batch-note-btn"
+                    >
+                      Save Note
+                    </Button>
+                  </div>
+                </form>
+              ) : null}
+
+              {batch.noteHistory && batch.noteHistory.length > 0 ? (
+                <ul className={coreStyles.timelineList} data-testid="batch-note-history">
+                  {batch.noteHistory.map((entry, idx) => (
+                    <li key={`${entry.editedAt ?? idx}-${idx}`} className={coreStyles.timelineItem}>
+                      <div className={coreStyles.timelineHeader}>
+                        <strong>{entry.editedBy}</strong>
+                        <span>{formatTimestamp(entry.editedAt)}</span>
+                      </div>
+                      <div>{entry.note}</div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className={coreStyles.sectionSubtitle}>No note edits recorded yet.</p>
+              )}
+            </section>
+            </div>
           </div>
 
-          <div className={coreStyles.twoColumnGrid}>
-            <section className={coreStyles.sectionCard} data-testid="batch-dispatch-history-section">
-              <div className={coreStyles.sectionHeader}>
-                <div>
-                  <h2 className={coreStyles.sectionTitle}>Dispatch History</h2>
-                  <p className={coreStyles.sectionSubtitle}>
-                    Audit trail of dispatch events and FEFO override justifications
-                  </p>
-                </div>
-              </div>
-
-              {batch.dispatchHistory && batch.dispatchHistory.length > 0 ? (
-                <ul className={coreStyles.timelineList} data-testid="batch-dispatch-history-list">
-                  {batch.dispatchHistory.map((d, idx) => (
-                    <li key={`${d.dispatchedAt ?? idx}-${idx}`} className={coreStyles.timelineItem}>
-                      <div className={coreStyles.timelineHeader}>
-                        <strong>Buyer: {d.buyerName}</strong>
-                        <span>Dispatch Date: {formatBusinessDate(d.dispatchDate)}</span>
-                      </div>
-                      <div className={coreStyles.timelineHeader}>
-                        <span>Dispatched by: {d.dispatchedBy}</span>
-                        <span>Recorded: {formatTimestamp(d.dispatchedAt)}</span>
-                      </div>
-                      {d.outOfOrder ? (
-                        <div className={coreStyles.metaValue}>
-                          <strong>FEFO Override Reason:</strong> {d.overrideReason}
-                        </div>
-                      ) : null}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <EmptyState
-                  title="Not yet dispatched"
-                  description="No dispatch events have been recorded for this batch."
-                />
-              )}
-            </section>
-
-            <section className={coreStyles.sectionCard} data-testid="batch-inspections-section">
-              <div className={coreStyles.sectionHeader}>
-                <div>
-                  <h2 className={coreStyles.sectionTitle}>Inspection Records</h2>
-                  <p className={coreStyles.sectionSubtitle}>
-                    Append-only 8-point quality inspection records for this batch
-                  </p>
-                </div>
-              </div>
-
-              {!allowBatchInspections ? (
-                <p className={coreStyles.sectionSubtitle} data-testid="inspections-role-restricted-msg">
-                  Detailed inspection checklists are restricted for your role. Refer to the Latest
-                  Quality Check Snapshot above before dispatching.
-                </p>
-              ) : inspectionsQuery.isPending ? (
-                <Skeleton label="Loading batch inspections" />
-              ) : inspectionsQuery.isError ? (
-                <ErrorState
-                  title="Unable to load batch inspections"
-                  description={
-                    inspectionsQuery.error instanceof Error
-                      ? inspectionsQuery.error.message
-                      : 'Failed to load inspections.'
-                  }
-                  onRetry={() => void inspectionsQuery.refetch()}
-                />
-              ) : !inspectionsQuery.data || inspectionsQuery.data.length === 0 ? (
-                <EmptyState
-                  title="No inspections for this batch"
-                  description="Quality inspectors can record an 8-point inspection from the Quality Inspections page."
-                />
-              ) : (
-                <ul className={coreStyles.timelineList} data-testid="batch-inspections-list">
-                  {inspectionsQuery.data.map((insp) => (
-                    <li key={insp.id} className={coreStyles.timelineItem}>
-                      <div className={coreStyles.itemCardHeader}>
-                        <div className={coreStyles.inlineRow}>
-                          {insp.status ? (
-                            <StatusBadge status={insp.status as StatusBadgeValue} />
-                          ) : null}
-                          <span>Rating: {insp.rating}/5</span>
-                          {insp.isLatest ? (
-                            <span className={coreStyles.metaLabel}>(Latest)</span>
-                          ) : null}
-                        </div>
-                        <span className={coreStyles.metaLabel}>
-                          {formatTimestamp(insp.createdAt)}
-                        </span>
-                      </div>
-                      <div className={coreStyles.metaLabel}>
-                        Inspector: {insp.inspectedBy?.name ?? insp.inspectedBy?.username ?? EMPTY_VALUE}
-                      </div>
-                      {insp.findings ? (
-                        <div>
-                          <strong>Findings:</strong> {insp.findings}
-                        </div>
-                      ) : null}
-                      {insp.recommendation ? (
-                        <div>
-                          <strong>Recommendation:</strong> {insp.recommendation}
-                        </div>
-                      ) : null}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
-
-            {batch.id ? (
-              <section className={coreStyles.sectionCard} data-testid="batch-comments-section">
-                <div className={coreStyles.sectionHeader}>
-                  <div>
-                    <h2 className={coreStyles.sectionTitle}>Comments</h2>
-                    <p className={coreStyles.sectionSubtitle}>
-                      Why a decision was taken on this batch. Comments stay with the batch permanently.
-                    </p>
-                  </div>
-                </div>
-                <RecordComments refType="batch" refId={batch.id} />
-              </section>
-            ) : null}
+          <div className={styles.printLabel} aria-hidden="true">
+            {qrQuery.data?.qrCodeDataUrl ? <img src={qrQuery.data.qrCodeDataUrl} alt="" /> : null}
+            <div>
+              <div className={styles.printLabelCode}>{batch.batchCode}</div>
+              <div>{batch.productName}</div>
+              <div>{D.bestBefore(formatBusinessDate(batch.expiryDate))}</div>
+            </div>
           </div>
 
           <DispatchDialog
@@ -861,31 +1011,50 @@ export function BatchDetailPage() {
           <ConfirmDialog
             open={archiveOpen}
             onClose={() => setArchiveOpen(false)}
-            title={`Archive Batch ${batch.batchCode ?? ''}`}
-            description="Archiving soft-deletes this batch from active views and the FEFO queue. Administrators can restore it from Archived Batches."
-            confirmLabel="Archive Batch"
+            title={D.archiveDialog.title(batch.batchCode ?? '')}
+            description={D.archiveDialog.body}
+            confirmLabel={D.archiveDialog.confirm}
+            cancelLabel={D.archiveDialog.cancel}
             variant="danger"
             requireReason
-            reasonLabel="Archive Reason"
+            reasonLabel={D.archiveDialog.reason}
             isLoading={archiveMutation.isPending}
             onConfirm={(reason) => archiveMutation.mutate(reason)}
           />
 
+          <ConfirmDialog
+            open={discardOpen}
+            onClose={() => setDiscardOpen(false)}
+            title={D.discard.title}
+            description={D.discard.body}
+            confirmLabel={D.discard.confirm}
+            cancelLabel={D.discard.cancel}
+            variant="danger"
+            onConfirm={() => {
+              setDiscardOpen(false);
+              setRawMaterialOpen(false);
+              if (batch) {
+                setFarmerName(batch.farmerName ?? '');
+                setVillage(batch.village ?? '');
+                setSourceLotCode(batch.sourceLotCode ?? '');
+                setQuantityProduced(String(batch.quantityProduced ?? ''));
+                setUnit(batch.unit ?? 'Kg');
+                setYieldPercent(String(batch.yieldPercent ?? ''));
+                setExpiryDate(batch.expiryDate ?? '');
+              }
+              setRawReason('');
+            }}
+          />
+
           <Dialog
             open={rawMaterialOpen}
-            onClose={() => {
-              if (!rawMaterialMutation.isPending) setRawMaterialOpen(false);
-            }}
-            title={`Correct Raw Material: ${batch.batchCode ?? ''}`}
-            description="Update provenance or date fields with an audited correction reason."
+            onClose={closeRawMaterial}
+            title={D.correction.title(batch.batchCode ?? '')}
+            description={D.correction.body}
             actions={
               <>
-                <Button
-                  variant="secondary"
-                  onClick={() => setRawMaterialOpen(false)}
-                  disabled={rawMaterialMutation.isPending}
-                >
-                  Cancel
+                <Button variant="secondary" onClick={closeRawMaterial} disabled={rawMaterialMutation.isPending}>
+                  {D.correction.cancel}
                 </Button>
                 <Button
                   variant="primary"
@@ -895,7 +1064,7 @@ export function BatchDetailPage() {
                   disabled={rawMaterialMutation.isPending}
                   data-testid="save-raw-material-btn"
                 >
-                  Save Correction
+                  {D.correction.save}
                 </Button>
               </>
             }

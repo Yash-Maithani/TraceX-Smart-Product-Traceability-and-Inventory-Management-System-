@@ -159,9 +159,9 @@ test.describe('Phase 8 Bulk CSV Import E2E Suite', () => {
 
     // Rollback the import via ConfirmDialog
     await page.getByTestId(`rollback-job-btn-${jobId}`).click();
-    await page.getByRole('button', { name: 'Confirm Rollback' }).click();
+    await page.getByRole('button', { name: 'Undo import', exact: true }).click();
 
-    await expect(page.getByTestId(`import-job-status-${jobId}`)).toHaveText('Rolled Back');
+    await expect(page.getByTestId(`import-job-status-${jobId}`)).toHaveText('Undone');
 
     // Re-import the exact same CSV file after rollback -> should insert 2 again
     await page.getByTestId('import-another-btn').click();

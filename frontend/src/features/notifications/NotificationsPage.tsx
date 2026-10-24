@@ -1,22 +1,53 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CheckCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import coreStyles from '../core/core.module.css';
+import styles from './notifications.module.css';
 import { fetchNotifications, markAllNotificationsRead, markNotificationRead } from '../../api/endpoints';
 import type { NotificationDto } from '../../api/types';
 import { Button, EmptyState, ErrorState, PageHeader, Skeleton, useToast } from '../../components/ui';
 import { formatTimestamp } from '../../lib/dates';
+import { NOTIFICATION_STRINGS as S } from '../../strings/inbox';
 
 /** Where a notification's "Open" link goes, if anywhere. */
 export function notificationLink(n: NotificationDto): string | null {
   if (n.refType === 'batch' && n.refId) return `/batches/${n.refId}`;
   if (n.refType === 'import') return '/import';
-  if (n.refType === 'access_request') return '/team';
+  if (n.refType === 'access_request') return '/team?tab=requests';
   return null;
 }
 
+/** Groups notifications by the reader's local calendar day: Today, Yesterday, then the date. */
+export function groupByDay(items: NotificationDto[], now: Date = new Date()): { label: string; items: NotificationDto[] }[] {
+  const dayKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+  const today = dayKey(now);
+  const y = new Date(now);
+  y.setDate(now.getDate() - 1);
+  const yesterday = dayKey(y);
+  const groups: { key: string; label: string; items: NotificationDto[] }[] = [];
+  for (const n of items) {
+    const created = n.createdAt ? new Date(n.createdAt) : null;
+    const key = created && !Number.isNaN(created.getTime()) ? dayKey(created) : 'unknown';
+    let group = groups.find((g) => g.key === key);
+    if (!group) {
+      const label =
+        key === today
+          ? S.today
+          : key === yesterday
+            ? S.yesterday
+            : created && !Number.isNaN(created.getTime())
+              ? new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'short', day: 'numeric' }).format(created)
+              : '';
+      group = { key, label, items: [] };
+      groups.push(group);
+    }
+    group.items.push(n);
+  }
+  return groups;
+}
+
 /**
- * Notifications (Phase 10): the caller's own notifications from the last 7 days, newest first.
+ * Notifications (Phase 10, redesigned in R2): the caller's own notifications from the last 7 days,
+ * newest first, grouped by day.
  */
 export function NotificationsPage() {
   const queryClient = useQueryClient();
@@ -34,11 +65,11 @@ export function NotificationsPage() {
     mutationFn: markAllNotificationsRead,
     onSuccess: async (res) => {
       await refresh();
-      pushToast({ title: res.marked ? `${res.marked} marked as read` : 'Nothing left to mark', variant: 'success' });
+      pushToast({ title: res.marked ? S.markedToast(res.marked) : S.nothingToMark, variant: 'success' });
     },
     onError: (err) =>
       pushToast({
-        title: 'Could not mark notifications as read',
+        title: S.markFailed,
         description: err instanceof Error ? err.message : undefined,
         variant: 'error'
       })
@@ -48,10 +79,11 @@ export function NotificationsPage() {
   const unread = query.data?.unreadCount ?? 0;
 
   return (
-    <div className={coreStyles.pageStack} data-testid="notifications-page">
+    <div className={styles.page} data-testid="notifications-page">
       <PageHeader
-        title="Notifications"
-        subtitle="Updates about batches, inspections, dispatches, imports and access requests from the last 7 days."
+        title={S.title}
+        subtitle={S.subtitle}
+        meta={unread > 0 ? <span className={styles.unreadChip}>{S.unreadCount(unread)}</span> : undefined}
         backdropKey="notifications"
         priority
         actions={
@@ -64,67 +96,79 @@ export function NotificationsPage() {
             onClick={() => readAll.mutate()}
             data-testid="notifications-read-all-btn"
           >
-            Mark all as read
+            {S.markAll}
           </Button>
         }
       />
 
-      <section className={coreStyles.sectionCard}>
-        {query.isLoading ? (
-          <Skeleton label="Loading notifications" />
-        ) : query.isError ? (
-          <ErrorState
-            title="Could not load notifications"
-            description={query.error instanceof Error ? query.error.message : 'Please try again.'}
-            onRetry={() => void query.refetch()}
-          />
-        ) : items.length === 0 ? (
-          <EmptyState title="No notifications" description="You're all caught up." />
-        ) : (
-          <ul className={coreStyles.timelineList} data-testid="notifications-list">
-            {items.map((n) => {
-              const link = notificationLink(n);
-              return (
-                <li
-                  key={n.id}
-                  className={coreStyles.timelineItem}
-                  data-testid={`notification-${n.id}`}
-                  data-read={n.read ? 'true' : 'false'}
-                >
-                  <div className={coreStyles.timelineHeader}>
-                    <strong>
-                      {n.read ? null : <span className="sr-only">Unread: </span>}
-                      {n.title}
-                    </strong>
-                    <span className={coreStyles.metaLabel}>{formatTimestamp(n.createdAt)}</span>
-                  </div>
-                  <p>{n.message}</p>
-                  <div className={coreStyles.inlineRow}>
-                    {link ? (
-                      <Link to={link} onClick={() => n.id && !n.read && readOne.mutate(n.id)}>
-                        Open
-                      </Link>
-                    ) : null}
-                    {!n.read && n.id ? (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => readOne.mutate(n.id!)}
-                        disabled={readOne.isPending}
-                        data-testid={`notification-read-btn-${n.id}`}
-                      >
-                        Mark as read
-                      </Button>
-                    ) : (
-                      <span className={coreStyles.metaLabel}>Read</span>
-                    )}
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </section>
+      {query.isLoading ? (
+        <Skeleton label={S.loading} className={styles.skeleton} />
+      ) : query.isError ? (
+        <ErrorState
+          title={S.errorTitle}
+          description={query.error instanceof Error ? query.error.message : S.errorBody}
+          onRetry={() => void query.refetch()}
+        />
+      ) : items.length === 0 ? (
+        <EmptyState title={S.emptyTitle} description={S.emptyBody} />
+      ) : (
+        <div className={styles.groups} data-testid="notifications-list">
+          {groupByDay(items).map((group) => (
+            <section key={group.label} aria-label={group.label} className={styles.group}>
+              <h2 className={styles.groupHeading}>{group.label}</h2>
+              <ul className={styles.list}>
+                {group.items.map((n) => {
+                  const link = notificationLink(n);
+                  return (
+                    <li
+                      key={n.id}
+                      className={`${styles.item} ${n.read ? '' : styles.itemUnread}`}
+                      data-testid={`notification-${n.id}`}
+                      data-read={n.read ? 'true' : 'false'}
+                    >
+                      <span className={styles.dot} aria-hidden="true" />
+                      <div className={styles.body}>
+                        <div className={styles.head}>
+                          <span className={styles.itemTitle}>
+                            {n.read ? null : <span className="sr-only">{S.unreadPrefix}</span>}
+                            {n.title}
+                          </span>
+                          <span className={styles.time}>{formatTimestamp(n.createdAt)}</span>
+                        </div>
+                        {n.message ? <p className={styles.message}>{n.message}</p> : null}
+                        <div className={styles.actions}>
+                          {link ? (
+                            <Link
+                              to={link}
+                              className={styles.open}
+                              onClick={() => n.id && !n.read && readOne.mutate(n.id)}
+                            >
+                              {S.open}
+                            </Link>
+                          ) : null}
+                          {!n.read && n.id ? (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => readOne.mutate(n.id!)}
+                              disabled={readOne.isPending}
+                              data-testid={`notification-read-btn-${n.id}`}
+                            >
+                              {S.markOne}
+                            </Button>
+                          ) : (
+                            <span className={styles.readLabel}>{S.read}</span>
+                          )}
+                        </div>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

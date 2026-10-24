@@ -4,7 +4,9 @@
  * the retention indexes noted beside each item. Update LEGAL_UPDATED whenever the text changes.
  */
 
-export const LEGAL_UPDATED = '23 October 2026';
+import backdropManifest from '../../../design-assets/backdrops.json';
+
+export const LEGAL_UPDATED = '24 October 2026';
 
 export interface LegalSection {
   heading: string;
@@ -129,3 +131,22 @@ export const TERMS_SECTIONS: LegalSection[] = [
     ]
   }
 ];
+
+export interface PhotoCredit {
+  key: string;
+  source: string;
+  author: string;
+  sourceUrl: string;
+  licence: string;
+  licenceUrl: string;
+}
+
+/** Page photo credits, read straight from the backdrop manifest so they never drift (redesign R4). */
+export const PHOTO_CREDITS: PhotoCredit[] = backdropManifest.map((entry) => ({
+  key: entry.key,
+  source: entry.source,
+  author: entry.author,
+  sourceUrl: entry.sourceUrl,
+  licence: entry.licence,
+  licenceUrl: entry.licenceUrl
+}));

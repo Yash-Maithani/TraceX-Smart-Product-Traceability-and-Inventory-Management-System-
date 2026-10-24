@@ -1,16 +1,19 @@
 import {
-  AlertCircle,
-  AlertOctagon,
-  AlertTriangle,
+  AlarmClock,
   Archive,
-  CheckCircle2,
+  CircleCheck,
+  CircleHelp,
+  CircleX,
   Clock,
-  HelpCircle,
+  Lock,
+  ShieldAlert,
+  ShieldCheck,
+  ShieldX,
   Trash2,
-  Truck,
-  XCircle
+  Truck
 } from 'lucide-react';
 import styles from './ui.module.css';
+import { STATUS_STRINGS } from '../../strings/status';
 import type {
   AccessRequestStatus,
   AccountStatus,
@@ -18,114 +21,130 @@ import type {
   InspectionVerdict
 } from '../../types/domain';
 
+/** ON_HOLD is derived in the browser from a FAILED latest inspection (D-19), never sent by the API. */
 export type StatusBadgeValue =
   | BatchStatusTier
   | InspectionVerdict
   | AccessRequestStatus
-  | AccountStatus;
+  | AccountStatus
+  | 'ON_HOLD';
 
 export interface BadgeVisualConfig {
   label: string;
   toneClass: string;
-  Icon: typeof CheckCircle2;
+  Icon: typeof CircleCheck;
+  /** Strong (filled) badges are kept for states that stop work: Expired and On hold. */
+  strong?: boolean;
 }
 
 export const STATUS_BADGE_MAP: Record<StatusBadgeValue, BadgeVisualConfig> = {
-  // Batch freshness tiers & lifecycle
+  // Batch freshness tiers & lifecycle (DESIGN.md §3.2)
   READY: {
-    label: 'Ready',
+    label: STATUS_STRINGS.READY,
     toneClass: styles.badgeSuccess ?? '',
-    Icon: CheckCircle2
+    Icon: CircleCheck
   },
   WARNING: {
-    label: 'Warning',
+    label: STATUS_STRINGS.WARNING,
     toneClass: styles.badgeWarning ?? '',
-    Icon: AlertTriangle
+    Icon: Clock
   },
   URGENT: {
-    label: 'Urgent',
+    label: STATUS_STRINGS.URGENT,
     toneClass: styles.badgeUrgent ?? '',
-    Icon: AlertCircle
+    Icon: AlarmClock
   },
   EXPIRED: {
-    label: 'Expired',
-    toneClass: styles.badgeDanger ?? '',
-    Icon: AlertOctagon
+    label: STATUS_STRINGS.EXPIRED,
+    toneClass: styles.badgeDangerStrong ?? '',
+    Icon: CircleX,
+    strong: true
+  },
+  ON_HOLD: {
+    label: STATUS_STRINGS.ON_HOLD,
+    toneClass: styles.badgeHold ?? '',
+    Icon: Lock,
+    strong: true
   },
   DISPATCHED: {
-    label: 'Dispatched',
+    label: STATUS_STRINGS.DISPATCHED,
     toneClass: styles.badgeInfo ?? '',
     Icon: Truck
   },
   EXCEPTION: {
-    label: 'Exception',
-    toneClass: styles.badgeNeutral ?? '',
-    Icon: HelpCircle
+    label: STATUS_STRINGS.EXCEPTION,
+    toneClass: `${styles.badgeNeutral ?? ''} ${styles.badgeDashed ?? ''}`,
+    Icon: CircleHelp
   },
 
   // Inspection verdicts
   PASSED: {
-    label: 'Passed',
+    label: STATUS_STRINGS.PASSED,
     toneClass: styles.badgeSuccess ?? '',
-    Icon: CheckCircle2
+    Icon: ShieldCheck
   },
   FLAGGED: {
-    label: 'Flagged',
+    label: STATUS_STRINGS.FLAGGED,
     toneClass: styles.badgeWarning ?? '',
-    Icon: AlertTriangle
+    Icon: ShieldAlert
   },
   FAILED: {
-    label: 'Failed',
+    label: STATUS_STRINGS.FAILED,
     toneClass: styles.badgeDanger ?? '',
-    Icon: XCircle
+    Icon: ShieldX
   },
 
   // Access request statuses
   pending: {
-    label: 'Pending',
+    label: STATUS_STRINGS.pending,
     toneClass: styles.badgeWarning ?? '',
     Icon: Clock
   },
   approved: {
-    label: 'Approved',
+    label: STATUS_STRINGS.approved,
     toneClass: styles.badgeSuccess ?? '',
-    Icon: CheckCircle2
+    Icon: CircleCheck
   },
   rejected: {
-    label: 'Rejected',
+    label: STATUS_STRINGS.rejected,
     toneClass: styles.badgeDanger ?? '',
-    Icon: XCircle
+    Icon: CircleX
   },
 
   // Account statuses (lowercase + uppercase aliases)
   active: {
-    label: 'Active',
+    label: STATUS_STRINGS.active,
     toneClass: styles.badgeSuccess ?? '',
-    Icon: CheckCircle2
+    Icon: CircleCheck
   },
   inactive: {
-    label: 'Inactive',
+    label: STATUS_STRINGS.inactive,
     toneClass: styles.badgeDanger ?? '',
-    Icon: XCircle
+    Icon: CircleX
   },
   deleted: {
-    label: 'Deleted',
+    label: STATUS_STRINGS.deleted,
     toneClass: styles.badgeNeutral ?? '',
     Icon: Trash2
   },
   ACTIVE: {
-    label: 'Active',
+    label: STATUS_STRINGS.active,
     toneClass: styles.badgeSuccess ?? '',
-    Icon: CheckCircle2
+    Icon: CircleCheck
   },
   INACTIVE: {
-    label: 'Inactive',
+    label: STATUS_STRINGS.inactive,
     toneClass: styles.badgeDanger ?? '',
-    Icon: XCircle
+    Icon: CircleX
   },
   ARCHIVED: {
-    label: 'Archived',
+    label: STATUS_STRINGS.ARCHIVED,
     toneClass: styles.badgeNeutral ?? '',
     Icon: Archive
   }
 };
+
+/** A batch is on hold when its latest inspection failed (server rule QUALITY_HOLD, D-19). */
+export function isOnHold(batch: { qualityCheck?: { status?: string | null } | null }): boolean {
+  return batch.qualityCheck?.status === 'FAILED';
+}

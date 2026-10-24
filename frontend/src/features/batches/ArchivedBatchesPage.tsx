@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, RotateCcw } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { RotateCcw, Search } from 'lucide-react';
 import coreStyles from '../core/core.module.css';
+import styles from './batches.module.css';
+import { BatchListTabs } from './BatchListTabs';
+import { BATCH_STRINGS } from '../../strings/batches';
 import { ApiError } from '../../api/client';
 import { fetchArchivedBatches, restoreBatch } from '../../api/endpoints';
 import type { BatchDetailDto } from '../../api/types';
@@ -13,6 +15,7 @@ import {
   EmptyState,
   ErrorState,
   PageHeader,
+  Pagination,
   Skeleton,
   StatusBadge,
   Table,
@@ -22,11 +25,16 @@ import {
 import { formatBusinessDate, formatTimestamp } from '../../lib/dates';
 import { EMPTY_VALUE } from '../../lib/format';
 
+const S = BATCH_STRINGS.archived;
+const PAGE_SIZE = 20;
+
 export function ArchivedBatchesPage() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { pushToast } = useToast();
   const [restoringId, setRestoringId] = useState<string | null>(null);
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
 
   const archivedQuery = useQuery({
     queryKey: ['batches', 'archived'],
@@ -50,28 +58,39 @@ export function ArchivedBatchesPage() {
           : Promise.resolve()
       ]);
       pushToast({
-        title: 'Batch restored',
-        description: `${res.data.batchCode ?? 'Batch'} has been restored to active inventory.`,
+        title: S.restoredTitle,
+        description: S.restoredBody(res.data.batchCode ?? ''),
         variant: 'success'
       });
     },
     onError: (err) => {
       setRestoringId(null);
       pushToast({
-        title: 'Restore failed',
-        description: err instanceof Error ? err.message : 'Unable to restore archived batch.',
+        title: S.restoreFailed,
+        description: err instanceof Error ? err.message : undefined,
         variant: 'error'
       });
     }
   });
 
-  const archivedList = archivedQuery.data ?? [];
+  const allArchived = archivedQuery.data ?? [];
+  // The archived endpoint returns the whole list, so search and paging happen here
+  const q = search.trim().toLowerCase();
+  const filtered = q
+    ? allArchived.filter((b) =>
+        [b.batchCode, b.productName, b.sku, b.deleteNote].some((v) => (v ?? '').toLowerCase().includes(q))
+      )
+    : allArchived;
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, pageCount);
+  const archivedList = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
   const allowRestore = canRestoreBatch(user);
 
   const columns: TableColumn<BatchDetailDto>[] = [
     {
       key: 'batchCode',
-      header: 'Batch Code',
+      header: S.columns.code,
+      nowrap: true,
       render: (row) => (
         <span className={coreStyles.monoCode} data-testid={`archived-code-${row.batchCode}`}>
           {row.batchCode}
@@ -80,7 +99,7 @@ export function ArchivedBatchesPage() {
     },
     {
       key: 'productName',
-      header: 'Product & SKU',
+      header: S.columns.product,
       render: (row) => (
         <div>
           <div>
@@ -92,24 +111,25 @@ export function ArchivedBatchesPage() {
     },
     {
       key: 'expiryDate',
-      header: 'Expiry Date',
+      header: S.columns.expires,
+      nowrap: true,
       render: (row) => <span>{formatBusinessDate(row.expiryDate)}</span>
     },
     {
       key: 'deletedInfo',
-      header: 'Archived By / Reason',
+      header: S.columns.archived,
       render: (row) => (
         <div>
           <div>{row.deleteNote ?? EMPTY_VALUE}</div>
           <div className={coreStyles.metaLabel}>
-            {row.deletedBy ?? EMPTY_VALUE} • {formatTimestamp(row.deletedAt)}
+            {S.by(row.deletedBy ?? EMPTY_VALUE, formatTimestamp(row.deletedAt))}
           </div>
         </div>
       )
     },
     {
       key: 'actions',
-      header: 'Actions',
+      header: S.columns.action,
       render: (row) =>
         allowRestore && row.id ? (
           <Button
@@ -121,7 +141,7 @@ export function ArchivedBatchesPage() {
             onClick={() => restoreMutation.mutate(row.id!)}
             data-testid={`restore-batch-btn-${row.batchCode}`}
           >
-            Restore
+            {S.restore}
           </Button>
         ) : (
           <StatusBadge status="ARCHIVED" />
@@ -132,50 +152,56 @@ export function ArchivedBatchesPage() {
   return (
     <div className={coreStyles.pageStack} data-testid="archived-batches-page">
       <PageHeader
-        title="Archived Batches"
-        subtitle="Soft-deleted production batches. Administrators can restore batches back to active inventory."
-        breadcrumbs={[
-          { label: 'Batches', href: '/batches' },
-          { label: 'Archived' }
-        ]}
+        title={S.title}
+        subtitle={S.subtitle}
+        meta={archivedQuery.isSuccess ? <span className={styles.countChip}>{S.count(allArchived.length)}</span> : undefined}
         backdropKey="batches"
         priority
-        actions={
-          <Link to="/batches">
-            <Button variant="secondary" size="sm" leftIcon={<ArrowLeft size={15} />}>
-              Active Batches
-            </Button>
-          </Link>
-        }
       />
+
+      <BatchListTabs />
+
+      {allArchived.length > 0 ? (
+        <section className={styles.toolbar} aria-label={S.searchLabel}>
+          <label className={styles.searchBox}>
+            <Search size={16} aria-hidden="true" />
+            <span className="sr-only">{S.searchLabel}</span>
+            <input
+              type="search"
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              placeholder={S.searchPlaceholder}
+              data-testid="archived-search"
+            />
+          </label>
+        </section>
+      ) : null}
 
       {archivedQuery.isPending ? (
         <div className={coreStyles.sectionCard} aria-busy="true">
-          <Skeleton label="Loading archived batches" />
+          <Skeleton label={S.loading} />
         </div>
       ) : archivedQuery.isError ? (
         <ErrorState
-          title="Unable to load archived batches"
-          description={
-            archivedQuery.error instanceof Error
-              ? archivedQuery.error.message
-              : 'Failed to load archived batches.'
-          }
+          title={S.errorTitle}
+          description={archivedQuery.error instanceof Error ? archivedQuery.error.message : BATCH_STRINGS.errorBody}
           requestId={
             archivedQuery.error instanceof ApiError ? archivedQuery.error.requestId : undefined
           }
           onRetry={() => void archivedQuery.refetch()}
         />
-      ) : archivedList.length === 0 ? (
-        <EmptyState
-          title="No archived batches"
-          description="There are currently no soft-deleted batches in the archive."
-        />
+      ) : allArchived.length === 0 ? (
+        <EmptyState title={S.emptyTitle} description={S.emptyBody} />
+      ) : filtered.length === 0 ? (
+        <EmptyState title={S.noMatchTitle} description={S.noMatchBody} />
       ) : (
         <>
           <div className={coreStyles.desktopTableWrap}>
             <Table
-              caption="Archived production batches"
+              caption={S.caption}
               columns={columns}
               data={archivedList}
               rowKey={(row) => row.id ?? row.batchCode ?? ''}
@@ -197,7 +223,7 @@ export function ArchivedBatchesPage() {
                   <strong>{row.productName}</strong> ({row.sku})
                 </div>
                 <div className={coreStyles.metaItem}>
-                  <span className={coreStyles.metaLabel}>Archive Note</span>
+                  <span className={coreStyles.metaLabel}>{S.columns.archived}</span>
                   <span className={coreStyles.metaValue}>{row.deleteNote ?? EMPTY_VALUE}</span>
                 </div>
                 {allowRestore && row.id ? (
@@ -210,13 +236,16 @@ export function ArchivedBatchesPage() {
                       disabled={restoreMutation.isPending}
                       onClick={() => restoreMutation.mutate(row.id!)}
                     >
-                      Restore
+                      {S.restore}
                     </Button>
                   </div>
                 ) : null}
               </article>
             ))}
           </div>
+          {filtered.length > PAGE_SIZE ? (
+            <Pagination page={safePage} pageSize={PAGE_SIZE} totalItems={filtered.length} onPageChange={setPage} />
+          ) : null}
         </>
       )}
     </div>

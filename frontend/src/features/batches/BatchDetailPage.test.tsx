@@ -172,6 +172,21 @@ describe('BatchDetailPage (Phase 6 Part D)', () => {
     expect(screen.getByTestId('batch-dispatch-history-list')).toBeInTheDocument();
     expect(screen.getByTestId('batch-inspections-list')).toBeInTheDocument();
 
+    // History timeline (redesign R3): packed, notes, inspections and dispatches, newest first
+    const timeline = await screen.findByTestId('batch-timeline');
+    const items = timeline.querySelectorAll('li');
+    expect(items.length).toBeGreaterThanOrEqual(3);
+    expect(items[items.length - 1]).toHaveTextContent(/Packed/);
+    expect(timeline).toHaveTextContent(/Dispatched to/);
+
+    // Closing the correction dialog with unsaved edits asks first (redesign R3)
+    fireEvent.click(screen.getByTestId('open-raw-material-btn'));
+    fireEvent.change(screen.getByTestId('raw-quantity'), { target: { value: '999' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(await screen.findByText('Discard your changes?')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Discard changes' }));
+    await waitFor(() => expect(screen.queryByTestId('raw-quantity')).toBeNull());
+
     // Correct raw material
     fireEvent.click(screen.getByTestId('open-raw-material-btn'));
     fireEvent.change(screen.getByTestId('raw-quantity'), { target: { value: '130' } });
@@ -203,10 +218,10 @@ describe('BatchDetailPage (Phase 6 Part D)', () => {
 
     // Archive batch
     fireEvent.click(screen.getByTestId('open-archive-dialog-btn'));
-    fireEvent.change(screen.getByLabelText(/Archive Reason/i), {
+    fireEvent.change(screen.getByLabelText(/Reason for archiving/i), {
       target: { value: 'Test archive cleanup' }
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Archive Batch' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Archive batch' }));
 
     await waitFor(() => {
       expect(archiveSpy).toHaveBeenCalledWith('b-detail-1', {
@@ -375,6 +390,6 @@ describe('BatchDetailPage (Phase 6 Part D)', () => {
       expect(screen.getByTestId('scans-empty-state')).toBeInTheDocument();
     });
 
-    expect(screen.getByText('No scans recorded yet')).toBeInTheDocument();
+    expect(screen.getByText('No scans yet')).toBeInTheDocument();
   });
 });

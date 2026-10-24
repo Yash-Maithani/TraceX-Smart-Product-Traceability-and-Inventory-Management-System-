@@ -10,7 +10,8 @@ import {
   BACKDROP_KEYS,
   BACKDROP_KEY_ROUTES,
   getBackdropVariantForKey,
-  resolveBackdropKeyForPath
+  resolveBackdropKeyForPath,
+  SIGNED_IN_PAGE_BANNERS
 } from '../../routes/backdrops';
 // @ts-expect-error mjs script import for manifest check verification
 import { validateBackdropManifest } from '../../../scripts/check-backdrops.mjs';
@@ -190,7 +191,7 @@ describe('Phase 5.1 Per-Page Photo Backdrops (Parts B, C & D)', () => {
     expect(getBackdropVariantForKey('dashboard')).toBe('banner');
   });
 
-  it('renders PageHeader with backdropKey using banner variant and passes vitest-axe', async () => {
+  it('renders PageHeader with backdropKey using the photo banner (D-20 reopened) and passes vitest-axe', async () => {
     const { container } = render(
       <ThemeProvider>
         <PageHeader
@@ -202,22 +203,26 @@ describe('Phase 5.1 Per-Page Photo Backdrops (Parts B, C & D)', () => {
       </ThemeProvider>
     );
 
+    // Photo banners are on for signed-in pages (D-20 reopened in redesign R4)
+    expect(SIGNED_IN_PAGE_BANNERS).toBe(true);
     expect(screen.getByTestId('page-backdrop-banner-dispatch')).toBeInTheDocument();
+    expect(screen.getByTestId('page-header')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Warehouse Dispatch' })).toBeInTheDocument();
     expect(await axe(container)).toHaveNoViolations();
   });
 
-  it('fails check-backdrops validation when a non-placeholder entry lacks licence metadata', () => {
+  it('check-backdrops (redesign R4): accepts licensed photos, rejects placeholders, missing licences and unrecorded AI images', () => {
     const validEntries = BACKDROP_KEYS.map((key) => ({
       key,
       routes: [...BACKDROP_KEY_ROUTES[key]],
-      source: 'TraceX Placeholder',
-      author: 'TraceX',
-      licence: 'Internal Placeholder',
-      licenceUrl: '',
-      approvedByOwner: false,
+      source: 'Wikimedia Commons: Example',
+      author: 'Example Photographer',
+      licence: 'CC BY-SA 4.0',
+      licenceUrl: 'https://creativecommons.org/licenses/by-sa/4.0/',
+      approvedByOwner: true,
       objectPosition: 'center center',
-      placeholder: true
+      placeholder: false,
+      aiGenerated: false
     }));
 
     const routeSet = new Set(Object.keys(BACKDROP_KEY_ROUTES));
@@ -226,38 +231,39 @@ describe('Phase 5.1 Per-Page Photo Backdrops (Parts B, C & D)', () => {
       warnings: string[];
     };
     expect(validResult.errors).toEqual([]);
-    expect(validResult.warnings).toHaveLength(14);
+    expect(validResult.warnings).toHaveLength(0);
 
-    // Plant a non-placeholder entry missing licence, licenceUrl, and approvedByOwner
-    const invalidEntries = validEntries.map((entry) =>
-      entry.key === 'dashboard'
-        ? {
-            ...entry,
-            placeholder: false,
-            licence: '',
-            licenceUrl: '',
-            approvedByOwner: false
-          }
-        : entry
-    );
+    const plant = (key: string, change: Record<string, unknown>) =>
+      validEntries.map((entry) => (entry.key === key ? { ...entry, ...change } : entry));
 
-    const invalidResult = validateBackdropManifest(invalidEntries, routeSet) as {
-      errors: string[];
-      warnings: string[];
-    };
-    expect(invalidResult.errors.length).toBeGreaterThanOrEqual(3);
-    expect(invalidResult.errors.some((e) => e.includes('missing a non-empty "licence"'))).toBe(
-      true
-    );
+    // A placeholder is now an error, not a warning
+    const placeholderResult = validateBackdropManifest(plant('qr', { placeholder: true }), routeSet) as { errors: string[] };
+    expect(placeholderResult.errors.some((e) => e.includes('still a placeholder'))).toBe(true);
+
+    // Missing licence, licence URL and owner approval
+    const invalidResult = validateBackdropManifest(
+      plant('dashboard', { licence: '', licenceUrl: '', approvedByOwner: false }),
+      routeSet
+    ) as { errors: string[] };
+    expect(invalidResult.errors.some((e) => e.includes('missing a non-empty "licence"'))).toBe(true);
     expect(invalidResult.errors.some((e) => e.includes('missing a valid "licenceUrl"'))).toBe(true);
     expect(invalidResult.errors.some((e) => e.includes('"approvedByOwner": true'))).toBe(true);
+
+    // AI images need the owner exception plus a tool and prompt record
+    const aiResult = validateBackdropManifest(plant('team', { aiGenerated: true }), routeSet) as { errors: string[] };
+    expect(aiResult.errors.some((e) => e.includes('AI-generated key'))).toBe(true);
+    const aiOk = validateBackdropManifest(
+      plant('team', { aiGenerated: true, aiTool: 'Example tool', aiPrompt: 'Example prompt' }),
+      routeSet
+    ) as { errors: string[] };
+    expect(aiOk.errors).toEqual([]);
   });
 
   it('fails contrast check when backdrop scrim opacity is lowered too far over a pure white pixel', () => {
     const tokensPath = path.resolve(process.cwd(), 'src/styles/tokens.css');
     const originalCss = fs.readFileSync(tokensPath, 'utf8');
     const weakenedCss = originalCss.replace(
-      '--backdrop-scrim: rgba(20, 20, 19, 0.82);',
+      '--backdrop-scrim: rgba(20, 20, 19, 0.66);',
       '--backdrop-scrim: rgba(20, 20, 19, 0.25);'
     );
 

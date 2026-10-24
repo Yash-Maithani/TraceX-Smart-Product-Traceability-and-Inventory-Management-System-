@@ -1,0 +1,432 @@
+/* Public home page (redesign R4.1). Flat colours only, radius from tokens, no motion beyond hover colour. */
+
+.homeRoot {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+}
+
+/* Header */
+.topBar {
+  padding: 0 var(--space-4);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.topBarInner {
+  max-width: 72rem;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  padding: var(--space-3) 0;
+}
+
+.brand {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.brand:hover {
+  color: var(--text-primary);
+}
+
+.sectionNav {
+  display: none;
+  gap: var(--space-6);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+
+.sectionNav a {
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.sectionNav a:hover {
+  color: var(--text-primary);
+  text-decoration: underline;
+}
+
+.topBarEnd {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+@media (min-width: 768px) {
+  .sectionNav {
+    display: flex;
+  }
+}
+
+/* Hero: the banner backdrop, full width and tall */
+.hero.hero {
+  border: none;
+  border-radius: 0;
+  min-height: 30rem;
+}
+
+.hero > div:last-child {
+  max-width: 72rem;
+  margin: 0 auto;
+  width: calc(100% - 2 * var(--space-4));
+  align-items: center;
+  padding: var(--space-12) 0;
+}
+
+@media (min-width: 1024px) {
+  .hero.hero {
+    min-height: 34rem;
+  }
+}
+
+.heroCopy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 40rem;
+}
+
+.heroHeading {
+  margin: 0;
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-tight);
+  letter-spacing: -0.015em;
+  color: var(--banner-title);
+}
+
+@media (min-width: 768px) {
+  .heroHeading {
+    font-size: 2.75rem;
+  }
+}
+
+.heroLead {
+  margin: 0;
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+  color: var(--banner-title);
+}
+
+.heroPlace {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--banner-subtitle);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.photoSecondary,
+.plainSecondary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--touch-target-min);
+  padding: 0 var(--space-5);
+  border-radius: var(--radius-sm);
+  border: 1px solid;
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  text-decoration: none;
+}
+
+.photoSecondary,
+.photoSecondary:hover {
+  background-color: var(--banner-control-bg);
+  border-color: var(--banner-control-border);
+  color: var(--banner-control-text);
+}
+
+.photoSecondary:focus-visible {
+  outline-color: var(--banner-focus-ring);
+}
+
+.plainSecondary,
+.plainSecondary:hover {
+  background-color: var(--bg-surface);
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+/* Sections */
+.section {
+  padding: var(--space-16) var(--space-4);
+  scroll-margin-top: var(--space-16);
+}
+
+.sectionAlt {
+  background-color: var(--bg-surface);
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.sectionInner {
+  max-width: 72rem;
+  margin: 0 auto;
+}
+
+.sectionHeading {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-tight);
+}
+
+.sectionLead {
+  margin: var(--space-2) 0 var(--space-8);
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+  max-width: 40rem;
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+}
+
+.cardText {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  color: var(--text-secondary);
+}
+
+.iconBox {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  background-color: var(--accent-subtle-bg);
+  color: var(--accent-primary);
+}
+
+/* How it works */
+.steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .steps {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .steps {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.stepTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stepNumber {
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+/* What's inside */
+.featureGrid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+  .featureGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .featureGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.feature {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+  padding: var(--space-5);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-canvas);
+}
+
+.feature > div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.statusPanel {
+  margin-top: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-canvas);
+}
+
+.statusRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* Who uses it */
+.roleList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-surface);
+}
+
+.role {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-1);
+  padding: var(--space-4) var(--space-5);
+}
+
+.role + .role {
+  border-top: 1px solid var(--border-subtle);
+}
+
+@media (min-width: 640px) {
+  .role {
+    grid-template-columns: 14rem 1fr;
+    align-items: baseline;
+    gap: var(--space-4);
+  }
+}
+
+.roleName {
+  font-weight: var(--weight-semibold);
+}
+
+/* Call to action */
+.ctaSection {
+  padding: 0 var(--space-4) var(--space-16);
+}
+
+.cta {
+  max-width: 72rem;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  padding: var(--space-8);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-left: 4px solid var(--accent-primary);
+  border-radius: var(--radius-md);
+}
+
+.cta > div:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.ctaHeading {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+}
+
+/* Footer */
+.footer {
+  margin-top: auto;
+  background-color: var(--bg-surface);
+  border-top: 1px solid var(--border-subtle);
+  padding: var(--space-10) var(--space-4) var(--space-6);
+}
+
+.footerInner {
+  max-width: 72rem;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-6);
+}
+
+.footerAbout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: 24rem;
+}
+
+.footerLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-6);
+  font-size: var(--text-sm);
+}
+
+.footerLinks a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--touch-target-min);
+}
+
+.copyright {
+  max-width: 72rem;
+  margin: var(--space-6) auto 0;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-subtle);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
