@@ -338,7 +338,7 @@ test.describe('Phase 7 E2E Verification Suite (QR & Public Trace)', () => {
     await page.goto(`/trace/${sharedBatch.batchCode}`);
     await expect(page.getByTestId('legacy-trace-deprecation')).toBeVisible();
     await expect(
-      page.getByText('This Link Format is No Longer Supported')
+      page.getByText('This link format is no longer supported')
     ).toBeVisible();
 
     // Verify zero uncaught React / runtime console errors

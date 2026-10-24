@@ -500,6 +500,8 @@ Seed scripts for dev, test, and demo data live in `backend/src/main/resources/se
 
 ## §5 — UI
 
+> **Since the UI/UX redesign (R1 to R7, 2026-10-24), [`DESIGN.md`](DESIGN.md) is the source of truth for the UI**: tokens, type scale, components, status set, page layouts and copy rules. The rules below still hold and are enforced by `check:banned`, `check:contrast` and `check:backdrops`. Where they differ, DESIGN.md wins. Notable updates: IBM Plex Sans and Mono are self-hosted (D-25), page titles use a 1.875rem step, tables offer three row heights, and per-page photo backdrops are real licensed photos with credits on the Privacy page (D-20 reopened).
+
 ### §5.1 — Design Tokens
 
 ```

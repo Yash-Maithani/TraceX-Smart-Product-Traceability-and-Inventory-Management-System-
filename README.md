@@ -106,6 +106,8 @@ Before running the browser tests, build the backend jar (`.\mvnw.cmd clean verif
 - [Project Guide (`docs/project-guide.md`)](docs/project-guide.md): start here
 - [API Key Setup (`docs/setup/api-keys.md`)](docs/setup/api-keys.md)
 - [System Specification (`SPEC.md`)](SPEC.md)
+- [Design System (`DESIGN.md`)](DESIGN.md): colours, type, components and copy rules for the UI
+- UI/UX redesign evidence: [audit](docs/06-ui/AUDIT.md), [research](docs/06-ui/RESEARCH.md), [imagery](docs/06-ui/IMAGERY.md), [before](docs/screenshots/before/) and [after](docs/screenshots/after/) screenshots
 - [Project Progress & Verification Log (`PROGRESS.md`)](PROGRESS.md)
 - [Permission Matrix (`docs/permission-matrix.csv`)](docs/permission-matrix.csv)
 - Historical, from before the rebuild (describe the old Node app, not this code): [`docs/BRIEF.md`](docs/BRIEF.md), [`docs/HANDOFF.md`](docs/HANDOFF.md)

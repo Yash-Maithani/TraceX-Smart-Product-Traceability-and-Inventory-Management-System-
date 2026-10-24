@@ -1,8 +1,17 @@
 import { useState } from 'react';
+import { AlarmClock, CircleX, ClipboardCheck, Lock, Package, Truck } from 'lucide-react';
 import styles from './StyleguidePage.module.css';
 import {
   Button,
+  ButtonLink,
   Checkbox,
+  DateRangeChip,
+  FilterChip,
+  Kbd,
+  ShelfLifeRail,
+  StatCard,
+  Tabs,
+  Timeline,
   ConfirmDialog,
   Dialog,
   EmptyState,
@@ -70,6 +79,9 @@ export default function StyleguidePage() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [sgTab, setSgTab] = useState('queue');
+  const [sgChip, setSgChip] = useState('KMGC');
+  const [sgRange, setSgRange] = useState({ from: '2026-10-01', to: '' });
 
   const allBadgeStatuses = Object.keys(STATUS_BADGE_MAP) as StatusBadgeValue[];
 
@@ -264,6 +276,89 @@ export default function StyleguidePage() {
             description="Provide a mandatory reason before overriding FEFO order."
             requireReason
           />
+        </section>
+
+        <section className={styles.section} aria-labelledby="sg-console" data-testid="sg-console-section">
+          <h2 id="sg-console" className={styles.sectionTitle}>
+            Console components (redesign R1 to R6)
+          </h2>
+          <h3 className={styles.variantSubheading}>Stat cards: every tone, a link and the unavailable state</h3>
+          <div className={styles.row}>
+            <StatCard label="Expired" value={1} context="Cannot be dispatched." tone="danger" icon={<CircleX size={16} />} />
+            <StatCard label="Expiring in 7 days" value={2} context="Dispatch these first." tone="urgent" icon={<AlarmClock size={16} />} to="/fefo" />
+            <StatCard label="Expiring" value={3} tone="warning" />
+            <StatCard label="On hold" value={1} context="Latest inspection failed." tone="hold" icon={<Lock size={16} />} />
+            <StatCard label="Dispatched today" value={0} tone="info" />
+            <StatCard label="Passed" value={5} tone="success" />
+            <StatCard label="Access requests" value={null} unavailableText="Only administrators see this." />
+          </div>
+
+          <h3 className={styles.variantSubheading}>Tabs with counts</h3>
+          <Tabs
+            label="Example tabs"
+            idPrefix="sg-tabs"
+            selectedId={sgTab}
+            onSelect={setSgTab}
+            tabs={[
+              { id: 'queue', label: 'Ready to ship', count: 10 },
+              { id: 'expired', label: 'Expired', count: 1 },
+              { id: 'missing', label: 'Missing expiry', count: 0 }
+            ]}
+          />
+          <p id={`sg-tabs-panel-${sgTab}`} role="tabpanel" aria-labelledby={`sg-tabs-tab-${sgTab}`} className={styles.tabPanelNote}>
+            Panel for the {sgTab} tab.
+          </p>
+
+          <h3 className={styles.variantSubheading}>Filter chips: empty, active and date range</h3>
+          <div className={styles.row}>
+            <FilterChip label="Status" value="" options={[{ value: 'READY', label: 'Fresh' }]} onChange={() => {}} />
+            <FilterChip label="Product" value={sgChip} options={[{ value: 'KMGC', label: 'Multigrain Crackers (KMGC)' }]} onChange={setSgChip} />
+            <DateRangeChip
+              label="Expiry"
+              fromLabel="Expires on or after"
+              toLabel="Expires on or before"
+              from={sgRange.from}
+              to={sgRange.to}
+              onApply={(from, to) => setSgRange({ from, to })}
+              testId="sg-date-range"
+            />
+          </div>
+
+          <h3 className={styles.variantSubheading}>Shelf-life rail: fresh, expiring, expiring soon, expired, dispatched</h3>
+          <div className={styles.railGrid}>
+            <ShelfLifeRail packDate="2026-09-01" expiryDate="2027-03-01" daysUntilExpiry={120} status="READY" />
+            <ShelfLifeRail packDate="2026-09-01" expiryDate="2026-11-20" daysUntilExpiry={25} status="WARNING" />
+            <ShelfLifeRail packDate="2026-09-01" expiryDate="2026-10-26" daysUntilExpiry={1} status="URGENT" />
+            <ShelfLifeRail packDate="2026-09-01" expiryDate="2026-10-20" daysUntilExpiry={-4} status="EXPIRED" />
+            <ShelfLifeRail packDate="2026-09-01" expiryDate="2026-12-01" daysUntilExpiry={37} status="DISPATCHED" />
+          </div>
+
+          <h3 className={styles.variantSubheading}>Timeline</h3>
+          <Timeline
+            label="Example batch journey"
+            entries={[
+              { id: 'packed', icon: <Package size={14} />, iconLabel: 'Packed', title: 'Packed', time: 'Oct 1, 2026' },
+              { id: 'insp', icon: <ClipboardCheck size={14} />, iconLabel: 'Inspection', title: 'Quality check passed', time: 'Oct 4, 2026', tone: 'success', body: 'Rated 5 of 5.' },
+              { id: 'note', icon: <ClipboardCheck size={14} />, iconLabel: 'Note', title: 'Note edited', time: 'Oct 5, 2026', condensed: true },
+              { id: 'hold', icon: <Lock size={14} />, iconLabel: 'Hold', title: 'Put on hold', time: 'Oct 6, 2026', tone: 'danger' },
+              { id: 'disp', icon: <Truck size={14} />, iconLabel: 'Dispatched', title: 'Dispatched to a buyer', time: 'Oct 8, 2026', tone: 'info' }
+            ]}
+          />
+
+          <h3 className={styles.variantSubheading}>Links styled as buttons and keyboard keys</h3>
+          <div className={styles.row}>
+            <ButtonLink to="/fefo" variant="primary">
+              Open dispatch queue
+            </ButtonLink>
+            <ButtonLink to="/batches" variant="secondary">
+              All batches
+            </ButtonLink>
+            <ButtonLink to="/" variant="ghost">
+              Dashboard
+            </ButtonLink>
+            <Kbd keys={['Ctrl', 'K']} />
+            <Kbd keys={['?']} />
+          </div>
         </section>
 
         <section className={styles.section} aria-labelledby="sg-states">

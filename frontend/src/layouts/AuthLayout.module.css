@@ -298,3 +298,36 @@
   font-size: var(--text-sm);
   color: var(--text-muted);
 }
+
+/* Legal pages: on-page contents list (redesign R6, AUDIT §3.13) */
+.legalContents {
+  margin-bottom: var(--space-6);
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-canvas);
+}
+
+.legalContents h2 {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--text-secondary);
+}
+
+.legalContents ol {
+  margin: 0;
+  padding-left: var(--space-5);
+  columns: 2 14rem;
+  column-gap: var(--space-6);
+  font-size: var(--text-sm);
+}
+
+.legalContents li {
+  padding: var(--space-1) 0;
+  break-inside: avoid;
+}
+
+.legalSection {
+  scroll-margin-top: var(--space-6);
+}

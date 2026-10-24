@@ -30,7 +30,7 @@ export function LegacyTracePage() {
           <div className={publicStyles.traceCard}>
             <div data-testid="legacy-trace-deprecation">
               <EmptyState
-                title="This Link Format is No Longer Supported"
+                title="This link format is no longer supported"
                 description="Public trace links are now secured with tamper-proof cryptographic tokens. Direct batch code lookup URLs have been deprecated. Please scan the official printed QR code on the packaging to access the authentic traceability record."
                 action={
                   <Link to="/login">

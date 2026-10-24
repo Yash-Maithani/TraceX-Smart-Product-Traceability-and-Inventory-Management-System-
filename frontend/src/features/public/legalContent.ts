@@ -37,7 +37,7 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
     heading: 'What your browser stores',
     items: [
       'Your sign-in token, in session storage. It is removed when you close the tab or sign out.',
-      'Your display settings (theme, colours, page photos, sidebar), in local storage.',
+      'Your display settings (theme, colours, page photos, sidebar and table row height), in local storage.',
       'No advertising or tracking cookies, and no analytics scripts.'
     ]
   },
@@ -51,7 +51,7 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
     heading: 'Who can see your data',
     items: [
       'Staff see only what their role allows. Administrators manage accounts; managers can view them.',
-      'The public QR trace page shows the product, batch code, dates and freshness status. It never shows the farmer\'s name or anyone\'s contact details.',
+      'The public QR trace page shows the product, batch code, village, dates, freshness and the latest quality check. It never shows the farmer\'s name or anyone\'s contact details.',
       'If the AI dispatch audit is switched on, current batch details are sent to Google Gemini (or NVIDIA as a backup) to produce advice. Farmer names are never sent.',
       'If Google sign-in is switched on and you use it, Google confirms your email address to TraceX.',
       'We do not sell or share data with anyone else.'

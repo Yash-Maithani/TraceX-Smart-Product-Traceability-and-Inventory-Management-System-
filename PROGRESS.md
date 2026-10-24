@@ -442,7 +442,7 @@
 
 ## UI/UX Redesign
 
-> Added 2026-10-23, imagery phase added 2026-10-24. **Status: R1 to R5 COMPLETE (awaiting review).** Plan: [docs/06-ui/IMAGERY.md](docs/06-ui/IMAGERY.md). Frontend only: no API contract, RBAC, route or backend changes. Design source of truth: [DESIGN.md](DESIGN.md). Evidence: [docs/06-ui/AUDIT.md](docs/06-ui/AUDIT.md), [docs/06-ui/RESEARCH.md](docs/06-ui/RESEARCH.md), [docs/screenshots/before/](docs/screenshots/before/).
+> Added 2026-10-23, imagery phase added 2026-10-24. **Status: R1 to R5 committed (`5224c7f`); R6 and R7 COMPLETE (awaiting review). Redesign done; only the custom domain is left on the launch checklist.** Plan: [docs/06-ui/IMAGERY.md](docs/06-ui/IMAGERY.md). Frontend only: no API contract, RBAC, route or backend changes. Design source of truth: [DESIGN.md](DESIGN.md). Evidence: [docs/06-ui/AUDIT.md](docs/06-ui/AUDIT.md), [docs/06-ui/RESEARCH.md](docs/06-ui/RESEARCH.md), [docs/screenshots/before/](docs/screenshots/before/).
 
 ### Redesign phase table
 
@@ -453,8 +453,8 @@
 | R3 | Batches list, batch detail (timeline) and archived | COMPLETE (awaiting review), [phase-r3](docs/progress/phase-r3.md) |
 | R4 | Imagery: real photos, photo banners, split sign-in layout, trace photo; R4.1 public home page | COMPLETE (awaiting review), [phase-r4](docs/progress/phase-r4.md) |
 | R5 | FEFO, dispatch, inspections and import | COMPLETE (awaiting review), [phase-r5](docs/progress/phase-r5.md) |
-| R6 | Team, settings, profile, auth pages, public QR trace, legal recheck and styleguide | NOT STARTED |
-| R7 | Final polish, after screenshots and launch checklist | NOT STARTED |
+| R6 | Team, settings, profile, auth pages, public QR trace, legal recheck and styleguide | COMPLETE (awaiting review), [phase-r6](docs/progress/phase-r6.md) |
+| R7 | Final polish, after screenshots and launch checklist | COMPLETE (awaiting review), [phase-r7](docs/progress/phase-r7.md) |
 
 ### Definition of done for every redesign phase
 
@@ -549,14 +549,14 @@
 **Goal:** admin screens that are calm and safe.
 **Files:** `features/team/*`, `features/settings/*`, `features/profile/*`, `features/styleguide/*`, strings.
 **Skills:** design-system, ux-copy, design-critique.
-- [ ] Team tabs with counts, search, row action menu; destructive red only inside menus and confirms.
-- [ ] Settings owns Display (theme, palette, accent, density, page photos) and sign-in history with "Unknown browser".
-- [ ] Profile copy without internal terms; sign out everywhere confirm.
-- [ ] Styleguide shows every component state, the status set, rails, densities, all palettes and accents.
-- [ ] Forbidden and Not found states with plain copy.
+- [x] Team tabs with counts, search, row action menu; destructive red only inside menus and confirms.
+- [x] Settings owns Display (theme, palette, accent, density, page photos) and sign-in history with "Unknown browser".
+- [x] Profile copy without internal terms; sign out everywhere confirm.
+- [x] Styleguide shows every component state, the status set, rails, densities, all palettes and accents.
+- [x] Forbidden and Not found states with plain copy.
 **Acceptance:** styleguide covers every component in DESIGN.md §4 in every state.
 **Tests:** update `e2e/phase09.spec.ts`; styleguide axe test.
-**Status:** NOT STARTED
+**Status:** COMPLETE (awaiting review), [phase-r6](docs/progress/phase-r6.md)
 
 ### R6 (part 2): Auth pages, public QR trace page and legal pages recheck
 
@@ -565,34 +565,34 @@
 **Goal:** a clear first impression for staff and shoppers.
 **Files:** `layouts/AuthLayout.*`, `features/auth/*`, `features/public/*`, `routes/backdrops.ts`, `design-assets/backdrops.json` (keys only, if D-20 change approved), strings.
 **Skills:** web-review, frontend-design, ux-copy, accessibility-review.
-- [ ] Auth layout 40/60 with brand panel or approved photo; no mobile top band; only wordmark and light/dark toggle in the header.
-- [ ] Public trace: consumer wording, rail, short journey, single panel, fixed footer spacing, invalid-link state without nesting.
-- [ ] Legal pages: 70ch column, contents list, recheck content against what the code stores.
-- [ ] Recheck favicon files and links; recheck no builder tag.
+- [x] Auth layout 40/60 with brand panel or approved photo; no mobile top band; only wordmark and light/dark toggle in the header.
+- [x] Public trace: consumer wording, rail, short journey, single panel, fixed footer spacing, invalid-link state without nesting.
+- [x] Legal pages: 70ch column, contents list, recheck content against what the code stores.
+- [x] Recheck favicon files and links; recheck no builder tag.
 **Acceptance:** public trace page at 390px shows product, best-before and verdict above the fold; legal pages read at 65 to 75 characters per line.
 **Tests:** update `e2e/phase05.spec.ts`, `phase05-1.spec.ts` (backdrops), `phase07.spec.ts`; `check:backdrops` updated for the reduced key set if approved.
-**Status:** NOT STARTED
+**Status:** COMPLETE (awaiting review), [phase-r6](docs/progress/phase-r6.md)
 
 ### R7: Final polish, after screenshots and launch checklist
 
 **Goal:** prove the redesign and get ready to launch.
 **Files:** `docs/screenshots/after/`, `docs/06-ui/AUDIT.md` (after column), `README.md`, `docs/project-guide.md`, `SPEC.md` §5 (update to match DESIGN.md).
 **Skills:** web-review, design-critique, accessibility-review.
-- [ ] Full after-screenshot set matching `before/`.
-- [ ] Re-run the audit; every High issue closed, remaining Medium and Low listed.
-- [ ] SPEC §5 updated to point at DESIGN.md (SPEC.md is kept, not deleted).
-- [ ] Launch checklist below reviewed.
+- [x] Full after-screenshot set matching `before/`.
+- [x] Re-run the audit; every High issue closed, remaining Medium and Low listed.
+- [x] SPEC §5 updated to point at DESIGN.md (SPEC.md is kept, not deleted).
+- [x] Launch checklist below reviewed.
 **Acceptance:** AUDIT.md shows before and after for all Top 10 issues.
 **Tests:** full suite and all checks.
-**Status:** NOT STARTED
+**Status:** COMPLETE (awaiting review), [phase-r7](docs/progress/phase-r7.md)
 
 ### Launch checklist (HARD UI RULE 9)
 
-- [ ] Custom domain connected
-- [ ] Real favicon present and linked (files exist: `public/favicon.svg`, `favicon.ico`, `apple-touch-icon.png`; recheck in R6)
-- [ ] No "made with AI" or builder tag anywhere (none found on 2026-10-23; checker rule added in R1)
-- [ ] Privacy Policy page live (`/privacy` exists; recheck in R6)
-- [ ] Terms and Conditions page live (`/terms` exists; recheck in R6)
+- [ ] Custom domain connected (needs Yash: DNS and hosting)
+- [x] Real favicon present and linked (`public/favicon.svg`, `favicon.ico`, `apple-touch-icon.png`, linked in `index.html`; rechecked in R6)
+- [x] No "made with AI" or builder tag anywhere (rechecked in R6; checker rule added in R1)
+- [x] Privacy Policy page live (`/privacy`, rechecked in R6, contents list and photo credits)
+- [x] Terms and Conditions page live (`/terms`, rechecked in R6)
 
 ### Decisions / Open questions
 

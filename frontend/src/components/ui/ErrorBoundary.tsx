@@ -36,7 +36,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       return (
         <main id="main-content" tabIndex={-1}>
           <ErrorState
-            title="Application Error"
+            title="Something went wrong"
             description={this.state.message}
             onRetry={() => {
               this.setState({ hasError: false, message: '' });

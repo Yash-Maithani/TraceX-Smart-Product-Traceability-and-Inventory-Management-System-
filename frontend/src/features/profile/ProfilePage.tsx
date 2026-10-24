@@ -16,6 +16,7 @@ import {
   useToast
 } from '../../components/ui';
 import { STRINGS } from '../../strings/en';
+import { SHELL_STRINGS } from '../../strings/common';
 import { EMPTY_VALUE } from '../../lib/format';
 import { GoogleLinkCard } from './GoogleLinkCard';
 
@@ -65,7 +66,7 @@ export function ProfilePage() {
       await queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
       await refreshSession();
       pushToast({
-        title: 'Profile updated',
+        title: 'Details saved',
         description: `Saved profile details for ${res.data.name ?? name.trim()}.`,
         variant: 'success'
       });
@@ -79,7 +80,7 @@ export function ProfilePage() {
         }
         setProfileFieldErrors(mapped);
       } else {
-        setProfileError(err instanceof Error ? err.message : 'Unable to update profile.');
+        setProfileError(err instanceof Error ? err.message : 'Could not save your details.');
       }
     }
   });
@@ -103,7 +104,7 @@ export function ProfilePage() {
 
       pushToast({
         title: 'Password changed',
-        description: 'Your password was updated and your active session token was rotated.',
+        description: 'Other browsers signed in to your account were signed out. This one stays signed in.',
         variant: 'success'
       });
     },
@@ -116,7 +117,7 @@ export function ProfilePage() {
         }
         setPasswordFieldErrors(mapped);
       } else {
-        setPasswordError(err instanceof Error ? err.message : 'Unable to change password.');
+        setPasswordError(err instanceof Error ? err.message : 'Could not change your password.');
       }
     }
   });
@@ -142,8 +143,8 @@ export function ProfilePage() {
   return (
     <div className={coreStyles.pageStack} data-testid="profile-page">
       <PageHeader
-        title="Profile & Security"
-        subtitle="Manage your operator contact details, change your password, or revoke active sessions."
+        title="Profile and security"
+        subtitle="Your contact details, your password, and where you are signed in."
         backdropKey="settings"
         priority
       />
@@ -152,11 +153,11 @@ export function ProfilePage() {
         <section className={coreStyles.sectionCard} data-testid="profile-details-card">
           <div className={coreStyles.sectionHeader}>
             <div>
-              <h2 className={coreStyles.sectionTitle}>Operator Profile</h2>
+              <h2 className={coreStyles.sectionTitle}>Your details</h2>
               <p className={coreStyles.sectionSubtitle}>
-                Username: <strong className={coreStyles.monoCode}>{user?.username}</strong> • Role:{' '}
+                Username: <strong className={coreStyles.monoCode}>{user?.username}</strong>, role:{' '}
                 <strong>{roleLabel}</strong>
-                {user?.superAdmin ? ' (Super Admin)' : ''}
+                {user?.superAdmin ? ' (super administrator)' : ''}
               </p>
             </div>
             <StatusBadge status={user?.active === false ? 'inactive' : 'active'} />
@@ -173,7 +174,7 @@ export function ProfilePage() {
               </div>
             ) : null}
 
-            <Field label="Full Name" required error={profileFieldErrors.name}>
+            <Field label="Full name" required error={profileFieldErrors.name}>
               <Input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -182,7 +183,7 @@ export function ProfilePage() {
               />
             </Field>
 
-            <Field label="Email Address" required error={profileFieldErrors.email}>
+            <Field label="Email address" required error={profileFieldErrors.email}>
               <Input
                 type="email"
                 value={email}
@@ -194,7 +195,7 @@ export function ProfilePage() {
 
             {emailChanged ? (
               <Field
-                label="Current Password"
+                label="Current password"
                 required
                 hint="Needed to confirm a change of email address."
                 error={profileFieldErrors.currentPassword}
@@ -210,7 +211,7 @@ export function ProfilePage() {
               </Field>
             ) : null}
 
-            <Field label="Phone Number" error={profileFieldErrors.phone}>
+            <Field label="Phone number" error={profileFieldErrors.phone}>
               <Input
                 type="tel"
                 value={phone}
@@ -240,10 +241,9 @@ export function ProfilePage() {
           <section className={coreStyles.sectionCard} data-testid="profile-password-card">
             <div className={coreStyles.sectionHeader}>
               <div>
-                <h2 className={coreStyles.sectionTitle}>Change Password</h2>
+                <h2 className={coreStyles.sectionTitle}>Change password</h2>
                 <p className={coreStyles.sectionSubtitle}>
-                  Changing your password increments tokenVersion, revokes other sessions, and
-                  rotates the active JWT for this browser tab.
+                  Every other browser signed in to your account is signed out. This one stays signed in.
                 </p>
               </div>
               <KeyRound size={18} aria-hidden="true" />
@@ -261,7 +261,7 @@ export function ProfilePage() {
               ) : null}
 
               <Field
-                label="Current Password"
+                label="Current password"
                 required
                 error={passwordFieldErrors.currentPassword}
               >
@@ -274,7 +274,7 @@ export function ProfilePage() {
               </Field>
 
               <Field
-                label="New Password (minimum 8 characters)"
+                label="New password (at least 8 characters)"
                 required
                 error={passwordFieldErrors.newPassword}
               >
@@ -294,7 +294,7 @@ export function ProfilePage() {
                   disabled={passwordMutation.isPending}
                   data-testid="profile-change-password-btn"
                 >
-                  Update Password
+                  Change password
                 </Button>
               </div>
             </form>
@@ -303,9 +303,9 @@ export function ProfilePage() {
           <section className={coreStyles.sectionCard} data-testid="profile-sessions-card">
             <div className={coreStyles.sectionHeader}>
               <div>
-                <h2 className={coreStyles.sectionTitle}>Active Sessions</h2>
+                <h2 className={coreStyles.sectionTitle}>Where you are signed in</h2>
                 <p className={coreStyles.sectionSubtitle}>
-                  Immediately invalidate all active JWTs across every browser and device.
+                  If you used a shared computer or think someone else has your password, sign out on every device.
                 </p>
               </div>
             </div>
@@ -328,9 +328,10 @@ export function ProfilePage() {
       <ConfirmDialog
         open={confirmLogoutAllOpen}
         onClose={() => setConfirmLogoutAllOpen(false)}
-        title="Sign out everywhere"
-        description="This will immediately increment your account's tokenVersion and sign out all active sessions."
+        title={SHELL_STRINGS.signOutAllTitle}
+        description={SHELL_STRINGS.signOutAllBody}
         confirmLabel="Sign out everywhere"
+        cancelLabel="Stay signed in"
         variant="danger"
         isLoading={isLoggingOutAll}
         onConfirm={async () => {

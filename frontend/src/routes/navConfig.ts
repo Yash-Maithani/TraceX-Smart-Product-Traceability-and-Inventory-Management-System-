@@ -30,6 +30,8 @@ export interface NavRouteItem {
   enabled: boolean;
   /** Sidebar group (UI/UX redesign R1, DESIGN.md §4 Sidebar). */
   group: 'operations' | 'team';
+  /** Extra words the command palette matches, e.g. the old page names (redesign R7). */
+  keywords?: string;
 }
 
 /**
@@ -59,7 +61,8 @@ export const NAV_ROUTES: readonly NavRouteItem[] = [
   },
   {
     path: '/import',
-    label: 'Bulk Import',
+    label: 'Import',
+    keywords: 'bulk csv upload',
     iconName: 'upload',
     endpoint: { method: 'GET', path: '/api/v1/import/schema' },
     minRoles: getAllowedRolesForEndpoint('GET', '/api/v1/import/schema'),
@@ -69,7 +72,8 @@ export const NAV_ROUTES: readonly NavRouteItem[] = [
   },
   {
     path: '/fefo',
-    label: 'FEFO & Dispatch',
+    label: 'Dispatch queue',
+    keywords: 'fefo first expired first out dispatch',
     iconName: 'truck',
     endpoint: { method: 'GET', path: '/api/v1/dispatch/fefo' },
     minRoles: getAllowedRolesForEndpoint('GET', '/api/v1/dispatch/fefo'),
@@ -79,7 +83,8 @@ export const NAV_ROUTES: readonly NavRouteItem[] = [
   },
   {
     path: '/inspections',
-    label: 'Quality Inspections',
+    label: 'Inspections',
+    keywords: 'quality checks verdict',
     iconName: 'clipboard',
     endpoint: { method: 'GET', path: '/api/v1/inspections' },
     minRoles: getAllowedRolesForEndpoint('GET', '/api/v1/inspections'),
@@ -89,7 +94,7 @@ export const NAV_ROUTES: readonly NavRouteItem[] = [
   },
   {
     path: '/batches/archived',
-    label: 'Archived Batches',
+    label: 'Archived batches',
     iconName: 'archive',
     endpoint: { method: 'GET', path: '/api/v1/batches/archived' },
     minRoles: getAllowedRolesForEndpoint('GET', '/api/v1/batches/archived'),
@@ -99,7 +104,8 @@ export const NAV_ROUTES: readonly NavRouteItem[] = [
   },
   {
     path: '/profile',
-    label: 'Profile & Security',
+    label: 'Profile',
+    keywords: 'security password sessions',
     iconName: 'shield',
     endpoint: { method: 'GET', path: '/api/v1/auth/me' },
     minRoles: getAllowedRolesForEndpoint('GET', '/api/v1/auth/me'),
@@ -109,7 +115,8 @@ export const NAV_ROUTES: readonly NavRouteItem[] = [
   },
   {
     path: '/team',
-    label: 'Team & Access',
+    label: 'Team',
+    keywords: 'access users requests roles',
     iconName: 'users',
     endpoint: { method: 'GET', path: '/api/v1/auth/users' },
     minRoles: getAllowedRolesForEndpoint('GET', '/api/v1/auth/users'),

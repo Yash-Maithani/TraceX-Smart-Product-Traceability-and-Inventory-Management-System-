@@ -4,7 +4,7 @@
  * the backend server stays the sole authority on RBAC permissions for every endpoint (SPEC §7, Phase 5 & 6).
  */
 import type { ReactNode } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import {
   canCallEndpoint,
@@ -14,8 +14,9 @@ import {
   type MatrixRole
 } from './permissions.generated';
 import type { UserRole } from '../api/types';
-import { Button, ForbiddenState, PageHeader } from '../components/ui';
-import { resolveBackdropKeyForPath } from '../routes/backdrops';
+import { ButtonLink, ForbiddenState } from '../components/ui';
+import { NAV_ROUTES } from '../routes/navConfig';
+import styles from './RequireRole.module.css';
 import { STRINGS } from '../strings/en';
 
 export interface RequireRoleProps {
@@ -50,23 +51,22 @@ export function RequireRole({ allowedRoles, endpoint, children }: RequireRolePro
   }
 
   if (!isPermitted) {
-    const roleLabels = requiredList.map(
-      (r) => (STRINGS.roles as Record<string, string>)[r] ?? r
+    const roleLabels = requiredList.map((r) =>
+      r === 'super-admin' ? STRINGS.states.superAdminRole : (STRINGS.roles as Record<string, string>)[r] ?? r
     );
-    const backdropKey = resolveBackdropKeyForPath(location.pathname);
+    // Name the page and the viewer's role in plain words (AUDIT §3.14); shown once, not in a banner and a card
+    const page = NAV_ROUTES.find((r) => r.path !== '/' && location.pathname.startsWith(r.path));
+    const myRole = user?.role ? (STRINGS.roles as Record<string, string>)[user.role] ?? user.role : null;
     return (
-      <div>
-        <PageHeader
-          title={STRINGS.states.forbiddenTitle}
-          subtitle={STRINGS.states.forbiddenBody}
-          backdropKey={backdropKey}
-        />
+      <div className={styles.forbiddenPage}>
         <ForbiddenState
+          title={page ? STRINGS.states.forbiddenTitleFor(page.label) : STRINGS.states.forbiddenTitle}
+          description={myRole ? STRINGS.states.forbiddenBodyFor(myRole) : STRINGS.states.forbiddenBody}
           requiredRoles={roleLabels}
           action={
-            <Link to="/">
-              <Button variant="secondary">{STRINGS.states.backToHome}</Button>
-            </Link>
+            <ButtonLink to="/" variant="secondary">
+              {STRINGS.states.backToHome}
+            </ButtonLink>
           }
         />
       </div>

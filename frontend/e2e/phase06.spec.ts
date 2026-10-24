@@ -477,7 +477,7 @@ test.describe('Phase 6 E2E Verification Suite (Core Feature UI & Checks 6, 8, 9)
     await page.goto('/batches');
     await expect(page.getByTestId('batches-desktop-table')).toBeVisible();
     await expect(page.getByTestId('open-create-batch-btn')).toHaveCount(0);
-    await expect(page.getByTestId('desktop-sidebar')).not.toContainText('Quality Inspections');
+    await expect(page.getByTestId('desktop-sidebar')).not.toContainText('Inspections');
 
     await page.goto(`/batches/${batchToArchive.id}`);
     await expect(page.getByTestId('inspections-role-restricted-msg')).toBeVisible();

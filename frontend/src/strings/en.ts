@@ -104,11 +104,17 @@ export const STRINGS = {
     emptyDefaultBody: 'There are no items matching the current criteria.',
     errorDefaultTitle: 'Unable to load data',
     errorDefaultBody: 'The request could not be completed.',
-    forbiddenTitle: 'Access Restricted (403)',
-    forbiddenBody: 'Your account role does not have permission to view this page.',
-    notFoundTitle: 'Page Not Found (404)',
-    notFoundBody: 'The requested page does not exist.',
-    backToHome: 'Back to overview'
+    forbiddenTitle: 'You do not have access to this page',
+    forbiddenTitleFor: (page: string) => `You do not have access to ${page}`,
+    forbiddenBody: 'Ask an administrator if you need access.',
+    forbiddenBodyFor: (role: string) => `Your role is ${role}. Ask an administrator if you need access.`,
+    notFoundTitle: 'Page not found',
+    notFoundBody: 'This link does not lead anywhere in TraceX. It may be mistyped or out of date.',
+    backToHome: 'Go to the dashboard',
+    backToStart: 'Go to the home page',
+    superAdminRole: 'Super administrator',
+    forbiddenRoles: (roles: readonly string[]) =>
+      roles.length === 1 ? `This page is for the ${roles[0]} role.` : `This page is for these roles: ${roles.join(', ')}.`
   },
   publicPages: {
     privacyTitle: 'Privacy Policy',

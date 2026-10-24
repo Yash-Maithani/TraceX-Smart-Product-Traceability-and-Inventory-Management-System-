@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Check, MailPlus, RotateCcw, Trash2, UserCog, UserMinus, UserPlus, X } from 'lucide-react';
+import { Check, MailPlus, MoreHorizontal, RotateCcw, Search, Trash2, UserCog, UserMinus, UserPlus, X } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
-import coreStyles from '../core/core.module.css';
+import batchStyles from '../batches/batches.module.css';
+import consoleStyles from '../../components/ui/console.module.css';
+import styles from './team.module.css';
 import {
   approveAccessRequest,
   changeUserRole,
@@ -22,20 +24,22 @@ import { canCallEndpoint } from '../../auth/permissions.generated';
 import {
   Button,
   Dialog,
+  EmptyState,
   ErrorState,
   Field,
   PageHeader,
+  Popover,
   Select,
   Skeleton,
   StatusBadge,
-  Table,
+  Tabs,
   Textarea,
-  useToast,
-  type TableColumn
+  useToast
 } from '../../components/ui';
 import { formatTimestamp } from '../../lib/dates';
 import { EMPTY_VALUE } from '../../lib/format';
 import { STRINGS } from '../../strings/en';
+import { TEAM_STRINGS as S } from '../../strings/team';
 
 type TeamTab = 'users' | 'requests' | 'recycle';
 
@@ -50,21 +54,30 @@ function errorText(err: unknown, fallback: string): string {
   return err instanceof Error ? err.message : fallback;
 }
 
+/** Case-insensitive match on any of the given fields. */
+function matches(term: string, ...fields: Array<string | undefined>): boolean {
+  if (!term) return true;
+  const t = term.toLowerCase();
+  return fields.some((f) => (f ?? '').toLowerCase().includes(t));
+}
+
 /**
- * Team & Access (Phase 9). The server is the authority on every rule; the UI only hides
- * actions the server would refuse, using the same rules as SPEC §2 Admin-vs-Admin.
+ * Team and access (Phase 9, redesigned in R6). The server is the authority on every rule; the UI only
+ * hides actions the server would refuse, using the same rules as SPEC §2 Admin-vs-Admin.
  */
 export function TeamPage() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { pushToast } = useToast();
   // The dashboard's access-request tile opens /team?tab=requests
-  const [searchParams] = useSearchParams();
-  const [tab, setTab] = useState<TeamTab>(() => (searchParams.get('tab') === 'requests' ? 'requests' : 'users'));
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabParam = searchParams.get('tab');
+  const canSeeRecycleBin = canCallEndpoint(user, 'GET', '/api/v1/auth/users/deleted');
+  const tab: TeamTab = tabParam === 'requests' ? 'requests' : tabParam === 'recycle' && canSeeRecycleBin ? 'recycle' : 'users';
+  const [search, setSearch] = useState('');
 
   const canWriteUsers = canCallEndpoint(user, 'PATCH', '/api/v1/auth/users/:id/toggle');
   const canWriteRequests = canCallEndpoint(user, 'POST', '/api/v1/auth/requests/:id/approve');
-  const canSeeRecycleBin = canCallEndpoint(user, 'GET', '/api/v1/auth/users/deleted');
   const isSuperAdmin = user?.superAdmin === true;
 
   const [roleTarget, setRoleTarget] = useState<UserSummaryDto | null>(null);
@@ -104,7 +117,7 @@ export function TeamPage() {
     },
     onError: (err) => {
       setBusyKey(null);
-      pushToast({ title: 'Action failed', description: errorText(err, 'The server refused this change.'), variant: 'error' });
+      pushToast({ title: S.failedTitle, description: errorText(err, S.failedBody), variant: 'error' });
     }
   });
 
@@ -118,345 +131,369 @@ export function TeamPage() {
     return true;
   };
 
-  const userColumns: TableColumn<UserSummaryDto>[] = [
-    {
-      key: 'name',
-      header: 'Name',
-      render: (row) => (
-        <div>
-          <strong>{row.name ?? row.username}</strong>
-          <div className={coreStyles.metaLabel}>
-            <span className={coreStyles.monoCode}>{row.username}</span>
-          </div>
-        </div>
-      )
-    },
-    { key: 'email', header: 'Email', render: (row) => <span>{row.email ?? EMPTY_VALUE}</span> },
-    {
-      key: 'role',
-      header: 'Role',
-      render: (row) => (
-        <span>
-          {roleLabel(row.role)}
-          {row.superAdmin ? ' (Super Admin)' : ''}
-        </span>
-      )
-    },
-    {
-      key: 'status',
-      header: 'Status',
-      render: (row) => <StatusBadge status={row.active === false ? 'inactive' : 'active'} />
-    },
-    {
-      key: 'actions',
-      header: 'Actions',
-      render: (row) =>
-        canManage(row) ? (
-          <div className={coreStyles.inlineRow}>
-            <Button
-              variant="secondary"
-              size="sm"
-              leftIcon={<UserCog size={14} />}
+  const users = usersQuery.data ?? [];
+  const requests = requestsQuery.data ?? [];
+  const deleted = deletedQuery.data ?? [];
+  const pendingCount = requests.filter((r) => r.status === 'pending').length;
+
+  const term = search.trim();
+  const shownUsers = users.filter((u) => matches(term, u.name, u.username, u.email));
+  const shownRequests = requests.filter((r) => matches(term, r.name, r.email));
+  const shownDeleted = deleted.filter((u) => matches(term, u.name, u.username, u.email));
+
+  const selectTab = (id: string) => {
+    const next = new URLSearchParams(searchParams);
+    if (id === 'users') next.delete('tab');
+    else next.set('tab', id);
+    setSearchParams(next, { replace: true });
+  };
+
+  const userMenu = (row: UserSummaryDto) => (
+    <Popover
+      label={S.actionsFor(row.name ?? row.username ?? '')}
+      align="end"
+      renderTrigger={({ ref, ...p }) => (
+        <button
+          ref={ref}
+          type="button"
+          {...p}
+          className={styles.menuTrigger}
+          aria-label={S.actionsFor(row.name ?? row.username ?? '')}
+          data-testid={`team-actions-btn-${row.username}`}
+        >
+          <MoreHorizontal size={18} aria-hidden="true" />
+        </button>
+      )}
+    >
+      {(close) => (
+        <ul className={consoleStyles.menuList}>
+          <li>
+            <button
+              type="button"
+              className={consoleStyles.menuItem}
               onClick={() => {
+                close();
                 setRoleTarget(row);
                 setNewRole((row.role as UserRole) ?? 'manager');
               }}
               data-testid={`team-role-btn-${row.username}`}
             >
-              Role
-            </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              leftIcon={row.active === false ? <UserPlus size={14} /> : <UserMinus size={14} />}
-              isLoading={isBusy(`toggle-${row.id}`)}
+              <UserCog size={16} aria-hidden="true" /> {S.actions.changeRole}
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              className={consoleStyles.menuItem}
               disabled={action.isPending}
-              onClick={() =>
+              onClick={() => {
+                close();
                 action.mutate({
                   key: `toggle-${row.id}`,
                   run: () => toggleUserActive(row.id!),
-                  done: row.active === false ? `${row.username} activated` : `${row.username} deactivated`
-                })
-              }
+                  done: row.active === false ? S.done.activated(row.username ?? '') : S.done.deactivated(row.username ?? '')
+                });
+              }}
               data-testid={`team-toggle-btn-${row.username}`}
             >
-              {row.active === false ? 'Activate' : 'Deactivate'}
-            </Button>
-            <Button
-              variant="danger"
-              size="sm"
-              leftIcon={<Trash2 size={14} />}
+              {row.active === false ? <UserPlus size={16} aria-hidden="true" /> : <UserMinus size={16} aria-hidden="true" />}{' '}
+              {row.active === false ? S.actions.activate : S.actions.deactivate}
+            </button>
+          </li>
+          <li>
+            <hr className={consoleStyles.menuSeparator} />
+          </li>
+          <li>
+            <button
+              type="button"
+              className={`${consoleStyles.menuItem} ${consoleStyles.menuItemDanger}`}
               onClick={() => {
+                close();
                 setDeleteTarget(row);
                 setDeleteNote('');
               }}
               data-testid={`team-delete-btn-${row.username}`}
             >
-              Delete
-            </Button>
-          </div>
-        ) : (
-          <span className={coreStyles.metaLabel}>{row.id === user?.id ? 'You' : 'No actions'}</span>
-        )
-    }
-  ];
+              <Trash2 size={16} aria-hidden="true" /> {S.actions.delete}
+            </button>
+          </li>
+        </ul>
+      )}
+    </Popover>
+  );
 
-  const requestColumns: TableColumn<AccessRequestSummaryDto>[] = [
-    {
-      key: 'name',
-      header: 'Applicant',
-      render: (row) => (
-        <div>
-          <strong>{row.name}</strong>
-          <div className={coreStyles.metaLabel}>{row.email}</div>
-        </div>
-      )
-    },
-    { key: 'role', header: 'Requested Role', render: (row) => <span>{roleLabel(row.role)}</span> },
-    {
-      key: 'status',
-      header: 'Status',
-      render: (row) => (
-        <div>
-          <StatusBadge status={row.status ?? 'pending'} />
-          {row.status === 'approved' ? (
-            <div className={coreStyles.metaLabel}>
-              {row.inviteUsed ? 'Account created' : `Invite expires ${formatTimestamp(row.inviteExpiry)}`}
-            </div>
-          ) : null}
-        </div>
-      )
-    },
-    { key: 'createdAt', header: 'Requested', render: (row) => <span>{formatTimestamp(row.createdAt)}</span> },
-    {
-      key: 'actions',
-      header: 'Actions',
-      render: (row) =>
-        canWriteRequests && row.id ? (
-          <div className={coreStyles.inlineRow}>
-            {row.status !== 'approved' ? (
-              <Button
-                variant="primary"
-                size="sm"
-                leftIcon={<Check size={14} />}
-                isLoading={isBusy(`approve-${row.id}`)}
-                disabled={action.isPending}
-                onClick={() =>
-                  action.mutate({
-                    key: `approve-${row.id}`,
-                    run: () => approveAccessRequest(row.id!),
-                    done: `Invite sent to ${row.email}`
-                  })
-                }
-                data-testid={`request-approve-btn-${row.email}`}
-              >
-                Approve
-              </Button>
-            ) : null}
-            {row.status === 'approved' && !row.inviteUsed ? (
-              <Button
-                variant="secondary"
-                size="sm"
-                leftIcon={<MailPlus size={14} />}
-                isLoading={isBusy(`resend-${row.id}`)}
-                disabled={action.isPending}
-                onClick={() =>
-                  action.mutate({
-                    key: `resend-${row.id}`,
-                    run: () => resendAccessInvite(row.id!),
-                    done: `New invite sent to ${row.email}`
-                  })
-                }
-                data-testid={`request-resend-btn-${row.email}`}
-              >
-                Resend
-              </Button>
-            ) : null}
-            {row.status !== 'rejected' && !row.inviteUsed ? (
-              <Button
-                variant="secondary"
-                size="sm"
-                leftIcon={<X size={14} />}
+  const requestMenu = (row: AccessRequestSummaryDto) => (
+    <Popover
+      label={S.actionsFor(row.email ?? '')}
+      align="end"
+      renderTrigger={({ ref, ...p }) => (
+        <button
+          ref={ref}
+          type="button"
+          {...p}
+          className={styles.menuTrigger}
+          aria-label={S.actionsFor(row.email ?? '')}
+          data-testid={`request-actions-btn-${row.email}`}
+        >
+          <MoreHorizontal size={18} aria-hidden="true" />
+        </button>
+      )}
+    >
+      {(close) => (
+        <ul className={consoleStyles.menuList}>
+          {row.status !== 'rejected' && !row.inviteUsed ? (
+            <li>
+              <button
+                type="button"
+                className={`${consoleStyles.menuItem} ${consoleStyles.menuItemDanger}`}
                 onClick={() => {
+                  close();
                   setRejectTarget(row);
                   setRejectNote('');
                 }}
                 data-testid={`request-reject-btn-${row.email}`}
               >
-                Reject
-              </Button>
-            ) : null}
-            <Button
-              variant="ghost"
-              size="sm"
-              leftIcon={<Trash2 size={14} />}
-              isLoading={isBusy(`delete-request-${row.id}`)}
+                <X size={16} aria-hidden="true" /> {S.actions.reject}
+              </button>
+            </li>
+          ) : null}
+          <li>
+            <button
+              type="button"
+              className={consoleStyles.menuItem}
               disabled={action.isPending}
-              onClick={() =>
+              onClick={() => {
+                close();
                 action.mutate({
                   key: `delete-request-${row.id}`,
                   run: () => deleteAccessRequest(row.id!),
-                  done: `Request from ${row.email} removed`
-                })
-              }
+                  done: S.done.removed(row.email ?? '')
+                });
+              }}
               data-testid={`request-delete-btn-${row.email}`}
             >
-              Remove
-            </Button>
-          </div>
-        ) : (
-          <span className={coreStyles.metaLabel}>View only</span>
-        )
-    }
-  ];
+              <Trash2 size={16} aria-hidden="true" /> {S.actions.remove}
+            </button>
+          </li>
+        </ul>
+      )}
+    </Popover>
+  );
 
-  const deletedColumns: TableColumn<UserSummaryDto>[] = [
-    {
-      key: 'name',
-      header: 'Name',
-      render: (row) => (
-        <div>
-          <strong>{row.name ?? row.username}</strong>
-          <div className={coreStyles.metaLabel}>{row.email ?? EMPTY_VALUE}</div>
-        </div>
-      )
-    },
-    { key: 'role', header: 'Role', render: (row) => <span>{roleLabel(row.role)}</span> },
-    { key: 'updatedAt', header: 'Deleted', render: (row) => <span>{formatTimestamp(row.updatedAt)}</span> },
-    {
-      key: 'actions',
-      header: 'Actions',
-      render: (row) =>
-        row.id ? (
-          <Button
-            variant="secondary"
-            size="sm"
-            leftIcon={<RotateCcw size={14} />}
-            isLoading={isBusy(`restore-${row.id}`)}
-            disabled={action.isPending}
-            onClick={() =>
-              action.mutate({
-                key: `restore-${row.id}`,
-                run: () => restoreTeamUser(row.id!),
-                done: `${row.username} restored`
-              })
-            }
-            data-testid={`recycle-restore-btn-${row.username}`}
-          >
-            Restore
-          </Button>
-        ) : null
-    }
-  ];
-
-  const users = usersQuery.data ?? [];
-  const requests = requestsQuery.data ?? [];
-  const pendingCount = requests.filter((r) => r.status === 'pending').length;
-
-  const renderList = <T,>(
+  const renderPanel = (
     query: { isLoading: boolean; isError: boolean; error: unknown; refetch: () => unknown },
-    caption: string,
-    columns: TableColumn<T>[],
-    data: T[],
-    rowKey: (row: T) => string,
-    emptyTitle: string
+    total: number,
+    shown: number,
+    empty: { title: string; body?: string },
+    list: ReactNode
   ) => {
-    if (query.isLoading) return <Skeleton label="Loading list" />;
+    if (query.isLoading) return <Skeleton label={S.loading} />;
     if (query.isError) {
-      return (
-        <ErrorState
-          title="Could not load this list"
-          description={errorText(query.error, 'Please try again.')}
-          onRetry={() => void query.refetch()}
-        />
-      );
+      return <ErrorState title={S.errorTitle} description={errorText(query.error, S.errorBody)} onRetry={() => void query.refetch()} />;
     }
-    return <Table caption={caption} columns={columns} data={data} rowKey={rowKey} emptyTitle={emptyTitle} />;
+    if (total === 0) return empty.body ? <EmptyState title={empty.title} description={empty.body} /> : <EmptyState title={empty.title} />;
+    if (shown === 0) return <EmptyState title={S.noMatchTitle} description={S.noMatchBody} />;
+    return list;
   };
 
   return (
-    <div className={coreStyles.pageStack} data-testid="team-page">
-      <PageHeader
-        title="Team & Access"
-        subtitle={
-          canWriteUsers
-            ? 'Manage who can use TraceX, what role they have, and new access requests.'
-            : 'See who has access to TraceX and which access requests are waiting. Changes need an administrator.'
-        }
-        backdropKey="team"
-        priority
+    <div className={batchStyles.page} data-testid="team-page">
+      <PageHeader title={S.title} subtitle={canWriteUsers ? S.subtitleAdmin : S.subtitleReadOnly} backdropKey="team" priority />
+
+      <Tabs
+        label={S.tabsLabel}
+        idPrefix="team"
+        selectedId={tab}
+        onSelect={selectTab}
+        tabs={[
+          { id: 'users', label: S.tabs.users, count: users.length, testId: 'team-tab-users' },
+          { id: 'requests', label: S.tabs.requests, count: pendingCount, testId: 'team-tab-requests' },
+          ...(canSeeRecycleBin ? [{ id: 'recycle', label: S.tabs.recycle, count: deleted.length, testId: 'team-tab-recycle' }] : [])
+        ]}
       />
 
-      <div className={coreStyles.tabBar} role="tablist" aria-label="Team views">
-        <button
-          type="button"
-          role="tab"
-          aria-selected={tab === 'users'}
-          className={`${coreStyles.tabBtn} ${tab === 'users' ? coreStyles.tabBtnActive : ''}`}
-          onClick={() => setTab('users')}
-          data-testid="team-tab-users"
-        >
-          Users ({users.length})
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={tab === 'requests'}
-          className={`${coreStyles.tabBtn} ${tab === 'requests' ? coreStyles.tabBtnActive : ''}`}
-          onClick={() => setTab('requests')}
-          data-testid="team-tab-requests"
-        >
-          Access Requests ({pendingCount} pending)
-        </button>
-        {canSeeRecycleBin ? (
-          <button
-            type="button"
-            role="tab"
-            aria-selected={tab === 'recycle'}
-            className={`${coreStyles.tabBtn} ${tab === 'recycle' ? coreStyles.tabBtnActive : ''}`}
-            onClick={() => setTab('recycle')}
-            data-testid="team-tab-recycle"
-          >
-            Recycle Bin
-          </button>
-        ) : null}
-      </div>
-
-      <section className={coreStyles.sectionCard} role="tabpanel" data-testid={`team-panel-${tab}`}>
-        {tab === 'users'
-          ? renderList(usersQuery, 'Team members', userColumns, users, (r) => r.id ?? r.username ?? '', 'No team members yet')
-          : null}
-        {tab === 'requests'
-          ? renderList(
-              requestsQuery,
-              'Access requests',
-              requestColumns,
-              requests,
-              (r) => r.id ?? r.email ?? '',
-              'No access requests'
-            )
-          : null}
-        {tab === 'recycle' && canSeeRecycleBin
-          ? renderList(
-              deletedQuery,
-              'Deleted users',
-              deletedColumns,
-              deletedQuery.data ?? [],
-              (r) => r.id ?? r.username ?? '',
-              'The recycle bin is empty'
-            )
-          : null}
+      <section className={batchStyles.toolbar} aria-label={S.searchLabel}>
+        <label className={batchStyles.searchBox}>
+          <Search size={16} aria-hidden="true" />
+          <span className="sr-only">{S.searchLabel}</span>
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={S.searchPlaceholder}
+            data-testid="team-search"
+          />
+        </label>
       </section>
+
+      <div id={`team-panel-${tab}`} role="tabpanel" aria-labelledby={`team-tab-${tab}`} data-testid={`team-panel-${tab}`}>
+        {tab === 'users'
+          ? renderPanel(
+              usersQuery,
+              users.length,
+              shownUsers.length,
+              { title: S.usersEmpty },
+              <ul className={styles.list} aria-label={S.listLabel.users}>
+                {shownUsers.map((row) => (
+                  <li key={row.id ?? row.username} className={styles.row} data-testid={`team-row-${row.username}`}>
+                    <span className={styles.person}>
+                      <span className={styles.name}>{row.name ?? row.username}</span>
+                      <span className={batchStyles.muted}>
+                        <span className={batchStyles.mono}>{row.username}</span>
+                        {row.email ? `, ${row.email}` : ''}
+                      </span>
+                    </span>
+                    <span className={styles.role}>
+                      {roleLabel(row.role)}
+                      {row.superAdmin ? <span className={batchStyles.muted}>{S.superAdmin}</span> : null}
+                    </span>
+                    <span>
+                      <StatusBadge status={row.active === false ? 'inactive' : 'active'} />
+                    </span>
+                    <span className={styles.actions}>
+                      {canManage(row) ? (
+                        isBusy(`toggle-${row.id}`) ? <span className={batchStyles.muted}>{S.loading}</span> : userMenu(row)
+                      ) : (
+                        <span className={batchStyles.muted}>{row.id === user?.id ? S.you : canWriteUsers ? S.noActions : S.viewOnly}</span>
+                      )}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )
+          : null}
+
+        {tab === 'requests'
+          ? renderPanel(
+              requestsQuery,
+              requests.length,
+              shownRequests.length,
+              { title: S.requestsEmpty, body: S.requestsEmptyBody },
+              <ul className={styles.list} aria-label={S.listLabel.requests}>
+                {shownRequests.map((row) => (
+                  <li key={row.id ?? row.email} className={styles.row} data-testid={`request-row-${row.email}`}>
+                    <span className={styles.person}>
+                      <span className={styles.name}>{row.name}</span>
+                      <span className={batchStyles.muted}>
+                        {row.email}, {formatTimestamp(row.createdAt)}
+                      </span>
+                    </span>
+                    <span className={styles.role}>{roleLabel(row.role)}</span>
+                    <span className={styles.person}>
+                      <StatusBadge status={row.status ?? 'pending'} />
+                      {row.status === 'approved' ? (
+                        <span className={batchStyles.muted}>
+                          {row.inviteUsed ? S.requestStatus.accountCreated : S.requestStatus.inviteExpires(formatTimestamp(row.inviteExpiry))}
+                        </span>
+                      ) : null}
+                    </span>
+                    <span className={styles.actions}>
+                      {canWriteRequests && row.id ? (
+                        <>
+                          {row.status !== 'approved' ? (
+                            <Button
+                              variant="primary"
+                              size="sm"
+                              leftIcon={<Check size={14} />}
+                              isLoading={isBusy(`approve-${row.id}`)}
+                              disabled={action.isPending}
+                              onClick={() =>
+                                action.mutate({
+                                  key: `approve-${row.id}`,
+                                  run: () => approveAccessRequest(row.id!),
+                                  done: S.done.invited(row.email ?? '')
+                                })
+                              }
+                              data-testid={`request-approve-btn-${row.email}`}
+                            >
+                              {S.actions.approve}
+                            </Button>
+                          ) : null}
+                          {row.status === 'approved' && !row.inviteUsed ? (
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              leftIcon={<MailPlus size={14} />}
+                              isLoading={isBusy(`resend-${row.id}`)}
+                              disabled={action.isPending}
+                              onClick={() =>
+                                action.mutate({
+                                  key: `resend-${row.id}`,
+                                  run: () => resendAccessInvite(row.id!),
+                                  done: S.done.resent(row.email ?? '')
+                                })
+                              }
+                              data-testid={`request-resend-btn-${row.email}`}
+                            >
+                              {S.actions.resend}
+                            </Button>
+                          ) : null}
+                          {requestMenu(row)}
+                        </>
+                      ) : (
+                        <span className={batchStyles.muted}>{S.viewOnly}</span>
+                      )}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )
+          : null}
+
+        {tab === 'recycle' && canSeeRecycleBin
+          ? renderPanel(
+              deletedQuery,
+              deleted.length,
+              shownDeleted.length,
+              { title: S.recycleEmpty, body: S.recycleEmptyBody },
+              <ul className={styles.list} aria-label={S.listLabel.recycle}>
+                {shownDeleted.map((row) => (
+                  <li key={row.id ?? row.username} className={styles.row} data-testid={`recycle-row-${row.username}`}>
+                    <span className={styles.person}>
+                      <span className={styles.name}>{row.name ?? row.username}</span>
+                      <span className={batchStyles.muted}>{row.email ?? EMPTY_VALUE}</span>
+                    </span>
+                    <span className={styles.role}>{roleLabel(row.role)}</span>
+                    <span className={batchStyles.muted}>
+                      {S.columns.deleted} {formatTimestamp(row.updatedAt)}
+                    </span>
+                    <span className={styles.actions}>
+                      {row.id ? (
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          leftIcon={<RotateCcw size={14} />}
+                          isLoading={isBusy(`restore-${row.id}`)}
+                          disabled={action.isPending}
+                          onClick={() =>
+                            action.mutate({
+                              key: `restore-${row.id}`,
+                              run: () => restoreTeamUser(row.id!),
+                              done: S.done.restored(row.username ?? '')
+                            })
+                          }
+                          data-testid={`recycle-restore-btn-${row.username}`}
+                        >
+                          {S.actions.restore}
+                        </Button>
+                      ) : null}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )
+          : null}
+      </div>
 
       <Dialog
         open={roleTarget !== null}
         onClose={() => setRoleTarget(null)}
-        title={`Change role: ${roleTarget?.username ?? ''}`}
-        description="The new role takes effect on the user's next request. They stay signed in."
+        title={S.roleDialog.title(roleTarget?.name ?? roleTarget?.username ?? '')}
+        description={S.roleDialog.body}
         actions={
           <>
             <Button variant="secondary" onClick={() => setRoleTarget(null)}>
-              Cancel
+              {S.roleDialog.cancel}
             </Button>
             <Button
               variant="primary"
@@ -469,19 +506,19 @@ export function TeamPage() {
                   {
                     key: `role-${target.id}`,
                     run: () => changeUserRole(target.id!, { role: newRole }),
-                    done: `${target.username} is now ${roleLabel(newRole)}`
+                    done: S.done.roleChanged(target.username ?? '', roleLabel(newRole))
                   },
                   { onSuccess: () => setRoleTarget(null) }
                 );
               }}
               data-testid="team-role-save-btn"
             >
-              Save Role
+              {S.roleDialog.save}
             </Button>
           </>
         }
       >
-        <Field label="New role" required>
+        <Field label={S.roleDialog.field} required>
           <Select
             value={newRole}
             onChange={(e) => setNewRole(e.target.value as UserRole)}
@@ -497,12 +534,12 @@ export function TeamPage() {
       <Dialog
         open={deleteTarget !== null}
         onClose={() => setDeleteTarget(null)}
-        title={`Delete user: ${deleteTarget?.username ?? ''}`}
-        description="The account is signed out and moved to the recycle bin. A super admin can restore it."
+        title={S.deleteDialog.title(deleteTarget?.name ?? deleteTarget?.username ?? '')}
+        description={S.deleteDialog.body}
         actions={
           <>
             <Button variant="secondary" onClick={() => setDeleteTarget(null)}>
-              Cancel
+              {S.deleteDialog.cancel}
             </Button>
             <Button
               variant="danger"
@@ -515,38 +552,32 @@ export function TeamPage() {
                   {
                     key: `delete-${target.id}`,
                     run: () => deleteTeamUser(target.id!, deleteNote.trim() ? { deleteNote: deleteNote.trim() } : {}),
-                    done: `${target.username} moved to the recycle bin`
+                    done: S.done.deleted(target.username ?? '')
                   },
                   { onSuccess: () => setDeleteTarget(null) }
                 );
               }}
               data-testid="team-delete-confirm-btn"
             >
-              Delete User
+              {S.deleteDialog.confirm}
             </Button>
           </>
         }
       >
-        <Field label="Reason (optional)">
-          <Textarea
-            value={deleteNote}
-            onChange={(e) => setDeleteNote(e.target.value)}
-            maxLength={500}
-            rows={3}
-            data-testid="team-delete-note"
-          />
+        <Field label={S.deleteDialog.reason}>
+          <Textarea value={deleteNote} onChange={(e) => setDeleteNote(e.target.value)} maxLength={500} rows={3} data-testid="team-delete-note" />
         </Field>
       </Dialog>
 
       <Dialog
         open={rejectTarget !== null}
         onClose={() => setRejectTarget(null)}
-        title={`Reject request: ${rejectTarget?.email ?? ''}`}
-        description="Any invite already sent for this request stops working."
+        title={S.rejectDialog.title(rejectTarget?.email ?? '')}
+        description={S.rejectDialog.body}
         actions={
           <>
             <Button variant="secondary" onClick={() => setRejectTarget(null)}>
-              Cancel
+              {S.rejectDialog.cancel}
             </Button>
             <Button
               variant="danger"
@@ -559,26 +590,20 @@ export function TeamPage() {
                   {
                     key: `reject-${target.id}`,
                     run: () => rejectAccessRequest(target.id!, rejectNote.trim() ? { note: rejectNote.trim() } : {}),
-                    done: `Request from ${target.email} rejected`
+                    done: S.done.rejected(target.email ?? '')
                   },
                   { onSuccess: () => setRejectTarget(null) }
                 );
               }}
               data-testid="request-reject-confirm-btn"
             >
-              Reject Request
+              {S.rejectDialog.confirm}
             </Button>
           </>
         }
       >
-        <Field label="Note (optional)">
-          <Textarea
-            value={rejectNote}
-            onChange={(e) => setRejectNote(e.target.value)}
-            maxLength={500}
-            rows={3}
-            data-testid="request-reject-note"
-          />
+        <Field label={S.rejectDialog.note}>
+          <Textarea value={rejectNote} onChange={(e) => setRejectNote(e.target.value)} maxLength={500} rows={3} data-testid="request-reject-note" />
         </Field>
       </Dialog>
     </div>

@@ -109,7 +109,7 @@ test.describe('Phase 8 Bulk CSV Import E2E Suite', () => {
 
     // Navigate via sidebar link
     const sidebar = page.getByTestId('desktop-sidebar');
-    const navLink = sidebar.getByRole('link', { name: 'Bulk Import' });
+    const navLink = sidebar.getByRole('link', { name: 'Import', exact: true });
     await expect(navLink).toBeVisible();
     await navLink.click();
     await expect(page).toHaveURL('/import');
@@ -186,10 +186,10 @@ test.describe('Phase 8 Bulk CSV Import E2E Suite', () => {
 
     const sidebar = page.getByTestId('desktop-sidebar');
     await expect(sidebar.getByRole('link', { name: 'Batches' })).toBeVisible();
-    await expect(sidebar.getByRole('link', { name: 'Bulk Import' })).toHaveCount(0);
+    await expect(sidebar.getByRole('link', { name: 'Import', exact: true })).toHaveCount(0);
 
     await page.goto('/import');
     await expect(page.getByTestId('forbidden-state')).toBeVisible();
-    await expect(page.getByTestId('forbidden-state')).toContainText('Access Restricted (403)');
+    await expect(page.getByTestId('forbidden-state')).toContainText('You do not have access to Import');
   });
 });

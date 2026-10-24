@@ -328,7 +328,7 @@ describe('Design System UI Components & Accessibility (Part B & Part C)', () => 
         <BrokenChild />
       </ErrorBoundary>
     );
-    expect(screen.getByText('Application Error')).toBeInTheDocument();
+    expect(screen.getByText('Something went wrong')).toBeInTheDocument();
     expect(screen.getByText('Simulated component crash')).toBeInTheDocument();
   });
 

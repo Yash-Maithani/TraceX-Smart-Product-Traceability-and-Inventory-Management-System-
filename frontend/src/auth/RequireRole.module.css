@@ -1,0 +1,6 @@
+/* Forbidden page (redesign R6): one centred card, no banner repeating the title. */
+.forbiddenPage {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-8) 0;
+}

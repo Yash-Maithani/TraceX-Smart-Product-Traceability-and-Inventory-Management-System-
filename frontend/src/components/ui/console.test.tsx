@@ -250,7 +250,8 @@ describe('Command palette (Ctrl+K)', () => {
     expect(screen.getByRole('option', { name: /Create batch/ })).toBeInTheDocument();
 
     fireEvent.change(screen.getByTestId('command-palette-input'), { target: { value: 'fefo' } });
-    expect(screen.getByRole('option', { name: /FEFO/ })).toBeInTheDocument();
+    // The old name still finds the renamed page (redesign R7 keywords)
+    expect(screen.getByRole('option', { name: /Dispatch queue/ })).toBeInTheDocument();
     expect(screen.queryByRole('option', { name: /Dashboard/ })).not.toBeInTheDocument();
     fireEvent.keyDown(screen.getByTestId('command-palette-input'), { key: 'Enter' });
     expect(await screen.findByTestId('fefo-route')).toBeInTheDocument();

@@ -82,10 +82,15 @@ describe('TeamPage and SettingsPage (Phase 9)', () => {
 
     render(<TeamPage />, { wrapper });
 
-    expect(await screen.findByTestId('team-toggle-btn-admin')).toBeInTheDocument();
-    expect(screen.getByTestId('team-toggle-btn-manager')).toBeInTheDocument();
+    expect(await screen.findByTestId('team-actions-btn-admin')).toBeInTheDocument();
+    expect(screen.getByTestId('team-actions-btn-manager')).toBeInTheDocument();
     // Never on yourself
-    expect(screen.queryByTestId('team-toggle-btn-superadmin')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('team-actions-btn-superadmin')).not.toBeInTheDocument();
+
+    // Search narrows the list
+    fireEvent.change(screen.getByTestId('team-search'), { target: { value: 'manager' } });
+    expect(screen.queryByTestId('team-actions-btn-admin')).not.toBeInTheDocument();
+    fireEvent.change(screen.getByTestId('team-search'), { target: { value: '' } });
 
     fireEvent.click(screen.getByTestId('team-tab-recycle'));
     fireEvent.click(await screen.findByTestId('recycle-restore-btn-gone'));
@@ -98,11 +103,14 @@ describe('TeamPage and SettingsPage (Phase 9)', () => {
 
     render(<TeamPage />, { wrapper });
 
-    expect(await screen.findByTestId('team-toggle-btn-manager')).toBeInTheDocument();
-    expect(screen.queryByTestId('team-toggle-btn-superadmin')).not.toBeInTheDocument();
+    expect(await screen.findByTestId('team-actions-btn-manager')).toBeInTheDocument();
+    expect(screen.queryByTestId('team-actions-btn-superadmin')).not.toBeInTheDocument();
     expect(screen.queryByTestId('team-recycle')).not.toBeInTheDocument();
     expect(screen.queryByTestId('team-tab-recycle')).not.toBeInTheDocument();
 
+    // Redesign R6: role, activation and delete live in a row menu
+    fireEvent.click(screen.getByTestId('team-actions-btn-manager'));
+    expect(screen.getByTestId('team-toggle-btn-manager')).toHaveTextContent('Deactivate');
     fireEvent.click(screen.getByTestId('team-role-btn-manager'));
     const select = await screen.findByTestId('team-role-select');
     const values = within(select).getAllByRole('option').map((o) => (o as HTMLOptionElement).value);
@@ -116,7 +124,7 @@ describe('TeamPage and SettingsPage (Phase 9)', () => {
     render(<TeamPage />, { wrapper });
 
     expect(await screen.findByText('Staff Admin')).toBeInTheDocument();
-    expect(screen.queryByTestId('team-toggle-btn-admin')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('team-actions-btn-admin')).not.toBeInTheDocument();
     fireEvent.click(screen.getByTestId('team-tab-requests'));
     expect(await screen.findByText('Priya Pending')).toBeInTheDocument();
     expect(screen.queryByTestId('request-approve-btn-priya@example.com')).not.toBeInTheDocument();
@@ -143,6 +151,7 @@ describe('TeamPage and SettingsPage (Phase 9)', () => {
     fireEvent.click(screen.getByTestId('request-resend-btn-arun@example.com'));
     await waitFor(() => expect(resendSpy).toHaveBeenCalledWith('r-2'));
 
+    fireEvent.click(screen.getByTestId('request-actions-btn-priya@example.com'));
     fireEvent.click(screen.getByTestId('request-reject-btn-priya@example.com'));
     fireEvent.change(await screen.findByTestId('request-reject-note'), { target: { value: 'Not on the staff list' } });
     fireEvent.click(screen.getByTestId('request-reject-confirm-btn'));
@@ -155,7 +164,8 @@ describe('TeamPage and SettingsPage (Phase 9)', () => {
     const deleteSpy = vi.spyOn(Endpoints, 'deleteTeamUser').mockResolvedValue(undefined);
 
     render(<TeamPage />, { wrapper });
-    fireEvent.click(await screen.findByTestId('team-delete-btn-inspector'));
+    fireEvent.click(await screen.findByTestId('team-actions-btn-inspector'));
+    fireEvent.click(screen.getByTestId('team-delete-btn-inspector'));
     fireEvent.change(await screen.findByTestId('team-delete-note'), { target: { value: 'Left the company' } });
     fireEvent.click(screen.getByTestId('team-delete-confirm-btn'));
 

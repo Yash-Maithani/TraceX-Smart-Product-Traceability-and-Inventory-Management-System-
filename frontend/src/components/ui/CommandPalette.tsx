@@ -76,7 +76,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
   const options = useMemo<PaletteOption[]>(() => {
     const q = term.trim().toLowerCase();
     const pages: PaletteOption[] = getEnabledNavRoutes(user)
-      .filter((r) => !q || r.label.toLowerCase().includes(q))
+      .filter((r) => !q || `${r.label} ${r.keywords ?? ''}`.toLowerCase().includes(q))
       .map((r) => ({
         id: `page-${r.path}`,
         group: 'pages',

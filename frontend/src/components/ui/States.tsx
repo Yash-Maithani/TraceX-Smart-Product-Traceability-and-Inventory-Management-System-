@@ -89,9 +89,7 @@ export function ForbiddenState({
       <h2 className={styles.stateTitle}>{title}</h2>
       <p className={styles.stateDescription}>
         {description}
-        {requiredRoles && requiredRoles.length > 0
-          ? ` Required role: ${requiredRoles.join(' or ')}.`
-          : ''}
+        {requiredRoles && requiredRoles.length > 0 ? ` ${STRINGS.states.forbiddenRoles(requiredRoles)}` : ''}
       </p>
       {action ? <div>{action}</div> : null}
     </div>

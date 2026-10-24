@@ -1,0 +1,84 @@
+/* Team and access (redesign R6, DESIGN.md §6.9). A list, not a scrolling table, so row menus are never clipped. */
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-surface);
+}
+
+.row {
+  display: grid;
+  /* Fixed last column so rows line up whether they hold a menu, buttons or a note */
+  grid-template-columns: minmax(14rem, 2fr) minmax(9rem, 1fr) minmax(8rem, 1fr) 13rem;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: var(--row-default, 3rem);
+  padding: var(--space-3) var(--space-4);
+}
+
+.row + .row {
+  border-top: 1px solid var(--border-subtle);
+}
+
+.person {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.name {
+  font-weight: var(--weight-semibold);
+}
+
+.role {
+  display: flex;
+  flex-direction: column;
+  font-size: var(--text-sm);
+}
+
+.actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.menuTrigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--touch-target-min);
+  height: var(--touch-target-min);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.menuTrigger:hover,
+.menuTrigger[aria-expanded='true'] {
+  background-color: var(--bg-elevated);
+}
+
+@media (max-width: 767px) {
+  .row {
+    grid-template-columns: 1fr auto;
+  }
+
+  .role {
+    grid-column: 1;
+  }
+
+  .actions {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    align-self: start;
+  }
+}

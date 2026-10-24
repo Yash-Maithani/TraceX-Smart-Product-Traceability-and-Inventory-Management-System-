@@ -70,7 +70,7 @@ describe('PublicTracePage & LegacyTracePage (Phase 7 Part C & D)', () => {
   it('renders loading skeleton while query is pending', () => {
     vi.spyOn(Endpoints, 'fetchPublicTrace').mockImplementation(() => new Promise(() => {}));
     renderTracePage('/trace/t/token-loading.tag');
-    expect(screen.getByLabelText(/Loading batch traceability details/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Loading batch details/i)).toBeInTheDocument();
   });
 
   it('renders complete public trace data with quality check, fires scan event once without auth, and passes axe', async () => {
@@ -102,8 +102,12 @@ describe('PublicTracePage & LegacyTracePage (Phase 7 Part C & D)', () => {
     expect(screen.getByTestId('trace-pack-date')).toHaveTextContent('Apr 1, 2026');
     expect(screen.getByTestId('trace-expiry-date')).toHaveTextContent('Oct 10, 2026');
     expect(screen.getByTestId('trace-quality-section')).toBeInTheDocument();
-    expect(screen.getByTestId('trace-quality-rating')).toHaveTextContent('Rating: 5/5');
+    expect(screen.getByTestId('trace-quality-rating')).toHaveTextContent('Rated 5 of 5');
     expect(screen.getByTestId('trace-note')).toHaveTextContent('Certified natural wildflower nectar.');
+    // Redesign R6: shopper wording, never internal tiers, and a short journey
+    expect(screen.getByTestId('trace-status-badge')).not.toHaveTextContent(/urgent/i);
+    expect(screen.getByTestId('trace-journey')).toHaveTextContent('Collected from Lansdowne');
+    expect(screen.getByTestId('trace-journey')).toHaveTextContent('Quality check: passed');
 
     // Forbidden PII & internal field checks: MUST NOT be in DOM
     expect(screen.queryByText(/farmer/i)).toBeNull();
@@ -146,7 +150,7 @@ describe('PublicTracePage & LegacyTracePage (Phase 7 Part C & D)', () => {
     await waitFor(() => {
       expect(screen.getByTestId('trace-batch-code')).toHaveTextContent('TX-EXCEPTION-001');
     });
-    expect(screen.getByTestId('trace-status-badge')).toHaveTextContent(/Missing expiry/i);
+    expect(screen.getByTestId('trace-status-badge')).toHaveTextContent(/Best-before date not recorded/i);
     // Expiry date rendered as the empty-value text
     expect(screen.getByTestId('trace-expiry-date')).toHaveTextContent('Not recorded');
     u2();

@@ -46,7 +46,9 @@ MongoDB database (tracex_fresh_dev on your laptop)
 | `backend/src/main/java/com/tracex/model` | What is stored in MongoDB |
 | `backend/src/test/java/com/tracex` | Backend tests |
 | `frontend/src/features` | One folder per screen (batches, fefo, inspections, team, messages and so on) |
-| `frontend/src/components/ui` | Shared buttons, tables, dialogs, badges |
+| `frontend/src/components/ui` | Shared buttons, tables, dialogs, badges, filter chips, tabs, the command palette |
+| `frontend/src/strings` | Every piece of on-screen text, one file per feature |
+| `frontend/design-assets` | Original page photos and their credits (`backdrops.json`) |
 | `frontend/e2e` | Browser tests that click through the real app |
 | `docs/progress` | One log per phase: what changed and the test results |
 
@@ -66,7 +68,9 @@ The project is built in **phases** (0 to 14). Each phase has a log in `docs/prog
 | 8 | Bulk CSV import; 8.2 fixed the security problems found in review |
 | 9 to 11 | Team page and settings, notifications and chat, AI audit and Google sign-in |
 | 12 | Legal pages, icons, animations and this guide |
-| 13 to 14 | Hardening and going live (not started yet) |
+| 13 | Testing and hardening |
+| R1 to R7 | UI/UX redesign: design system, dashboard, batches, real photos and the public home page, dispatch and inspections, admin pages, final polish (`docs/progress/phase-r1.md` to `phase-r7.md`) |
+| 14 | Going live (not started yet) |
 
 `PROGRESS.md` is the full record. To read it quickly, look at the **Phase Table** at the top, then **Open Issues**, then the phase you care about.
 
@@ -76,7 +80,8 @@ The project is built in **phases** (0 to 14). Each phase has a log in `docs/prog
 |---|---|
 | FEFO | First Expired, First Out: dispatch the batch that expires soonest first |
 | Quality hold | A batch whose latest inspection FAILED; it cannot be dispatched |
-| Freshness tier | READY, WARNING, URGENT or EXPIRED, worked out from days to expiry (EXCEPTION if the date is broken) |
+| Freshness tier | READY, WARNING, URGENT or EXPIRED, worked out from days to expiry (EXCEPTION if the date is broken). On screen they read Fresh, Expiring, Expiring soon, Expired and Missing expiry |
+| On hold | Shown when a batch's latest inspection failed; same as quality hold |
 | Soft delete / archive | Hidden, not erased, so the history stays complete |
 | `D-12`, `D-19` and so on | A numbered decision in the Decisions table in `PROGRESS.md` and `SPEC.md` |
 | `M-01`, `S-02` and so on | A requirement: M is must-have, S is should-have (`SPEC.md` §1) |
@@ -88,7 +93,7 @@ The project is built in **phases** (0 to 14). Each phase has a log in `docs/prog
 
 ```powershell
 cd backend; .\mvnw.cmd clean verify
-cd ..\frontend; npm run lint; npm run typecheck; npm run check:banned; npx vitest run
+cd ..\frontend; npm run lint; npm run typecheck; npm run check:banned; npm run check:contrast; npm run check:backdrops; npx vitest run
 ```
 
 The browser tests (`npx playwright test`) need the backend jar built by `clean verify` and nothing else running on port 5174; the steps are in each phase log's verification section.

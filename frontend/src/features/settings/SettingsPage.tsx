@@ -18,15 +18,21 @@ import { EMPTY_VALUE } from '../../lib/format';
 import type { ThemeAccent, ThemePalette } from '../../lib/prefs';
 import { STRINGS } from '../../strings/en';
 
+/** The server records unparsed user agents as "Other"; say so plainly (AUDIT §3.10). */
+function known(value: string | undefined, fallback: string): string {
+  return !value || value === 'Other' ? fallback : value;
+}
+
 const loginColumns: TableColumn<LoginEventDto>[] = [
   {
     key: 'createdAt',
     header: 'Signed in',
+    nowrap: true,
     render: (row) => <span data-testid="login-history-time">{formatTimestamp(row.createdAt)}</span>
   },
-  { key: 'browser', header: 'Browser', render: (row) => <span>{row.browser ?? EMPTY_VALUE}</span> },
-  { key: 'os', header: 'Operating system', render: (row) => <span>{row.os ?? EMPTY_VALUE}</span> },
-  { key: 'device', header: 'Device', render: (row) => <span>{row.device ?? EMPTY_VALUE}</span> }
+  { key: 'browser', header: 'Browser', render: (row) => <span>{known(row.browser, 'Unknown browser')}</span> },
+  { key: 'os', header: 'Operating system', render: (row) => <span>{known(row.os, 'Unknown system')}</span> },
+  { key: 'device', header: 'Device', render: (row) => <span>{known(row.device, EMPTY_VALUE)}</span> }
 ];
 
 /**
@@ -94,7 +100,7 @@ export function SettingsPage() {
                 value={prefs.accent}
                 onChange={(e) => setAccent(e.target.value as ThemeAccent)}
                 options={[
-                  { value: 'auto', label: 'Auto (palette default)' },
+                  { value: 'auto', label: 'Palette default' },
                   { value: 'cobalt', label: STRINGS.theme.accents.cobalt },
                   { value: 'emerald', label: STRINGS.theme.accents.emerald },
                   { value: 'amber', label: STRINGS.theme.accents.amber },

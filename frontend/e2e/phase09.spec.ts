@@ -74,13 +74,13 @@ test.describe('Phase 9 Team, Settings and Sign-in History E2E Suite', () => {
     browser
   }) => {
     await uiSignIn(page, 'admin');
-    await page.getByRole('link', { name: 'Team & Access' }).first().click();
+    await page.getByRole('link', { name: 'Team', exact: true }).first().click();
     await expect(page).toHaveURL('/team');
     await expect(page.getByTestId('team-page')).toBeVisible();
     // Admin cannot act on the super admin or on themselves
-    await expect(page.getByTestId('team-toggle-btn-superadmin')).toHaveCount(0);
-    await expect(page.getByTestId('team-toggle-btn-admin')).toHaveCount(0);
-    await expect(page.getByTestId('team-toggle-btn-manager')).toBeVisible();
+    await expect(page.getByTestId('team-actions-btn-superadmin')).toHaveCount(0);
+    await expect(page.getByTestId('team-actions-btn-admin')).toHaveCount(0);
+    await expect(page.getByTestId('team-actions-btn-manager')).toBeVisible();
     await expect(page.getByTestId('team-tab-recycle')).toHaveCount(0);
 
     await page.getByTestId('team-tab-requests').click();
@@ -93,7 +93,7 @@ test.describe('Phase 9 Team, Settings and Sign-in History E2E Suite', () => {
     await uiSignIn(managerPage, 'manager');
     await managerPage.goto('/team');
     await expect(managerPage.getByTestId('team-page')).toBeVisible();
-    await expect(managerPage.getByTestId('team-toggle-btn-coordinator')).toHaveCount(0);
+    await expect(managerPage.getByTestId('team-actions-btn-coordinator')).toHaveCount(0);
     await managerPage.getByTestId('team-tab-requests').click();
     await expect(managerPage.getByText(applicantEmail)).toBeVisible();
     await expect(managerPage.getByTestId(`request-resend-btn-${applicantEmail}`)).toHaveCount(0);
@@ -102,7 +102,7 @@ test.describe('Phase 9 Team, Settings and Sign-in History E2E Suite', () => {
 
   test('P9-E2E-02: a role without team access gets the 403 state on /team and has no Team link', async ({ page }) => {
     await uiSignIn(page, 'inspector');
-    await expect(page.getByRole('link', { name: 'Team & Access' })).toHaveCount(0);
+    await expect(page.getByRole('link', { name: 'Team', exact: true })).toHaveCount(0);
     await page.goto('/team');
     await expect(page.getByTestId('forbidden-state')).toBeVisible();
   });

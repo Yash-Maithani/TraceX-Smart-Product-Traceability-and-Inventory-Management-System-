@@ -656,7 +656,7 @@ export function BatchDetailPage() {
 
             <div className={coreStyles.detailGrid}>
               <div className={coreStyles.metaItem}>
-                <span className={coreStyles.metaLabel}>Batch Code</span>
+                <span className={coreStyles.metaLabel}>Batch code</span>
                 <span className={coreStyles.monoCode} data-testid="detail-batch-code">
                   {batch.batchCode}
                 </span>
@@ -668,19 +668,19 @@ export function BatchDetailPage() {
                 </span>
               </div>
               <div className={coreStyles.metaItem}>
-                <span className={coreStyles.metaLabel}>Pack Date</span>
+                <span className={coreStyles.metaLabel}>Pack date</span>
                 <span className={coreStyles.metaValue} data-testid="detail-pack-date">
                   {formatBusinessDate(batch.packDate)}
                 </span>
               </div>
               <div className={coreStyles.metaItem}>
-                <span className={coreStyles.metaLabel}>Expiry Date</span>
+                <span className={coreStyles.metaLabel}>Expiry date</span>
                 <span className={coreStyles.metaValue} data-testid="detail-expiry-date">
                   {formatBusinessDate(batch.expiryDate)}
                 </span>
               </div>
               <div className={coreStyles.metaItem}>
-                <span className={coreStyles.metaLabel}>Days Until Expiry</span>
+                <span className={coreStyles.metaLabel}>Days until expiry</span>
                 <span className={coreStyles.metaValue} data-testid="detail-days-until-expiry">
                   {batch.status === 'EXCEPTION'
                     ? 'Exception'
@@ -694,7 +694,7 @@ export function BatchDetailPage() {
                 </span>
               </div>
               <div className={coreStyles.metaItem}>
-                <span className={coreStyles.metaLabel}>Source Lot Code</span>
+                <span className={coreStyles.metaLabel}>Source lot code</span>
                 <span className={coreStyles.monoCode} data-testid="detail-lot-code">
                   {batch.sourceLotCode}
                 </span>
@@ -707,7 +707,7 @@ export function BatchDetailPage() {
               </div>
               {batch.buyerName ? (
                 <div className={coreStyles.metaItem}>
-                  <span className={coreStyles.metaLabel}>Dispatched To</span>
+                  <span className={coreStyles.metaLabel}>Dispatched to</span>
                   <span className={coreStyles.metaValue} data-testid="detail-buyer-name">
                     {batch.buyerName} ({formatBusinessDate(batch.dispatchDate)})
                   </span>
@@ -748,7 +748,7 @@ export function BatchDetailPage() {
                     </span>
                   </div>
                   <div className={coreStyles.metaItem}>
-                    <span className={coreStyles.metaLabel}>Inspected At</span>
+                    <span className={coreStyles.metaLabel}>Inspected</span>
                     <span className={coreStyles.metaValue}>
                       {formatTimestamp(batch.qualityCheck.inspectedAt)}
                     </span>
@@ -870,7 +870,7 @@ export function BatchDetailPage() {
 
                   <div className={coreStyles.scansBreakdownGrid}>
                     <div className={coreStyles.breakdownCard} data-testid="scans-device-breakdown">
-                      <div className={coreStyles.breakdownTitle}>By Device</div>
+                      <div className={coreStyles.breakdownTitle}>By device</div>
                       <ul className={coreStyles.breakdownList}>
                         <li className={coreStyles.breakdownItem}>
                           <span>Mobile</span>
@@ -900,7 +900,7 @@ export function BatchDetailPage() {
                     </div>
 
                     <div className={coreStyles.breakdownCard} data-testid="scans-source-breakdown">
-                      <div className={coreStyles.breakdownTitle}>By Source</div>
+                      <div className={coreStyles.breakdownTitle}>By source</div>
                       <ul className={coreStyles.breakdownList}>
                         <li className={coreStyles.breakdownItem}>
                           <span>Buyer</span>
@@ -1086,7 +1086,7 @@ export function BatchDetailPage() {
               ) : null}
 
               <div className={coreStyles.twoColumnGrid}>
-                <Field label="Farmer Name" required error={rawFieldErrors.farmerName}>
+                <Field label="Farmer name" required error={rawFieldErrors.farmerName}>
                   <Input
                     value={farmerName}
                     onChange={(e) => setFarmerName(e.target.value)}
@@ -1106,7 +1106,7 @@ export function BatchDetailPage() {
               </div>
 
               <div className={coreStyles.threeColumnGrid}>
-                <Field label="Source Lot Code" required error={rawFieldErrors.sourceLotCode}>
+                <Field label="Source lot code" required error={rawFieldErrors.sourceLotCode}>
                   <Input
                     value={sourceLotCode}
                     onChange={(e) => setSourceLotCode(e.target.value)}
@@ -1115,7 +1115,7 @@ export function BatchDetailPage() {
                   />
                 </Field>
 
-                <Field label="Quantity Produced" required error={rawFieldErrors.quantityProduced}>
+                <Field label="Quantity produced" required error={rawFieldErrors.quantityProduced}>
                   <Input
                     type="number"
                     min={1}
@@ -1156,7 +1156,7 @@ export function BatchDetailPage() {
                   />
                 </Field>
 
-                <Field label="Pack Date" required error={rawFieldErrors.packDate}>
+                <Field label="Pack date" required error={rawFieldErrors.packDate}>
                   <Input
                     type="date"
                     value={packDate}
@@ -1166,7 +1166,7 @@ export function BatchDetailPage() {
                   />
                 </Field>
 
-                <Field label="Expiry Date" required error={rawFieldErrors.expiryDate}>
+                <Field label="Expiry date" required error={rawFieldErrors.expiryDate}>
                   <Input
                     type="date"
                     value={expiryDate}
@@ -1178,7 +1178,7 @@ export function BatchDetailPage() {
               </div>
 
               <Field
-                label="Correction Reason"
+                label="Reason for the correction"
                 required
                 hint="Required for audit trail."
                 error={rawFieldErrors.reason}

@@ -125,7 +125,7 @@ export function CreateBatchDialog({ open, onClose, onCreated }: CreateBatchDialo
       onClose={() => {
         if (!mutation.isPending) onClose();
       }}
-      title="Create Production Batch"
+      title="Create batch"
       description="Register a new batch with provenance metadata. The server allocates an atomic TX-YYYY-MM-NNN code."
       actions={
         createdBatch ? (
@@ -211,7 +211,7 @@ export function CreateBatchDialog({ open, onClose, onCreated }: CreateBatchDialo
           </Field>
 
           <div className={coreStyles.twoColumnGrid}>
-            <Field label="Pack Date" required error={fieldErrors.packDate}>
+            <Field label="Pack date" required error={fieldErrors.packDate}>
               <Input
                 type="date"
                 value={packDate}
@@ -222,7 +222,7 @@ export function CreateBatchDialog({ open, onClose, onCreated }: CreateBatchDialo
             </Field>
 
             <Field
-              label="Expiry Date Override (optional)"
+              label="Expiry date (optional)"
               hint="Leave blank to calculate from product shelf life."
               error={fieldErrors.expiryDate}
             >
@@ -237,7 +237,7 @@ export function CreateBatchDialog({ open, onClose, onCreated }: CreateBatchDialo
           </div>
 
           <div className={coreStyles.threeColumnGrid}>
-            <Field label="Quantity Produced" required error={fieldErrors.quantityProduced}>
+            <Field label="Quantity produced" required error={fieldErrors.quantityProduced}>
               <Input
                 type="number"
                 min={1}
@@ -278,7 +278,7 @@ export function CreateBatchDialog({ open, onClose, onCreated }: CreateBatchDialo
           </div>
 
           <div className={coreStyles.threeColumnGrid}>
-            <Field label="Source Lot Code" required error={fieldErrors.sourceLotCode}>
+            <Field label="Source lot code" required error={fieldErrors.sourceLotCode}>
               <Input
                 value={sourceLotCode}
                 onChange={(e) => setSourceLotCode(e.target.value)}
@@ -288,7 +288,7 @@ export function CreateBatchDialog({ open, onClose, onCreated }: CreateBatchDialo
               />
             </Field>
 
-            <Field label="Farmer Name" required error={fieldErrors.farmerName}>
+            <Field label="Farmer name" required error={fieldErrors.farmerName}>
               <Input
                 value={farmerName}
                 onChange={(e) => setFarmerName(e.target.value)}
@@ -298,7 +298,7 @@ export function CreateBatchDialog({ open, onClose, onCreated }: CreateBatchDialo
               />
             </Field>
 
-            <Field label="Source Village" required error={fieldErrors.village}>
+            <Field label="Village" required error={fieldErrors.village}>
               <Input
                 value={village}
                 onChange={(e) => setVillage(e.target.value)}
@@ -309,7 +309,7 @@ export function CreateBatchDialog({ open, onClose, onCreated }: CreateBatchDialo
             </Field>
           </div>
 
-          <Field label="Traceability Note (optional)" error={fieldErrors.traceabilityNote}>
+          <Field label="Traceability note (optional)" error={fieldErrors.traceabilityNote}>
             <Textarea
               value={traceabilityNote}
               onChange={(e) => setTraceabilityNote(e.target.value)}

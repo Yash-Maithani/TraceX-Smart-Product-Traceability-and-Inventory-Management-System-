@@ -1,4 +1,4 @@
-# TraceX UI/UX Audit (before the redesign)
+# TraceX UI/UX Audit (before and after the redesign)
 
 > Date: 2026-10-23. Baseline: commit `2587835` (Phase 13).
 > Evidence: 83 screenshots in [docs/screenshots/before/](../screenshots/before/), captured from the running app (backend dev profile on 8081, Vite on 5174) at 1366px and 390px, signed in as each seed role, plus every public page.
@@ -6,6 +6,53 @@
 > Severity: **High** blocks or misleads a user, breaks on a phone, or fails accessibility. **Medium** makes the product look unfinished or slows work. **Low** is polish.
 
 File names in this audit refer to the screenshots, for example `superadmin-batches-390.png`.
+
+---
+
+## 0. After the redesign (re-audit, 2026-10-24)
+
+> Re-checked against [docs/screenshots/after/](../screenshots/after/) (same 83 file names as `before/`, plus `guest-home-*`), axe runs at 1366px and 390px in light and dark, and a source sweep for jargon and Title Case. Phase logs: [r1](../progress/phase-r1.md) to [r7](../progress/phase-r7.md).
+
+### Top 10: before and after
+
+| # | Issue (before) | After | Where |
+|---|---|---|---|
+| 1 | Placeholder backdrops: empty grey boxes on every page, a flat dark half-screen on sign-in | **Fixed.** 14 real licensed photos (0 AI) with credits on the Privacy page; banners carry the page title and real counts; the sign-in page shows a product preview on the photo. `check:backdrops` now fails on placeholders. | R4 |
+| 2 | Header actions clipped on phones | **Fixed.** The header grows with its content and actions wrap under the title (`superadmin-dashboard-390.png`, `superadmin-batches-390.png`). | R1, R4 |
+| 3 | Every FEFO row had the same primary Dispatch, even a Failed batch | **Fixed.** On-hold rows show the On hold badge and a disabled button with the reason. Only the next batch per product is primary and tagged "Next for this product". The dialog and batch page also block held and expired batches. | R5, B-3 |
+| 4 | Codes and dates wrapping | **Fixed.** Codes, dates and quantities do not wrap; tabular figures; monospace codes. | R1, R3 |
+| 5 | Theme, palette and accent controls everywhere, also for shoppers | **Fixed.** One Display menu in the top bar, full controls in Settings, and only a light/dark switch on public pages. | R1, R4, R6 |
+| 6 | Dashboard with no story | **Fixed.** "Needs action" row (Expired, Expiring in 7 days, On hold, Dispatched today, Access requests) with links, Next to dispatch with shelf-life rails, Stock by freshness and Latest inspections. | R2, B-1 |
+| 7 | No quick search | **Fixed.** Ctrl+K or "/" palette for pages, actions and batch search. A full batch code jumps to the batch, and old page names still match. | R1, R7 |
+| 8 | Batch journey split over six cards; no print view | **Fixed.** One timeline, a header strip with key facts, and print views for an A4 batch sheet and a 50 x 30 mm QR label. | R3 |
+| 9 | Live updates reconnect silently | **Fixed.** Live, Reconnecting or Offline in the top bar, with the last update time. | R1 |
+| 10 | Jargon, raw ids and grammar bugs in copy | **Fixed.** All page copy is in `src/strings`, with plain verbs, sentence case and day plurals. A sweep finds no "tokenVersion", "JWT", "(403)", "append-only", "server-derived" or "days remaining" left in the UI. Import shows column names, not field ids. | R1 to R7 |
+
+### Other findings, after
+
+| Area | After |
+|---|---|
+| Tables | Sortable headers, sticky header, three row heights, hidden captions (R1). Team uses a list with a row menu so menus are never clipped (R6). |
+| Status set | Fresh, Expiring, Expiring soon, Expired, On hold, Dispatched and Missing expiry, each with an icon and a label (R1). |
+| Search box | 250ms debounce, replacing the URL instead of adding history (R3). |
+| Notifications and messages | Grouped by day with links to the record; message channels as tabs with counts (R2). |
+| Profile and settings | Plain wording, "Unknown browser" for unparsed sign-ins, sign out everywhere confirm (R6). |
+| Auth pages | Split layout with a product preview on a real photo; public home page for visitors who are not signed in (R4, R4.1). |
+| Public QR trace | Best-before first, shopper wording, a short journey, one panel, spaced footer (R6). |
+| Legal | Reading column, "On this page" contents, photo credits, facts rechecked (R4, R6). |
+| Forbidden and not found | Name the page and the role, shown once (R6). |
+| Sidebar | Grouped, with names that match the page titles: Dispatch queue, Inspections, Import, Team, Profile (R1, R7). |
+
+### Still open (Medium and Low)
+
+| Item | Severity | Note |
+|---|---|---|
+| Archived batches still has its own sidebar item next to the Active / Archived switch on Batches | Low | Kept for admins who use it daily; remove later if nobody does. |
+| Bulk actions on tables (RD-1) | Low | No bulk endpoints on the server; not added. |
+| Unsaved-changes guard outside the import wizard (RD-2) | Low | Dialogs keep their own state; a router-level guard needs a data router. |
+| Dev data has two batches coded TX-2026-10-003 (RD-3) | Info | Seed or test data, outside the UI. |
+| Dashboard "Refresh" also re-checks the session | Low | Harmless; live updates make it rarely needed. |
+| Custom domain | Launch blocker | Needs the owner (HARD UI RULE 9). |
 
 ---
 
