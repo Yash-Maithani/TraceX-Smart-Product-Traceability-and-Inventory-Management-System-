@@ -413,3 +413,84 @@ describe('FefoPage, InspectionsPage, and ProfilePage (Phase 6 Part D)', () => {
     });
   });
 });
+
+describe('Inspection assistant (AI phase)', () => {
+  beforeEach(() => {
+    window.sessionStorage.clear();
+    vi.restoreAllMocks();
+  });
+
+  it('fills the Record inspection form from the notes and shows what the server corrected', async () => {
+    vi.spyOn(Endpoints, 'fetchAiStatus').mockResolvedValue({ enabled: true, providers: ['gemini'] });
+    vi.spyOn(Endpoints, 'fetchInspections').mockResolvedValue({ data: [], total: 0, page: 1, limit: 20, count: 0 });
+    vi.spyOn(Endpoints, 'fetchMyInspections').mockResolvedValue({ data: [], total: 0, page: 1, limit: 20 });
+    vi.spyOn(Endpoints, 'fetchBatches').mockResolvedValue({
+      data: [{ id: 'b-1', batchCode: 'TX-2026-10-001', productName: 'Honey', sku: 'H', status: 'READY' }],
+      total: 1,
+      page: 1,
+      limit: 100,
+      count: 1
+    });
+    const draftSpy = vi.spyOn(Endpoints, 'draftInspectionFromNotes').mockResolvedValue({
+      checklist: [
+        { label: 'Packaging integrity', passed: false, note: 'Cap seal broken on 3 of 20 jars' },
+        { label: 'Label accuracy & legibility', passed: true, note: '' },
+        { label: 'Expiry date visible & correct', note: '' },
+        { label: 'Weight / quantity correct', note: '' },
+        { label: 'No visible contamination', passed: true, note: '' },
+        { label: 'Colour & texture acceptable', passed: true, note: '' },
+        { label: 'Odour within acceptable range', passed: true, note: '' },
+        { label: 'Storage conditions met', note: '' }
+      ],
+      verdict: 'FLAGGED',
+      rating: 3,
+      findings: 'Three jars had broken seals.',
+      recommendation: 'Re-seal or set the jars aside.',
+      adjustments: ['Changed Passed to Flagged because at least one check failed.'],
+      provider: 'gemini'
+    });
+
+    renderWithAuth(<InspectionsPage />, {
+      id: 'u-insp',
+      name: 'Inspector',
+      username: 'inspector',
+      email: 'inspector@tracex.demo',
+      role: 'quality-inspector',
+      superAdmin: false,
+      active: true
+    });
+
+    fireEvent.click(await screen.findByTestId('open-create-inspection-btn'));
+    const notes = await screen.findByTestId('inspection-notes-input');
+    fireEvent.change(notes, { target: { value: 'Cap seal broken on 3 of 20 jars, labels fine, smell normal.' } });
+    fireEvent.click(screen.getByTestId('inspection-draft-btn'));
+
+    await waitFor(() => expect(draftSpy).toHaveBeenCalledWith('Cap seal broken on 3 of 20 jars, labels fine, smell normal.'));
+    expect(await screen.findByTestId('inspection-draft-message')).toHaveTextContent('Check every field before saving');
+    expect(screen.getByTestId('inspection-draft-message')).toHaveTextContent('Changed Passed to Flagged');
+    expect(screen.getByTestId('inspection-verdict-select')).toHaveValue('FLAGGED');
+    expect(screen.getByTestId('inspection-rating-select')).toHaveValue('3');
+    expect(screen.getByTestId('checklist-fail-0')).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByTestId('checklist-na-2')).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByTestId('inspection-findings-input')).toHaveValue('Three jars had broken seals.');
+  });
+
+  it('does not show the notes box when the server has no AI key', async () => {
+    vi.spyOn(Endpoints, 'fetchAiStatus').mockResolvedValue({ enabled: false, providers: [] });
+    vi.spyOn(Endpoints, 'fetchInspections').mockResolvedValue({ data: [], total: 0, page: 1, limit: 20, count: 0 });
+    vi.spyOn(Endpoints, 'fetchMyInspections').mockResolvedValue({ data: [], total: 0, page: 1, limit: 20 });
+    vi.spyOn(Endpoints, 'fetchBatches').mockResolvedValue({ data: [], total: 0, page: 1, limit: 100, count: 0 });
+    renderWithAuth(<InspectionsPage />, {
+      id: 'u-insp',
+      name: 'Inspector',
+      username: 'inspector',
+      email: 'inspector@tracex.demo',
+      role: 'quality-inspector',
+      superAdmin: false,
+      active: true
+    });
+    fireEvent.click(await screen.findByTestId('open-create-inspection-btn'));
+    await screen.findByTestId('inspection-batch-select');
+    expect(screen.queryByTestId('inspection-assistant')).not.toBeInTheDocument();
+  });
+});

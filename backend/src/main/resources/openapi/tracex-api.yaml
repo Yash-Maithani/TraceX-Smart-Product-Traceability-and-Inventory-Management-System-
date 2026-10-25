@@ -3,7 +3,7 @@ info:
   title: OpenAPI definition
   version: v0
 servers:
-- url: http://localhost:62395
+- url: http://localhost:56673
   description: Generated server url
 paths:
   /api/v1/qr/scan:
@@ -607,6 +607,23 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/ApiResponseMapStringObject'
+  /api/v1/ai/inspection-draft:
+    post:
+      tags:
+      - ai-controller
+      operationId: inspectionDraft
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InspectionDraftRequest'
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseInspectionDraft'
   /api/v1/ai/dispatch-audit:
     post:
       tags:
@@ -619,13 +636,36 @@ paths:
         schema:
           type: boolean
           default: false
+      - name: ai
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
       responses:
         "200":
           description: OK
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/ApiResponseAuditReport'
+                $ref: '#/components/schemas/ApiResponseDispatchAdvice'
+  /api/v1/ai/ask:
+    post:
+      tags:
+      - ai-controller
+      operationId: ask
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AskRequest'
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseAskAnswer'
   /api/v1/notifications/{id}/read:
     patch:
       tags:
@@ -2110,9 +2150,9 @@ components:
           type: string
         active:
           type: boolean
-        superAdmin:
-          type: boolean
         deleted:
+          type: boolean
+        superAdmin:
           type: boolean
     ResendOtpDto:
       required:
@@ -2301,7 +2341,12 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FieldErrorDto'
-    ApiResponseAuditReport:
+    InspectionDraftRequest:
+      type: object
+      properties:
+        notes:
+          type: string
+    ApiResponseInspectionDraft:
       type: object
       properties:
         success:
@@ -2309,7 +2354,7 @@ components:
         requestId:
           type: string
         data:
-          $ref: '#/components/schemas/AuditReport'
+          $ref: '#/components/schemas/InspectionDraft'
         message:
           type: string
         code:
@@ -2320,30 +2365,46 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FieldErrorDto'
-    AuditReport:
+    ChecklistDraft:
       type: object
       properties:
-        urgentBatches:
+        label:
+          type: string
+        passed:
+          type: boolean
+        note:
+          type: string
+    InspectionDraft:
+      type: object
+      properties:
+        checklist:
           type: array
           items:
-            $ref: '#/components/schemas/UrgentBatch'
-        qualityWarnings:
+            $ref: '#/components/schemas/ChecklistDraft'
+        verdict:
+          type: string
+        rating:
+          type: integer
+          format: int32
+        findings:
+          type: string
+        recommendation:
+          type: string
+        adjustments:
           type: array
           items:
-            $ref: '#/components/schemas/QualityWarning'
-        top3Priorities:
-          type: array
-          items:
-            $ref: '#/components/schemas/Priority'
-        supplyChainRisks:
+            type: string
+        provider:
+          type: string
+    AiInsight:
+      type: object
+      properties:
+        summary:
+          type: string
+        risks:
           type: array
           items:
             $ref: '#/components/schemas/SupplyChainRisk'
-        summary:
-          type: string
-        totalAnalyzed:
-          type: integer
-          format: int32
         provider:
           type: string
         generatedAt:
@@ -2351,26 +2412,82 @@ components:
           format: date-time
         fromCache:
           type: boolean
-    Priority:
+    ApiResponseDispatchAdvice:
       type: object
       properties:
-        rank:
+        success:
+          type: boolean
+        requestId:
+          type: string
+        data:
+          $ref: '#/components/schemas/DispatchAdvice'
+        message:
+          type: string
+        code:
+          type: string
+        error:
+          type: string
+        fieldErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldErrorDto'
+    DispatchAdvice:
+      type: object
+      properties:
+        nextToShip:
+          type: array
+          items:
+            $ref: '#/components/schemas/NextBatch'
+        urgent:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlaggedBatch'
+        onHold:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlaggedBatch'
+        expired:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlaggedBatch'
+        qualityWarnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlaggedBatch'
+        totalAnalyzed:
           type: integer
           format: int32
+        generatedAt:
+          type: string
+          format: date-time
+        ai:
+          $ref: '#/components/schemas/AiInsight'
+        aiNote:
+          type: string
+    FlaggedBatch:
+      type: object
+      properties:
         batchCode:
           type: string
         productName:
           type: string
-        action:
+        reason:
           type: string
-        reasoning:
-          type: string
-    QualityWarning:
+    NextBatch:
       type: object
       properties:
         batchCode:
           type: string
-        concern:
+        productName:
+          type: string
+        sku:
+          type: string
+        daysUntilExpiry:
+          type: integer
+          format: int64
+        status:
+          type: string
+        verdict:
           type: string
     SupplyChainRisk:
       type: object
@@ -2381,13 +2498,139 @@ components:
           type: string
         recommendation:
           type: string
-    UrgentBatch:
+    AskRequest:
       type: object
       properties:
+        question:
+          type: string
+    ApiResponseAskAnswer:
+      type: object
+      properties:
+        success:
+          type: boolean
+        requestId:
+          type: string
+        data:
+          $ref: '#/components/schemas/AskAnswer'
+        message:
+          type: string
+        code:
+          type: string
+        error:
+          type: string
+        fieldErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldErrorDto'
+    AskAnswer:
+      type: object
+      properties:
+        question:
+          type: string
+        filter:
+          $ref: '#/components/schemas/AskFilter'
+        description:
+          type: string
+        total:
+          type: integer
+          format: int64
+        batches:
+          type: array
+          items:
+            $ref: '#/components/schemas/BatchSummaryDto'
+        provider:
+          type: string
+    AskFilter:
+      type: object
+      properties:
+        statuses:
+          type: array
+          items:
+            type: string
+        sku:
+          type: string
+        search:
+          type: string
+        expiryFrom:
+          type: string
+          format: date
+        expiryTo:
+          type: string
+          format: date
+        verdict:
+          type: string
+    BatchSummaryDto:
+      type: object
+      properties:
+        id:
+          type: string
         batchCode:
           type: string
-        reason:
+        productName:
           type: string
+        sku:
+          type: string
+        sourceLotCode:
+          type: string
+        farmerName:
+          type: string
+        village:
+          type: string
+        quantityProduced:
+          type: integer
+          format: int32
+        unit:
+          type: string
+        yieldPercent:
+          type: number
+          format: double
+        packDate:
+          type: string
+          format: date
+          example: 2026-10-09
+        expiryDate:
+          type: string
+          format: date
+          example: 2026-10-09
+        dataSource:
+          type: string
+        shelfLifeSource:
+          type: string
+        lifecycleState:
+          type: string
+        status:
+          type: string
+          description: Computed batch freshness or lifecycle status
+          enum:
+          - EXPIRED
+          - URGENT
+          - WARNING
+          - READY
+          - EXCEPTION
+          - DISPATCHED
+        daysUntilExpiry:
+          type: integer
+          format: int64
+        priorityScore:
+          type: number
+          format: double
+        qualityCheck:
+          $ref: '#/components/schemas/QualityCheck'
+        rank:
+          type: integer
+          format: int32
+        exceptionReason:
+          type: string
+        createdBy:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        deleted:
+          type: boolean
     ApiResponseNotificationDto:
       type: object
       properties:
@@ -3046,78 +3289,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FieldErrorDto'
-    BatchSummaryDto:
-      type: object
-      properties:
-        id:
-          type: string
-        batchCode:
-          type: string
-        productName:
-          type: string
-        sku:
-          type: string
-        sourceLotCode:
-          type: string
-        farmerName:
-          type: string
-        village:
-          type: string
-        quantityProduced:
-          type: integer
-          format: int32
-        unit:
-          type: string
-        yieldPercent:
-          type: number
-          format: double
-        packDate:
-          type: string
-          format: date
-          example: 2026-10-09
-        expiryDate:
-          type: string
-          format: date
-          example: 2026-10-09
-        dataSource:
-          type: string
-        shelfLifeSource:
-          type: string
-        lifecycleState:
-          type: string
-        status:
-          type: string
-          description: Computed batch freshness or lifecycle status
-          enum:
-          - EXPIRED
-          - URGENT
-          - WARNING
-          - READY
-          - EXCEPTION
-          - DISPATCHED
-        daysUntilExpiry:
-          type: integer
-          format: int64
-        priorityScore:
-          type: number
-          format: double
-        qualityCheck:
-          $ref: '#/components/schemas/QualityCheck'
-        rank:
-          type: integer
-          format: int32
-        exceptionReason:
-          type: string
-        createdBy:
-          type: string
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-        deleted:
-          type: boolean
     FefoResult:
       type: object
       properties:

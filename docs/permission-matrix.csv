@@ -66,7 +66,9 @@ phase,method,path,super-admin,admin,manager,factory-manager,quality-inspector,di
 10,POST,/api/v1/messages/record/:refType/:refId,allow,allow,allow,allow,allow,allow,deny,Phase 10.1; same record rule as GET; permanent
 10,PATCH,/api/v1/messages/:id,allow,allow,allow,allow,allow,allow,deny,Phase 10.1; author only; previous text kept
 10,DELETE,/api/v1/messages/:id,allow,allow,allow,allow,allow,allow,deny,Phase 10.1; author or admin/super-admin; soft delete
-11,POST,/api/v1/ai/dispatch-audit,allow,allow,allow,allow,allow,allow,deny,rate-limited 5/15min per user; 503 AI_UNAVAILABLE when no key
-11,GET,/api/v1/ai/status,allow,allow,allow,allow,allow,allow,deny,whether the AI audit is configured
+11,POST,/api/v1/ai/dispatch-audit,allow,allow,allow,allow,allow,allow,deny,rule-based facts always; AI insight rate-limited 5/15min per user and absent when no key
+11,GET,/api/v1/ai/status,allow,allow,allow,allow,allow,allow,deny,whether the AI features are configured
+11,POST,/api/v1/ai/ask,allow,allow,allow,allow,allow,allow,deny,Ask TraceX: question to checked batch filter; rate-limited 20/15min per user; 503 AI_UNAVAILABLE when no key
+11,POST,/api/v1/ai/inspection-draft,allow,allow,deny,deny,allow,deny,deny,inspection assistant: notes to a draft the inspector reviews; same roles as POST /inspections; 503 AI_UNAVAILABLE when no key
 3,GET,/api/v1/products,allow,allow,allow,allow,allow,allow,deny,
 6,GET,/api/v1/dashboard/summary,allow,allow,allow,allow,allow,allow,deny,D-21 Proposed; pendingAccessRequests populated only for manager/admin/super-admin

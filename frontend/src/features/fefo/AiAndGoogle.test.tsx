@@ -3,7 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
-import { AiAuditPanel } from './AiAuditPanel';
+import { DispatchBriefPanel } from './DispatchBriefPanel';
 import { GoogleSignInButton } from '../../components/GoogleSignInButton';
 import { GoogleLinkCard } from '../profile/GoogleLinkCard';
 import { ThemeProvider } from '../../hooks/useTheme';
@@ -42,7 +42,7 @@ function mockAuth(user: UserSummaryDto) {
   return refreshSession;
 }
 
-describe('AI dispatch audit and Google sign-in UI (Phase 11)', () => {
+describe('Dispatch brief (AI phase) and Google sign-in UI (Phase 11)', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
   });
@@ -51,47 +51,70 @@ describe('AI dispatch audit and Google sign-in UI (Phase 11)', () => {
     vi.unstubAllEnvs();
   });
 
-  it('AiAuditPanel stays hidden when the server has no AI key', async () => {
-    const status = vi.spyOn(Endpoints, 'fetchAiStatus').mockResolvedValue({ enabled: false, providers: [] });
-    const { container } = render(<AiAuditPanel />, { wrapper });
-    await waitFor(() => expect(status).toHaveBeenCalled());
-    expect(container.querySelector('[data-testid="ai-audit-panel"]')).toBeNull();
+  const ADVICE = {
+    nextToShip: [{ batchCode: 'TX-1', productName: 'Honey', sku: 'H', daysUntilExpiry: 2, status: 'URGENT', verdict: 'PASSED' }],
+    urgent: [{ batchCode: 'TX-1', productName: 'Honey', reason: 'Expires in 2 days.' }],
+    onHold: [{ batchCode: 'TX-2', productName: 'Jam', reason: 'Latest inspection failed. Record a new inspection to release it.' }],
+    expired: [],
+    qualityWarnings: [],
+    totalAnalyzed: 3,
+    generatedAt: '2026-10-23T08:00:00Z',
+    aiNote: 'not-requested'
+  };
+  const FACTS = {
+    nextToShip: ADVICE.nextToShip,
+    urgent: ADVICE.urgent,
+    onHold: ADVICE.onHold,
+    expired: ADVICE.expired,
+    qualityWarnings: ADVICE.qualityWarnings,
+    totalAnalyzed: ADVICE.totalAnalyzed,
+    generatedAt: ADVICE.generatedAt
+  };
+
+  it('DispatchBriefPanel shows the rule facts without asking the AI, and hides the AI block when no key is set', async () => {
+    vi.spyOn(Endpoints, 'fetchAiStatus').mockResolvedValue({ enabled: false, providers: [] });
+    const facts = vi.spyOn(Endpoints, 'fetchDispatchAdvice').mockResolvedValue({ ...ADVICE, aiNote: 'off' });
+    render(<DispatchBriefPanel />, { wrapper });
+    expect(await screen.findByTestId('dispatch-brief-next')).toHaveTextContent('TX-1');
+    expect(screen.getByTestId('dispatch-brief-hold')).toHaveTextContent('TX-2');
+    expect(facts).toHaveBeenCalledWith({ withAi: false });
+    expect(screen.queryByTestId('dispatch-brief-ai')).toBeNull();
   });
 
-  it('AiAuditPanel runs the audit and shows priorities, risks, provider and the check-before-acting note', async () => {
+  it('DispatchBriefPanel writes the AI summary on request and shows risks, provider and the advice-only note', async () => {
     vi.spyOn(Endpoints, 'fetchAiStatus').mockResolvedValue({ enabled: true, providers: ['gemini'] });
-    const run = vi.spyOn(Endpoints, 'runAiAudit').mockResolvedValue({
-      urgentBatches: [{ batchCode: 'TX-1', reason: 'Expires in 2 days' }],
-      qualityWarnings: [],
-      top3Priorities: [{ rank: 1, batchCode: 'TX-1', productName: 'Honey', action: 'Dispatch today.', reasoning: 'Shortest shelf life.' }],
-      supplyChainRisks: [{ risk: 'One village supplies most honey.', severity: 'HIGH', recommendation: 'Add suppliers.' }],
-      summary: 'Dispatch TX-1 first.',
-      totalAnalyzed: 3,
-      provider: 'gemini',
-      generatedAt: '2026-10-23T08:00:00Z',
-      fromCache: true
-    });
-
-    render(<AiAuditPanel />, { wrapper });
-    fireEvent.click(await screen.findByTestId('ai-audit-run-btn'));
-    await waitFor(() => expect(run).toHaveBeenCalledWith(false));
-
-    expect(await screen.findByTestId('ai-audit-summary')).toHaveTextContent('Dispatch TX-1 first.');
-    expect(screen.getByText(/One village supplies most honey/)).toBeInTheDocument();
-    expect(screen.getByTestId('ai-audit-meta')).toHaveTextContent('3 batches analysed by Google Gemini');
-    expect(screen.getByTestId('ai-audit-meta')).toHaveTextContent('(saved result)');
-    expect(screen.getByTestId('ai-audit-meta')).toHaveTextContent('AI suggestions can be wrong');
-
-    fireEvent.click(screen.getByTestId('ai-audit-refresh-btn'));
-    await waitFor(() => expect(run).toHaveBeenCalledWith(true));
+    const advice = vi.spyOn(Endpoints, 'fetchDispatchAdvice').mockImplementation(async (opts) =>
+      opts?.withAi
+        ? {
+            ...FACTS,
+            ai: {
+              summary: 'Ship TX-1 today; TX-2 is on hold.',
+              risks: [{ risk: 'Most honey comes from one village.', severity: 'HIGH', recommendation: 'Add a second supplier.' }],
+              provider: 'gemini',
+              generatedAt: '2026-10-23T08:00:00Z',
+              fromCache: false
+            }
+          }
+        : ADVICE
+    );
+    render(<DispatchBriefPanel />, { wrapper });
+    fireEvent.click(await screen.findByTestId('dispatch-brief-ai-btn'));
+    await waitFor(() => expect(advice).toHaveBeenCalledWith({ withAi: true, refresh: false }));
+    expect(await screen.findByTestId('dispatch-brief-ai-summary')).toHaveTextContent('Ship TX-1 today');
+    expect(screen.getByText(/Most honey comes from one village/)).toBeInTheDocument();
+    expect(screen.getByTestId('dispatch-brief-ai')).toHaveTextContent('By Google Gemini');
+    expect(screen.getByTestId('dispatch-brief-ai')).toHaveTextContent('Advice only');
   });
 
-  it('AiAuditPanel shows the server message when the audit cannot run', async () => {
+  it('DispatchBriefPanel keeps the facts and explains when the AI service did not answer', async () => {
     vi.spyOn(Endpoints, 'fetchAiStatus').mockResolvedValue({ enabled: true, providers: ['gemini'] });
-    vi.spyOn(Endpoints, 'runAiAudit').mockRejectedValue(new Error('AI audit limit reached. Please try again in a few minutes.'));
-    render(<AiAuditPanel />, { wrapper });
-    fireEvent.click(await screen.findByTestId('ai-audit-run-btn'));
-    expect(await screen.findByTestId('ai-audit-error')).toHaveTextContent('AI audit limit reached');
+    vi.spyOn(Endpoints, 'fetchDispatchAdvice').mockImplementation(async (opts) =>
+      opts?.withAi ? { ...ADVICE, aiNote: 'unavailable' } : ADVICE
+    );
+    render(<DispatchBriefPanel />, { wrapper });
+    fireEvent.click(await screen.findByTestId('dispatch-brief-ai-btn'));
+    expect(await screen.findByTestId('dispatch-brief-ai-note')).toHaveTextContent('did not answer');
+    expect(screen.getByTestId('dispatch-brief-next')).toHaveTextContent('TX-1');
   });
 
   it('GoogleSignInButton renders nothing without a client id, and Google\'s button when one is set', async () => {

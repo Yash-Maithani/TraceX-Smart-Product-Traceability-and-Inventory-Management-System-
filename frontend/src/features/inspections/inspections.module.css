@@ -84,3 +84,24 @@
   font-size: var(--text-xs);
   color: var(--text-secondary);
 }
+
+/* Inspection assistant (AI phase) */
+.assistant {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--accent-primary);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-canvas);
+}
+
+.assistantNote {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.assistantNote p {
+  margin: 0;
+}

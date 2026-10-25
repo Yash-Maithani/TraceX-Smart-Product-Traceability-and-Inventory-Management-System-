@@ -1,15 +1,17 @@
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { Boxes, FileText, Plus, Search } from 'lucide-react';
+import { ArrowLeft, Boxes, FileText, Plus, Search, Sparkles } from 'lucide-react';
 import styles from './console.module.css';
 import { StatusBadge } from './StatusBadge';
 import type { StatusBadgeValue } from './statusMap';
-import { fetchBatches } from '../../api/endpoints';
+import { askTraceX, fetchAiStatus, fetchBatches } from '../../api/endpoints';
+import type { AiAskAnswerDto } from '../../api/types';
 import { useAuth } from '../../auth/AuthContext';
 import { canCreateBatch, canViewBatches } from '../../auth/permissions.generated';
 import { getEnabledNavRoutes } from '../../routes/navConfig';
 import { PALETTE_STRINGS } from '../../strings/common';
+import { AI_STRINGS } from '../../strings/ai';
 
 export interface CommandPaletteProps {
   open: boolean;
@@ -18,7 +20,7 @@ export interface CommandPaletteProps {
 
 interface PaletteOption {
   id: string;
-  group: 'pages' | 'actions' | 'batches';
+  group: 'pages' | 'actions' | 'batches' | 'ask';
   label: string;
   meta?: string | undefined;
   icon: ReactNode;
@@ -30,6 +32,20 @@ interface PaletteOption {
 const SEARCH_DELAY_MS = 200;
 const MIN_SEARCH_CHARS = 2;
 const MAX_BATCH_RESULTS = 6;
+/** A question has at least this many words; shorter input is a page name or a batch code. */
+const MIN_QUESTION_WORDS = 3;
+
+/** The batch list URL for the parts of an Ask filter the list can show (one status, product, dates, text). */
+export function askFilterToListUrl(filter: AiAskAnswerDto['filter']): string {
+  const params = new URLSearchParams();
+  if (filter?.statuses && filter.statuses.length === 1 && filter.statuses[0]) params.set('status', filter.statuses[0]);
+  if (filter?.sku) params.set('sku', filter.sku);
+  if (filter?.expiryFrom) params.set('expiryFrom', filter.expiryFrom);
+  if (filter?.expiryTo) params.set('expiryTo', filter.expiryTo);
+  if (filter?.search) params.set('search', filter.search);
+  const qs = params.toString();
+  return qs ? `/batches?${qs}` : '/batches';
+}
 
 function useDebounced(value: string, delayMs: number): string {
   const [debounced, setDebounced] = useState(value);
@@ -54,6 +70,14 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const debounced = useDebounced(term.trim(), SEARCH_DELAY_MS);
   const canSearchBatches = canViewBatches(user);
+  const A = AI_STRINGS.ask;
+
+  // Ask TraceX (AI phase): offered only when the server has an AI key
+  const aiStatus = useQuery({ queryKey: ['ai', 'status'], queryFn: fetchAiStatus, enabled: open, staleTime: 300_000 });
+  const ask = useMutation({ mutationFn: (question: string) => askTraceX(question) });
+  const canAsk = open && canSearchBatches && aiStatus.data?.enabled === true;
+  const askMode = ask.isPending || ask.isSuccess || ask.isError;
+  const resetAsk = ask.reset;
 
   const batchQuery = useQuery({
     queryKey: ['palette', 'batches', debounced],
@@ -67,11 +91,12 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
     previousFocus.current = document.activeElement as HTMLElement | null;
     setTerm('');
     setActiveIndex(0);
+    resetAsk();
     inputRef.current?.focus();
     return () => {
       previousFocus.current?.focus?.();
     };
-  }, [open]);
+  }, [open, resetAsk]);
 
   const options = useMemo<PaletteOption[]>(() => {
     const q = term.trim().toLowerCase();
@@ -113,8 +138,12 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
       const [hit] = batches.splice(exact, 1);
       if (hit) batches.unshift(hit);
     }
-    return exact >= 0 ? [...batches, ...pages, ...actions] : [...pages, ...actions, ...batches];
-  }, [term, debounced, user, batchQuery.data]);
+    const asks: PaletteOption[] =
+      canAsk && term.trim().split(/\s+/).length >= MIN_QUESTION_WORDS
+        ? [{ id: 'ask', group: 'ask', label: A.option(term.trim()), icon: <Sparkles size={16} aria-hidden="true" />, to: '' }]
+        : [];
+    return exact >= 0 ? [...batches, ...pages, ...actions, ...asks] : [...asks, ...pages, ...actions, ...batches];
+  }, [term, debounced, user, batchQuery.data, canAsk, A]);
 
   useEffect(() => {
     setActiveIndex(0);
@@ -124,6 +153,10 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
 
   const choose = (opt: PaletteOption | undefined) => {
     if (!opt) return;
+    if (opt.group === 'ask') {
+      ask.mutate(term.trim());
+      return;
+    }
     onClose();
     navigate(opt.to);
   };
@@ -140,14 +173,14 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
       setActiveIndex((i) => (options.length === 0 ? 0 : (i - 1 + options.length) % options.length));
     } else if (e.key === 'Enter') {
       e.preventDefault();
-      choose(options[activeIndex]);
+      if (!askMode) choose(options[activeIndex]);
     } else if (e.key === 'Tab') {
       // Focus stays in the input; the list is navigated with the arrow keys
       e.preventDefault();
     }
   };
 
-  const groups: PaletteOption['group'][] = ['batches', 'pages', 'actions'];
+  const groups: PaletteOption['group'][] = ['ask', 'batches', 'pages', 'actions'];
   const ordered = groups
     .map((g) => ({ g, items: options.filter((o) => o.group === g) }))
     .filter((x) => x.items.length > 0)
@@ -193,12 +226,79 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
             spellCheck={false}
             placeholder={PALETTE_STRINGS.placeholder}
             value={term}
-            onChange={(e) => setTerm(e.target.value)}
+            onChange={(e) => {
+              setTerm(e.target.value);
+              if (askMode) ask.reset();
+            }}
             onKeyDown={onKeyDown}
             data-testid="command-palette-input"
           />
         </div>
-        <div id={listId} role="listbox" aria-label={PALETTE_STRINGS.dialogLabel} className={styles.paletteList}>
+        {askMode ? (
+          <div className={styles.askPanel} data-testid="ask-answer" aria-live="polite">
+            {ask.isPending ? <p className={styles.paletteMessage}>{A.thinking}</p> : null}
+            {ask.isError ? (
+              <p className={styles.paletteMessage} role="alert">
+                {ask.error instanceof Error && ask.error.message ? ask.error.message : A.failed}
+              </p>
+            ) : null}
+            {ask.data ? (
+              <>
+                <p className={styles.askDescription}>
+                  <span className={styles.askLabel}>{A.searched}</span> {ask.data.description}
+                </p>
+                <p className={styles.askCount} data-testid="ask-count">
+                  {(ask.data.total ?? 0) === 0 ? A.none : A.count(ask.data.total ?? 0)}
+                  {(ask.data.total ?? 0) > (ask.data.batches ?? []).length ? ` ${A.showing((ask.data.batches ?? []).length, ask.data.total ?? 0)}` : ''}
+                </p>
+                <ul className={styles.askList}>
+                  {(ask.data.batches ?? []).map((b) => (
+                    <li key={b.id ?? b.batchCode}>
+                      <button
+                        type="button"
+                        className={styles.paletteOption}
+                        onClick={() => {
+                          onClose();
+                          navigate(`/batches/${b.id ?? ''}`);
+                        }}
+                        data-testid={`ask-result-${b.batchCode}`}
+                      >
+                        <Boxes size={16} aria-hidden="true" />
+                        <span className={`${styles.paletteOptionMain} ${styles.paletteCode}`}>{b.batchCode}</span>
+                        <span className={styles.paletteMeta}>{b.productName}</span>
+                        {b.status ? <StatusBadge status={b.status as StatusBadgeValue} /> : null}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+                <div className={styles.askActions}>
+                  <button
+                    type="button"
+                    className={styles.askLink}
+                    onClick={() => {
+                      onClose();
+                      navigate(askFilterToListUrl(ask.data?.filter));
+                    }}
+                    data-testid="ask-open-list"
+                  >
+                    {A.openList}
+                  </button>
+                  <button type="button" className={styles.askLink} onClick={() => ask.reset()}>
+                    <ArrowLeft size={14} aria-hidden="true" /> {A.back}
+                  </button>
+                </div>
+                <p className={styles.askNote}>{A.disclaimer}</p>
+              </>
+            ) : null}
+          </div>
+        ) : null}
+        <div
+          id={listId}
+          role="listbox"
+          aria-label={PALETTE_STRINGS.dialogLabel}
+          className={styles.paletteList}
+          hidden={askMode}
+        >
           {ordered.map(({ g, items }) => (
             <div key={g} role="group" aria-labelledby={`${listId}-${g}`}>
               <div id={`${listId}-${g}`} role="presentation" className={styles.paletteGroup}>
@@ -232,13 +332,13 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
             </div>
           ))}
         </div>
-        {message ? (
+        {message && !askMode ? (
           <div className={styles.paletteMessage} role="status">
             {message}
           </div>
         ) : null}
         <div className={styles.paletteFooter} aria-hidden="true">
-          {PALETTE_STRINGS.hint}
+          {canAsk ? `${PALETTE_STRINGS.hint}. ${A.hint}` : PALETTE_STRINGS.hint}
         </div>
       </div>
     </div>

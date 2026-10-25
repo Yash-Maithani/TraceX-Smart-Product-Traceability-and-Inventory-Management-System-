@@ -52,7 +52,7 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
     items: [
       'Staff see only what their role allows. Administrators manage accounts; managers can view them.',
       'The public QR trace page shows the product, batch code, village, dates, freshness and the latest quality check. It never shows the farmer\'s name or anyone\'s contact details.',
-      'If the AI dispatch audit is switched on, current batch details are sent to Google Gemini (or NVIDIA as a backup) to produce advice. Farmer names are never sent.',
+      'If the AI features are switched on, Google Gemini (or NVIDIA as a backup) receives: current batch details when someone asks for the dispatch summary, the question typed into Ask TraceX, and the notes an inspector writes when asking for a draft inspection. Farmer names are never sent, and nothing is sent unless a person asks.',
       'If Google sign-in is switched on and you use it, Google confirms your email address to TraceX.',
       'We do not sell or share data with anyone else.'
     ]
@@ -103,7 +103,7 @@ export const TERMS_SECTIONS: LegalSection[] = [
   {
     heading: 'AI advice',
     paragraphs: [
-      'When the AI dispatch audit is switched on, its suggestions are advice only. They can be wrong. Staff remain responsible for dispatch decisions, which still follow the first-expired, first-out rules in TraceX.'
+      'When the AI features are switched on, their output is advice only and can be wrong. The dispatch order always comes from the first-expired, first-out rules in TraceX, Ask TraceX answers only with batches stored in TraceX, and an inspection draft is saved only after the inspector checks it. Staff remain responsible for every decision.'
     ]
   },
   {

@@ -14,7 +14,9 @@ import type {
   ChangePasswordDto,
   DeleteUserDto,
   ChannelsDto,
-  AiAuditReportDto,
+  AiAskAnswerDto,
+  AiDispatchAdviceDto,
+  AiInspectionDraftDto,
   AiStatusDto,
   LoginEventDto,
   MessageDto,
@@ -538,10 +540,25 @@ export async function fetchAiStatus(): Promise<AiStatusDto> {
   return res.data ?? { enabled: false, providers: [] };
 }
 
-export async function runAiAudit(refresh = false): Promise<AiAuditReportDto> {
-  const res = await apiRequest<AiAuditReportDto>(`/api/v1/ai/dispatch-audit${refresh ? '?refresh=true' : ''}`, {
-    method: 'POST'
+/** Dispatch advisor: rule-based facts always; `withAi` adds the model's summary and risks. */
+export async function fetchDispatchAdvice(options: { withAi?: boolean; refresh?: boolean } = {}): Promise<AiDispatchAdviceDto> {
+  const qs = buildQueryString({
+    ai: options.withAi ? 'true' : 'false',
+    refresh: options.refresh ? 'true' : undefined
   });
+  const res = await apiRequest<AiDispatchAdviceDto>(`/api/v1/ai/dispatch-audit${qs}`, { method: 'POST' });
+  return res.data;
+}
+
+/** Ask TraceX: a plain question becomes a checked batch filter, answered from live data. */
+export async function askTraceX(question: string): Promise<AiAskAnswerDto> {
+  const res = await apiRequest<AiAskAnswerDto>('/api/v1/ai/ask', { method: 'POST', body: { question } });
+  return res.data;
+}
+
+/** Inspection assistant: the inspector's notes become a draft for the Record inspection form. */
+export async function draftInspectionFromNotes(notes: string): Promise<AiInspectionDraftDto> {
+  const res = await apiRequest<AiInspectionDraftDto>('/api/v1/ai/inspection-draft', { method: 'POST', body: { notes } });
   return res.data;
 }
 

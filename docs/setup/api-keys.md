@@ -1,15 +1,15 @@
-# Getting and Setting the API Keys (AI Audit and Google Sign-in)
+# Getting and Setting the API Keys (AI Features and Google Sign-in)
 
-TraceX runs fully without these keys. The AI dispatch audit and Google sign-in simply stay hidden until the keys are set, so you can add them at any time, including after the rest of the project is finished.
+TraceX runs fully without these keys. The dispatch brief on the queue page always works from fixed rules. The AI extras (the AI summary, Ask TraceX in the search box and the inspection notes assistant) and Google sign-in stay hidden until the keys are set, so you can add them at any time.
 
 | Feature | Variable | Where it goes | Secret? |
 |---|---|---|---|
-| AI dispatch audit (main) | `GEMINI_API_KEY` | `backend/.env` | Yes |
-| AI dispatch audit (backup) | `NVIDIA_API_KEY` | `backend/.env` | Yes |
+| AI features (main) | `GEMINI_API_KEY` | `backend/.env` | Yes |
+| AI features (backup) | `NVIDIA_API_KEY` | `backend/.env` | Yes |
 | Google sign-in (server check) | `GOOGLE_CLIENT_ID` | `backend/.env` | No |
 | Google sign-in (button) | `VITE_GOOGLE_CLIENT_ID` | `frontend/.env.local` | No |
 
-You need at least one of the two AI keys for the AI audit. Gemini alone is enough; NVIDIA is only used if Gemini fails. Google sign-in needs both `GOOGLE_CLIENT_ID` and `VITE_GOOGLE_CLIENT_ID`, set to the same value.
+You need at least one of the two AI keys for the AI features. TraceX tries several Gemini models in order (`GEMINI_MODELS`, default `gemini-flash-lite-latest,gemini-3.5-flash,gemini-flash-latest`), because Google retires model names and busy models sometimes refuse; you only need to change it if Google retires all three. Gemini alone is enough; NVIDIA is only used if Gemini fails. Google sign-in needs both `GOOGLE_CLIENT_ID` and `VITE_GOOGLE_CLIENT_ID`, set to the same value.
 
 ## Rules for keeping the keys safe
 
@@ -76,7 +76,9 @@ Free trial credits are limited; check your balance on the same site.
    cd frontend; npm run dev
    ```
 4. Check it worked:
-   - The **FEFO & Dispatch** page shows an **AI dispatch audit** card. Click **Run audit**.
+   - On **Dispatch queue**, the **Dispatch brief** shows an **AI summary** part. Click **Write AI summary**.
+   - Press Ctrl+K and type a question such as `jam batches expiring this week, not inspected`. Choose **Ask TraceX**.
+   - Sign in as `inspector`, open **Inspections**, click **Record inspection**, type a few notes and click **Fill the form from my notes**.
    - The **Profile & Security** page shows **Google sign-in**. Link your Google account there, sign out, and use the Google button on the login page.
 5. Run `git status --short` and confirm neither `.env` file appears in the list.
 
@@ -92,5 +94,5 @@ Do not copy the `.env` files to the server. Instead:
 
 | Missing | What users see | What the API answers |
 |---|---|---|
-| Both AI keys | No AI card on the FEFO page | `POST /api/v1/ai/dispatch-audit`: `503 AI_UNAVAILABLE` |
+| Both AI keys | The dispatch brief shows the rule facts only; no Ask TraceX option and no notes box | `POST /api/v1/ai/dispatch-audit`: `200` with `aiNote: "off"`; `POST /api/v1/ai/ask` and `/ai/inspection-draft`: `503 AI_UNAVAILABLE` |
 | Google client ID | No Google button on login or Profile | `POST /api/v1/auth/google/token`: `503 GOOGLE_SIGN_IN_UNAVAILABLE` |

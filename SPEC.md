@@ -910,7 +910,7 @@ Forwarded headers are handled exclusively through Spring Boot's `server.forward-
 No consumer PII stored. Device type and source only.
 
 ### AI Privacy (D-9)
-`farmerName` is NOT sent to third-party AI APIs. Only `village`, `batchCode`, `productName`, `sku`, `status`, `daysUntilExpiry`, `quantity`, `unit`, `yieldPercent`, `dataSource` are sent.
+`farmerName` is NOT sent to third-party AI APIs. The dispatch summary sends only `village`, `batchCode`, `productName`, `sku`, `status`, `daysUntilExpiry`, `quantity`, `unit`, `yieldPercent` and the latest inspection verdict. Ask TraceX sends the question and the product catalogue (SKU, name, category). The inspection assistant sends the inspector's notes. Nothing is sent unless a person asks (AI phase, `docs/progress/phase-ai.md`).
 
 ### Last-Super-Admin Guard
 Any operation (deactivate, delete) that would leave zero active super-admins must be rejected with `HTTP 409 LAST_SUPERADMIN`.

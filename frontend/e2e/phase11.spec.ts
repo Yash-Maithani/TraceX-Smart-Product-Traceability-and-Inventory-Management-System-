@@ -37,7 +37,7 @@ test.describe('Phase 11 AI Audit and Google Sign-in (switched off) E2E Suite', (
     await stopE2eBackend();
   });
 
-  test('P11-E2E-01: with no keys the AI panel and Google buttons are hidden and the API answers 503', async ({ page }) => {
+  test('P11-E2E-01: with no keys the dispatch brief shows rule facts only, AI extras and Google buttons are hidden, and AI-only calls answer 503', async ({ page }) => {
     await page.goto('/login');
     await expect(page.getByRole('button', { name: 'Sign in' })).toBeVisible();
     await expect(page.getByTestId('login-google-section')).toHaveCount(0);
@@ -45,7 +45,10 @@ test.describe('Phase 11 AI Audit and Google Sign-in (switched off) E2E Suite', (
     await uiSignIn(page, 'coordinator');
     await page.goto('/fefo');
     await expect(page.getByRole('heading', { name: 'Dispatch queue' }).first()).toBeVisible();
-    await expect(page.getByTestId('ai-audit-panel')).toHaveCount(0);
+    // AI phase: the rule-based brief always shows; the AI summary block needs a key
+    await expect(page.getByTestId('dispatch-brief')).toBeVisible();
+    await expect(page.getByTestId('dispatch-brief-next')).toBeVisible();
+    await expect(page.getByTestId('dispatch-brief-ai')).toHaveCount(0);
     await page.goto('/profile');
     await expect(page.getByTestId('profile-google-card')).toHaveCount(0);
 
@@ -55,7 +58,15 @@ test.describe('Phase 11 AI Audit and Google Sign-in (switched off) E2E Suite', (
     };
     expect(status.data.enabled).toBe(false);
     const audit = await fetch(`${E2E_API_BASE}/api/v1/ai/dispatch-audit`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
-    expect(audit.status).toBe(503);
+    expect(audit.status).toBe(200);
+    const advice = (await audit.json()) as { data: { aiNote: string; nextToShip: unknown[] } };
+    expect(advice.data.aiNote).toBe('off');
+    const ask = await fetch(`${E2E_API_BASE}/api/v1/ai/ask`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question: 'expired jam batches' })
+    });
+    expect(ask.status).toBe(503);
     const google = await fetch(`${E2E_API_BASE}/api/v1/auth/google/token`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

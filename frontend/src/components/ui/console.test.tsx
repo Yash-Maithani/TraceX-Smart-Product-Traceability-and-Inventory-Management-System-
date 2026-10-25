@@ -6,7 +6,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { axe } from 'vitest-axe';
-import { CommandPalette } from './CommandPalette';
+import { CommandPalette, askFilterToListUrl } from './CommandPalette';
 import { FilterChip, LiveIndicator, StatCard, Tabs, Timeline } from './Console';
 import { computeRail, ShelfLifeRail } from './ShelfLifeRail';
 import { StatusBadge } from './StatusBadge';
@@ -46,8 +46,9 @@ function mockAuth(user: UserSummaryDto) {
   });
 }
 
-function renderPalette(user: UserSummaryDto, onClose = vi.fn()) {
+function renderPalette(user: UserSummaryDto, onClose = vi.fn(), aiEnabled = false) {
   mockAuth(user);
+  vi.spyOn(Endpoints, 'fetchAiStatus').mockResolvedValue({ enabled: aiEnabled, providers: aiEnabled ? ['gemini'] : [] });
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   render(
     <QueryClientProvider client={queryClient}>
@@ -284,6 +285,43 @@ describe('Command palette (Ctrl+K)', () => {
     expect(input.getAttribute('aria-activedescendant')).toBe(screen.getAllByRole('option')[1]!.id);
     fireEvent.keyDown(input, { key: 'Escape' });
     expect(onClose).toHaveBeenCalled();
+  });
+
+  it('Ask TraceX: a question shows the Ask option, answers from live data, and links to the filtered batch list', async () => {
+    vi.spyOn(Endpoints, 'fetchBatches').mockResolvedValue({ data: [], total: 0, page: 1, limit: 6 } as unknown as BatchPageResultDto);
+    const askSpy = vi.spyOn(Endpoints, 'askTraceX').mockResolvedValue({
+      question: 'jam batches expiring this week',
+      filter: { statuses: ['URGENT'], sku: 'ABHJAM', expiryFrom: '2026-10-24', expiryTo: '2026-10-31' },
+      description: 'Batches that are expiring soon of Apricot Jam (ABHJAM), expiring 24 Oct 2026 to 31 Oct 2026.',
+      total: 1,
+      batches: [{ id: 'b3', batchCode: 'TX-2026-10-003', productName: 'Apricot Jam', status: 'URGENT' }],
+      provider: 'gemini'
+    });
+    renderPalette(MANAGER, vi.fn(), true);
+    const input = screen.getByTestId('command-palette-input');
+    fireEvent.change(input, { target: { value: 'jam batches expiring this week' } });
+    const option = await screen.findByTestId('palette-option-ask');
+    expect(option).toHaveAttribute('aria-selected', 'true');
+    fireEvent.keyDown(input, { key: 'Enter' });
+    await waitFor(() => expect(askSpy).toHaveBeenCalledWith('jam batches expiring this week'));
+    expect(await screen.findByTestId('ask-answer')).toHaveTextContent('Apricot Jam (ABHJAM)');
+    expect(screen.getByTestId('ask-count')).toHaveTextContent('1 batch matches.');
+    fireEvent.click(screen.getByTestId('ask-result-TX-2026-10-003'));
+    expect(await screen.findByTestId('batch-route')).toBeInTheDocument();
+  });
+
+  it('Ask TraceX is not offered without an AI key or for short input', async () => {
+    renderPalette(MANAGER, vi.fn(), false);
+    fireEvent.change(screen.getByTestId('command-palette-input'), { target: { value: 'jam batches expiring this week' } });
+    await waitFor(() => expect(Endpoints.fetchAiStatus).toHaveBeenCalled());
+    expect(screen.queryByTestId('palette-option-ask')).not.toBeInTheDocument();
+  });
+
+  it('askFilterToListUrl keeps what the batch list can show', () => {
+    expect(askFilterToListUrl({ statuses: ['URGENT'], sku: 'ABHJAM', expiryFrom: '2026-10-24' })).toBe(
+      '/batches?status=URGENT&sku=ABHJAM&expiryFrom=2026-10-24'
+    );
+    expect(askFilterToListUrl({ statuses: ['URGENT', 'EXPIRED'], verdict: 'NONE' })).toBe('/batches');
   });
 
   it('has no axe violations', async () => {

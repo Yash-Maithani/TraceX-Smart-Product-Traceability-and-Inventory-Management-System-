@@ -28,7 +28,7 @@ import { formatBusinessDate } from '../../lib/dates';
 import { FEFO_STRINGS as S } from '../../strings/fefo';
 import { RAIL_STRINGS } from '../../strings/status';
 import { DispatchDialog } from '../batches/DispatchDialog';
-import { AiAuditPanel } from './AiAuditPanel';
+import { DispatchBriefPanel } from './DispatchBriefPanel';
 import { nextToShipIds } from './queueModel';
 
 type FefoTab = 'queue' | 'expired' | 'missing';
@@ -211,7 +211,7 @@ export function FefoPage() {
         priority
       />
 
-      <AiAuditPanel />
+      <DispatchBriefPanel />
 
       {lastDispatchWarning ? (
         <div className={styles.warning} role="status" data-testid="fefo-flagged-warning-banner">

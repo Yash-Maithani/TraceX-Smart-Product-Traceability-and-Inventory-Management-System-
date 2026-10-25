@@ -37,6 +37,7 @@
 | 11 | AI and Google OAuth (switched on by keys) | COMPLETE | 2026-10-23 | [phase-11](docs/progress/phase-11.md) |
 | 12 | UI refinement, legal pages, favicon, documentation | COMPLETE | 2026-10-23 | [phase-12](docs/progress/phase-12.md) |
 | 13 | Testing and hardening | COMPLETE (awaiting review) | 2026-10-23 | [phase-13](docs/progress/phase-13.md) |
+| AI | Useful AI: dispatch brief (rules + AI summary), Ask TraceX, inspection assistant | COMPLETE (awaiting review; verified with a real Gemini key 2026-10-25) | 2026-10-24 | [phase-ai](docs/progress/phase-ai.md) |
 | 14 | Production preparation and deployment | NOT STARTED | | |
 
 ---

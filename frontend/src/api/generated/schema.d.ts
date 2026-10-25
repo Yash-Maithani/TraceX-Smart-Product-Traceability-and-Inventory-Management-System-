@@ -388,6 +388,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/ai/inspection-draft": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["inspectionDraft"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/ai/dispatch-audit": {
         parameters: {
             query?: never;
@@ -398,6 +414,22 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["dispatchAudit"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ai/ask": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ask"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1423,8 +1455,8 @@ export interface components {
             preferences?: components["schemas"]["Preferences"];
             googleEmail?: string;
             active?: boolean;
-            superAdmin?: boolean;
             deleted?: boolean;
+            superAdmin?: boolean;
         };
         ResendOtpDto: {
             email: string;
@@ -1507,48 +1539,158 @@ export interface components {
             error?: string;
             fieldErrors?: components["schemas"]["FieldErrorDto"][];
         };
-        ApiResponseAuditReport: {
+        InspectionDraftRequest: {
+            notes?: string;
+        };
+        ApiResponseInspectionDraft: {
             success?: boolean;
             requestId?: string;
-            data?: components["schemas"]["AuditReport"];
+            data?: components["schemas"]["InspectionDraft"];
             message?: string;
             code?: string;
             error?: string;
             fieldErrors?: components["schemas"]["FieldErrorDto"][];
         };
-        AuditReport: {
-            urgentBatches?: components["schemas"]["UrgentBatch"][];
-            qualityWarnings?: components["schemas"]["QualityWarning"][];
-            top3Priorities?: components["schemas"]["Priority"][];
-            supplyChainRisks?: components["schemas"]["SupplyChainRisk"][];
-            summary?: string;
+        ChecklistDraft: {
+            label?: string;
+            passed?: boolean;
+            note?: string;
+        };
+        InspectionDraft: {
+            checklist?: components["schemas"]["ChecklistDraft"][];
+            verdict?: string;
             /** Format: int32 */
-            totalAnalyzed?: number;
+            rating?: number;
+            findings?: string;
+            recommendation?: string;
+            adjustments?: string[];
+            provider?: string;
+        };
+        AiInsight: {
+            summary?: string;
+            risks?: components["schemas"]["SupplyChainRisk"][];
             provider?: string;
             /** Format: date-time */
             generatedAt?: string;
             fromCache?: boolean;
         };
-        Priority: {
+        ApiResponseDispatchAdvice: {
+            success?: boolean;
+            requestId?: string;
+            data?: components["schemas"]["DispatchAdvice"];
+            message?: string;
+            code?: string;
+            error?: string;
+            fieldErrors?: components["schemas"]["FieldErrorDto"][];
+        };
+        DispatchAdvice: {
+            nextToShip?: components["schemas"]["NextBatch"][];
+            urgent?: components["schemas"]["FlaggedBatch"][];
+            onHold?: components["schemas"]["FlaggedBatch"][];
+            expired?: components["schemas"]["FlaggedBatch"][];
+            qualityWarnings?: components["schemas"]["FlaggedBatch"][];
             /** Format: int32 */
-            rank?: number;
+            totalAnalyzed?: number;
+            /** Format: date-time */
+            generatedAt?: string;
+            ai?: components["schemas"]["AiInsight"];
+            aiNote?: string;
+        };
+        FlaggedBatch: {
             batchCode?: string;
             productName?: string;
-            action?: string;
-            reasoning?: string;
+            reason?: string;
         };
-        QualityWarning: {
+        NextBatch: {
             batchCode?: string;
-            concern?: string;
+            productName?: string;
+            sku?: string;
+            /** Format: int64 */
+            daysUntilExpiry?: number;
+            status?: string;
+            verdict?: string;
         };
         SupplyChainRisk: {
             risk?: string;
             severity?: string;
             recommendation?: string;
         };
-        UrgentBatch: {
+        AskRequest: {
+            question?: string;
+        };
+        ApiResponseAskAnswer: {
+            success?: boolean;
+            requestId?: string;
+            data?: components["schemas"]["AskAnswer"];
+            message?: string;
+            code?: string;
+            error?: string;
+            fieldErrors?: components["schemas"]["FieldErrorDto"][];
+        };
+        AskAnswer: {
+            question?: string;
+            filter?: components["schemas"]["AskFilter"];
+            description?: string;
+            /** Format: int64 */
+            total?: number;
+            batches?: components["schemas"]["BatchSummaryDto"][];
+            provider?: string;
+        };
+        AskFilter: {
+            statuses?: string[];
+            sku?: string;
+            search?: string;
+            /** Format: date */
+            expiryFrom?: string;
+            /** Format: date */
+            expiryTo?: string;
+            verdict?: string;
+        };
+        BatchSummaryDto: {
+            id?: string;
             batchCode?: string;
-            reason?: string;
+            productName?: string;
+            sku?: string;
+            sourceLotCode?: string;
+            farmerName?: string;
+            village?: string;
+            /** Format: int32 */
+            quantityProduced?: number;
+            unit?: string;
+            /** Format: double */
+            yieldPercent?: number;
+            /**
+             * Format: date
+             * @example 2026-10-09
+             */
+            packDate?: string;
+            /**
+             * Format: date
+             * @example 2026-10-09
+             */
+            expiryDate?: string;
+            dataSource?: string;
+            shelfLifeSource?: string;
+            lifecycleState?: string;
+            /**
+             * @description Computed batch freshness or lifecycle status
+             * @enum {string}
+             */
+            status?: "EXPIRED" | "URGENT" | "WARNING" | "READY" | "EXCEPTION" | "DISPATCHED";
+            /** Format: int64 */
+            daysUntilExpiry?: number;
+            /** Format: double */
+            priorityScore?: number;
+            qualityCheck?: components["schemas"]["QualityCheck"];
+            /** Format: int32 */
+            rank?: number;
+            exceptionReason?: string;
+            createdBy?: string;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+            deleted?: boolean;
         };
         ApiResponseNotificationDto: {
             success?: boolean;
@@ -1884,52 +2026,6 @@ export interface components {
             code?: string;
             error?: string;
             fieldErrors?: components["schemas"]["FieldErrorDto"][];
-        };
-        BatchSummaryDto: {
-            id?: string;
-            batchCode?: string;
-            productName?: string;
-            sku?: string;
-            sourceLotCode?: string;
-            farmerName?: string;
-            village?: string;
-            /** Format: int32 */
-            quantityProduced?: number;
-            unit?: string;
-            /** Format: double */
-            yieldPercent?: number;
-            /**
-             * Format: date
-             * @example 2026-10-09
-             */
-            packDate?: string;
-            /**
-             * Format: date
-             * @example 2026-10-09
-             */
-            expiryDate?: string;
-            dataSource?: string;
-            shelfLifeSource?: string;
-            lifecycleState?: string;
-            /**
-             * @description Computed batch freshness or lifecycle status
-             * @enum {string}
-             */
-            status?: "EXPIRED" | "URGENT" | "WARNING" | "READY" | "EXCEPTION" | "DISPATCHED";
-            /** Format: int64 */
-            daysUntilExpiry?: number;
-            /** Format: double */
-            priorityScore?: number;
-            qualityCheck?: components["schemas"]["QualityCheck"];
-            /** Format: int32 */
-            rank?: number;
-            exceptionReason?: string;
-            createdBy?: string;
-            /** Format: date-time */
-            createdAt?: string;
-            /** Format: date-time */
-            updatedAt?: string;
-            deleted?: boolean;
         };
         FefoResult: {
             queue?: components["schemas"]["BatchSummaryDto"][];
@@ -2816,10 +2912,35 @@ export interface operations {
             };
         };
     };
+    inspectionDraft: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["InspectionDraftRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseInspectionDraft"];
+                };
+            };
+        };
+    };
     dispatchAudit: {
         parameters: {
             query?: {
                 refresh?: boolean;
+                ai?: boolean;
             };
             header?: never;
             path?: never;
@@ -2833,7 +2954,31 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["ApiResponseAuditReport"];
+                    "*/*": components["schemas"]["ApiResponseDispatchAdvice"];
+                };
+            };
+        };
+    };
+    ask: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["AskRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseAskAnswer"];
                 };
             };
         };

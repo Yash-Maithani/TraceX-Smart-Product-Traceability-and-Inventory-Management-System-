@@ -1,12 +1,19 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Eye, Plus } from 'lucide-react';
+import { Eye, Plus, Sparkles } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import coreStyles from '../core/core.module.css';
 import batchStyles from '../batches/batches.module.css';
 import styles from './inspections.module.css';
 import { ApiError } from '../../api/client';
-import { createInspection, fetchBatches, fetchInspections, fetchMyInspections } from '../../api/endpoints';
+import {
+  createInspection,
+  draftInspectionFromNotes,
+  fetchAiStatus,
+  fetchBatches,
+  fetchInspections,
+  fetchMyInspections
+} from '../../api/endpoints';
 import type { ChecklistItemDto, InspectionDto } from '../../api/types';
 import { useAuth } from '../../auth/AuthContext';
 import { canCreateInspection } from '../../auth/permissions.generated';
@@ -34,6 +41,7 @@ import {
 import { formatTimestamp } from '../../lib/dates';
 import { EMPTY_VALUE } from '../../lib/format';
 import { INSPECTION_STRINGS as S } from '../../strings/inspections';
+import { AI_STRINGS } from '../../strings/ai';
 import { STATUS_STRINGS } from '../../strings/status';
 import { RecordComments } from '../messages/RecordComments';
 
@@ -104,8 +112,13 @@ export function InspectionsPage() {
   const [recommendation, setRecommendation] = useState('');
   const [serverError, setServerError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  // Inspection assistant (AI phase): notes become a draft the inspector reviews
+  const [notes, setNotes] = useState('');
+  const [draftMessage, setDraftMessage] = useState<{ text: string; adjustments: string[] } | null>(null);
 
   const allowCreate = canCreateInspection(user);
+  const aiStatusQuery = useQuery({ queryKey: ['ai', 'status'], queryFn: fetchAiStatus, enabled: allowCreate, staleTime: 300_000 });
+  const aiEnabled = allowCreate && aiStatusQuery.data?.enabled === true;
   const range = { from: from || undefined, to: to || undefined };
 
   const allInspectionsQuery = useQuery({
@@ -138,7 +151,33 @@ export function InspectionsPage() {
     setRecommendation('');
     setServerError(null);
     setFieldErrors({});
+    setNotes('');
+    setDraftMessage(null);
   };
+
+  const draftMutation = useMutation({
+    mutationFn: () => draftInspectionFromNotes(notes.trim()),
+    onSuccess: (draft) => {
+      const v = draft.verdict;
+      if (v === 'PASSED' || v === 'FLAGGED' || v === 'FAILED') setVerdict(v);
+      if (draft.rating) setRating(String(draft.rating));
+      if (draft.checklist && draft.checklist.length === FIXED_CHECKLIST_LABELS.length) {
+        setChecklist(
+          draft.checklist.map((c, i) => ({
+            label: FIXED_CHECKLIST_LABELS[i] ?? c.label ?? '',
+            passed: c.passed === true ? true : c.passed === false ? false : undefined,
+            note: (c.note ?? '').slice(0, 200)
+          }))
+        );
+      }
+      if (draft.findings) setFindings(draft.findings);
+      if (draft.recommendation) setRecommendation(draft.recommendation);
+      setDraftMessage({ text: AI_STRINGS.draft.filled, adjustments: draft.adjustments ?? [] });
+    },
+    onError: (err) => {
+      setDraftMessage({ text: err instanceof Error && err.message ? err.message : AI_STRINGS.draft.failed, adjustments: [] });
+    }
+  });
 
   const createMutation = useMutation({
     mutationFn: async () => {
@@ -442,6 +481,45 @@ export function InspectionsPage() {
             <div className={`${coreStyles.alertBanner} ${coreStyles.alertDanger}`} role="alert" data-testid="create-inspection-error">
               <div>{serverError}</div>
               {fieldErrors.checklist ? <div data-testid="inspection-checklist-field-error">{fieldErrors.checklist}</div> : null}
+            </div>
+          ) : null}
+
+          {aiEnabled ? (
+            <div className={styles.assistant} data-testid="inspection-assistant">
+              <Field label={AI_STRINGS.draft.label} hint={AI_STRINGS.draft.hint}>
+                <Textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value.slice(0, 2000))}
+                  placeholder={AI_STRINGS.draft.placeholder}
+                  disabled={createMutation.isPending || draftMutation.isPending}
+                  rows={3}
+                  data-testid="inspection-notes-input"
+                />
+              </Field>
+              <div>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  leftIcon={<Sparkles size={15} />}
+                  isLoading={draftMutation.isPending}
+                  loadingText={AI_STRINGS.draft.filling}
+                  disabled={draftMutation.isPending || notes.trim().length < 10}
+                  onClick={() => draftMutation.mutate()}
+                  data-testid="inspection-draft-btn"
+                >
+                  {AI_STRINGS.draft.fill}
+                </Button>
+              </div>
+              {draftMessage ? (
+                <div className={styles.assistantNote} role="status" data-testid="inspection-draft-message">
+                  <p>{draftMessage.text}</p>
+                  {draftMessage.adjustments.length > 0 ? (
+                    <p>
+                      {AI_STRINGS.draft.adjusted} {draftMessage.adjustments.join(' ')}
+                    </p>
+                  ) : null}
+                </div>
+              ) : null}
             </div>
           ) : null}
 

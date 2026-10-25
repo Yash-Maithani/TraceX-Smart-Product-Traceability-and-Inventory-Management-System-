@@ -25,6 +25,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +39,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Phase 11: AI dispatch audit (S-01). Both providers are mocks, so no test calls the internet or needs a key.
+ * Dispatch advisor (Phase 11, reworked in the AI phase). Facts come from rules and work without a key;
+ * the model only adds a summary and risks. Both providers are mocks, so no test calls the internet.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -63,14 +65,10 @@ public class AiAuditTests {
 
     private static final String GOOD_JSON = """
             {
-              "urgentBatches": [{"batchCode": "TX-AI-URG", "reason": "Expires in 2 days"},
-                                {"batchCode": "TX-MADE-UP", "reason": "Invented by the model"}],
-              "qualityWarnings": [{"batchCode": "TX-AI-LOW", "concern": "Yield 55%"}],
-              "top3Priorities": [{"rank": 1, "batchCode": "TX-AI-EXP", "productName": "x", "action": "Dispatch", "reasoning": "Expired"},
-                                 {"rank": 2, "batchCode": "TX-AI-URG", "productName": "x", "action": "Dispatch today", "reasoning": "Shortest shelf life"}],
-              "supplyChainRisks": [{"risk": "One village supplies most honey", "severity": "high", "recommendation": "Add suppliers"},
-                                   {"risk": "Odd severity", "severity": "SEVERE", "recommendation": "n/a"}],
-              "summary": "Dispatch TX-AI-URG first."
+              "summary": "TX-AI-URG expires first; one batch is on hold.",
+              "risks": [{"risk": "All honey comes from Almora", "severity": "high", "recommendation": "Add a second village"},
+                        {"risk": "Odd severity", "severity": "SEVERE", "recommendation": "n/a"},
+                        {"risk": "TX-MADE-UP is risky", "severity": "LOW", "recommendation": "Invented batch"}]
             }""";
 
     @BeforeEach
@@ -83,9 +81,10 @@ public class AiAuditTests {
         u.setEmailVerified(true);
         manager = userRepository.save(u);
         userIds.add(manager.getId());
-        saveBatch("TX-AI-URG", 2, 90);
-        saveBatch("TX-AI-LOW", 20, 55);
-        saveBatch("TX-AI-EXP", -1, 90);
+        saveBatch("TX-AI-HOLD", 1, 90, "FAILED");
+        saveBatch("TX-AI-URG", 2, 90, null);
+        saveBatch("TX-AI-LOW", 20, 55, "PASSED");
+        saveBatch("TX-AI-EXP", -1, 90, null);
     }
 
     @AfterEach
@@ -96,7 +95,7 @@ public class AiAuditTests {
         rateLimiter.resetAll();
     }
 
-    private void saveBatch(String code, int daysToExpiry, double yield) {
+    private void saveBatch(String code, int daysToExpiry, double yield, String verdict) {
         Batch b = new Batch();
         b.setBatchCode(code);
         b.setSku("AI-SKU");
@@ -110,6 +109,7 @@ public class AiAuditTests {
         b.setPackDate(LocalDate.now().minusDays(10));
         b.setExpiryDate(LocalDate.now().plusDays(daysToExpiry));
         b.setLifecycleState("ACTIVE");
+        if (verdict != null) b.setQualityCheck(new Batch.QualityCheck(verdict, 3, Instant.now(), "Inspector"));
         batchIds.add(batchRepository.save(b).getId());
     }
 
@@ -117,102 +117,137 @@ public class AiAuditTests {
         return "Bearer " + jwtService.generateToken(manager.getId(), manager.getTokenVersion());
     }
 
+    private JsonNode advise(String query) throws Exception {
+        String body = mockMvc.perform(post("/api/v1/ai/dispatch-audit" + query).header("Authorization", bearer()))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        return objectMapper.readTree(body).get("data");
+    }
+
+    private static List<String> codes(JsonNode list) {
+        List<String> out = new ArrayList<>();
+        list.forEach(n -> out.add(n.get("batchCode").asText()));
+        return out;
+    }
+
     @Test
-    @DisplayName("Without any key the status says disabled and the audit answers 503 AI_UNAVAILABLE")
-    void disabledWithoutKeys() throws Exception {
+    @DisplayName("Without any key the facts still come back from the rules; the AI part is marked off")
+    void factsWithoutKeys() throws Exception {
         when(gemini.isConfigured()).thenReturn(false);
         when(nvidia.isConfigured()).thenReturn(false);
 
         mockMvc.perform(get("/api/v1/ai/status").header("Authorization", bearer()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.enabled").value(false));
-        mockMvc.perform(post("/api/v1/ai/dispatch-audit").header("Authorization", bearer()))
-                .andExpect(status().isServiceUnavailable())
-                .andExpect(jsonPath("$.code").value("AI_UNAVAILABLE"));
+
+        JsonNode advice = advise("");
+        assertThat(advice.get("aiNote").asText()).isEqualTo("off");
+        assertThat(advice.get("ai").isNull()).isTrue();
+        // The held batch expires first but is skipped; the next batch of the product is the pick
+        assertThat(codes(advice.get("nextToShip"))).contains("TX-AI-URG").doesNotContain("TX-AI-HOLD", "TX-AI-EXP");
+        assertThat(codes(advice.get("onHold"))).contains("TX-AI-HOLD");
+        assertThat(codes(advice.get("urgent"))).contains("TX-AI-URG", "TX-AI-HOLD");
+        assertThat(codes(advice.get("expired"))).contains("TX-AI-EXP");
+        assertThat(codes(advice.get("qualityWarnings"))).contains("TX-AI-LOW");
+        verify(gemini, never()).complete(anyString());
     }
 
     @Test
-    @DisplayName("Gemini answers: the prompt has village but no farmer name, and invented or expired picks are dropped")
-    void geminiReportIsCleaned() throws Exception {
+    @DisplayName("Gemini adds a summary and risks: the prompt has village and verdicts but no farmer name; invented codes are dropped")
+    void insightIsChecked() throws Exception {
         when(gemini.isConfigured()).thenReturn(true);
         when(gemini.complete(anyString())).thenReturn("```json\n" + GOOD_JSON + "\n```");
 
-        String body = mockMvc.perform(post("/api/v1/ai/dispatch-audit").header("Authorization", bearer()))
-                .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
-        JsonNode report = objectMapper.readTree(body).get("data");
-
+        JsonNode advice = advise("");
         ArgumentCaptor<String> prompt = ArgumentCaptor.forClass(String.class);
         verify(gemini).complete(prompt.capture());
-        assertThat(prompt.getValue()).contains("TX-AI-URG").contains("Almora").doesNotContain("SecretFarmerAI").doesNotContain("farmerName");
+        assertThat(prompt.getValue()).contains("TX-AI-URG").contains("Almora").contains("FAILED")
+                .doesNotContain("SecretFarmerAI").doesNotContain("farmerName");
 
-        assertThat(report.get("provider").asText()).isEqualTo("gemini");
-        assertThat(report.get("fromCache").asBoolean()).isFalse();
-        assertThat(report.get("urgentBatches")).hasSize(1);
-        assertThat(report.at("/urgentBatches/0/batchCode").asText()).isEqualTo("TX-AI-URG");
-        assertThat(report.get("top3Priorities")).hasSize(1); // the expired batch is never a dispatch pick
-        assertThat(report.at("/top3Priorities/0/rank").asInt()).isEqualTo(1);
-        assertThat(report.at("/top3Priorities/0/productName").asText()).isEqualTo("AI Test Honey");
-        assertThat(report.at("/supplyChainRisks/0/severity").asText()).isEqualTo("HIGH");
-        assertThat(report.at("/supplyChainRisks/1/severity").asText()).isEqualTo("MEDIUM");
+        JsonNode ai = advice.get("ai");
+        assertThat(advice.get("aiNote").isNull()).isTrue();
+        assertThat(ai.get("provider").asText()).isEqualTo("gemini");
+        assertThat(ai.get("summary").asText()).contains("TX-AI-URG");
+        assertThat(ai.get("risks")).hasSize(2); // the risk naming TX-MADE-UP is dropped
+        assertThat(ai.at("/risks/0/severity").asText()).isEqualTo("HIGH");
+        assertThat(ai.at("/risks/1/severity").asText()).isEqualTo("MEDIUM");
         verify(nvidia, never()).complete(anyString());
     }
 
     @Test
-    @DisplayName("Gemini fails: NVIDIA answers instead; both fail: 503 without any provider detail in the response")
+    @DisplayName("ai=false returns the facts without a model call; once an insight exists it comes back from the cache")
+    void factsOnlyMode() throws Exception {
+        when(gemini.isConfigured()).thenReturn(true);
+        when(gemini.complete(anyString())).thenReturn(GOOD_JSON);
+
+        JsonNode factsOnly = advise("?ai=false");
+        assertThat(factsOnly.get("aiNote").asText()).isEqualTo("not-requested");
+        assertThat(codes(factsOnly.get("nextToShip"))).contains("TX-AI-URG");
+        verify(gemini, never()).complete(anyString());
+
+        advise("");
+        assertThat(advise("?ai=false").at("/ai/fromCache").asBoolean()).isTrue();
+        verify(gemini, times(1)).complete(anyString());
+    }
+
+    @Test
+    @DisplayName("Gemini fails: NVIDIA answers; both fail: the facts still come back with aiNote unavailable and no provider detail")
     void fallbackAndTotalFailure() throws Exception {
         when(gemini.isConfigured()).thenReturn(true);
         when(nvidia.isConfigured()).thenReturn(true);
         when(gemini.complete(anyString())).thenThrow(new IllegalStateException("Gemini returned HTTP 429 secret-detail"));
         when(nvidia.complete(anyString())).thenReturn(GOOD_JSON);
-
-        mockMvc.perform(post("/api/v1/ai/dispatch-audit").header("Authorization", bearer()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.provider").value("nvidia"));
+        assertThat(advise("").at("/ai/provider").asText()).isEqualTo("nvidia");
 
         aiAuditService.clearCache();
         when(nvidia.complete(anyString())).thenThrow(new IllegalStateException("NVIDIA returned HTTP 500 secret-detail"));
         String body = mockMvc.perform(post("/api/v1/ai/dispatch-audit").header("Authorization", bearer()))
-                .andExpect(status().isServiceUnavailable())
-                .andExpect(jsonPath("$.code").value("AI_UNAVAILABLE"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.aiNote").value("unavailable"))
                 .andReturn().getResponse().getContentAsString();
-        assertThat(body).doesNotContain("secret-detail");
+        assertThat(body).doesNotContain("secret-detail").contains("TX-AI-URG");
     }
 
     @Test
-    @DisplayName("A second call is served from the cache; refresh=true asks the provider again")
-    void cacheAndRefresh() throws Exception {
+    @DisplayName("The insight is reused while the data is unchanged; a change in the batches or refresh=true asks again")
+    void cacheFollowsTheData() throws Exception {
         when(gemini.isConfigured()).thenReturn(true);
         when(gemini.complete(anyString())).thenReturn(GOOD_JSON);
 
-        mockMvc.perform(post("/api/v1/ai/dispatch-audit").header("Authorization", bearer())).andExpect(status().isOk());
-        mockMvc.perform(post("/api/v1/ai/dispatch-audit").header("Authorization", bearer()))
-                .andExpect(jsonPath("$.data.fromCache").value(true));
+        advise("");
+        assertThat(advise("").at("/ai/fromCache").asBoolean()).isTrue();
         verify(gemini, times(1)).complete(anyString());
 
-        mockMvc.perform(post("/api/v1/ai/dispatch-audit?refresh=true").header("Authorization", bearer()))
-                .andExpect(jsonPath("$.data.fromCache").value(false));
+        saveBatch("TX-AI-NEW", 40, 90, null); // new stock changes the fingerprint
+        assertThat(advise("").at("/ai/fromCache").asBoolean()).isFalse();
         verify(gemini, times(2)).complete(anyString());
+
+        assertThat(advise("?refresh=true").at("/ai/fromCache").asBoolean()).isFalse();
+        verify(gemini, times(3)).complete(anyString());
     }
 
     @Test
-    @DisplayName("Unreadable model output is a 503, not a 500")
+    @DisplayName("Unreadable model output or a summary naming an unknown batch leaves the facts and marks the AI unavailable")
     void unparseableOutput() throws Exception {
         when(gemini.isConfigured()).thenReturn(true);
         when(gemini.complete(anyString())).thenReturn("Sure! Here is my analysis in prose.");
-        mockMvc.perform(post("/api/v1/ai/dispatch-audit").header("Authorization", bearer()))
-                .andExpect(status().isServiceUnavailable());
+        assertThat(advise("").get("aiNote").asText()).isEqualTo("unavailable");
+
+        when(gemini.complete(anyString())).thenReturn("{\"summary\": \"Ship TX-NOT-REAL now\", \"risks\": []}");
+        assertThat(advise("?refresh=true").get("aiNote").asText()).isEqualTo("unavailable");
     }
 
     @Test
-    @DisplayName("Each user may run the audit 5 times per 15 minutes; the 6th is 429")
+    @DisplayName("Each user may ask the model 5 times per 15 minutes; after that the facts still come back with aiNote limit")
     void perUserRateLimit() throws Exception {
         when(gemini.isConfigured()).thenReturn(true);
         when(gemini.complete(anyString())).thenReturn(GOOD_JSON);
         for (int i = 0; i < 5; i++) {
-            mockMvc.perform(post("/api/v1/ai/dispatch-audit").header("Authorization", bearer())).andExpect(status().isOk());
+            advise("?refresh=true");
         }
-        mockMvc.perform(post("/api/v1/ai/dispatch-audit").header("Authorization", bearer()))
-                .andExpect(status().isTooManyRequests());
+        JsonNode sixth = advise("?refresh=true");
+        assertThat(sixth.get("aiNote").asText()).isEqualTo("limit");
+        assertThat(sixth.get("nextToShip").size()).isGreaterThan(0);
+        verify(gemini, times(5)).complete(anyString());
     }
 }

@@ -90,7 +90,8 @@ export const PALETTE_STRINGS = {
   groups: {
     pages: 'Pages',
     actions: 'Actions',
-    batches: 'Batches'
+    batches: 'Batches',
+    ask: 'Ask TraceX'
   },
   searching: 'Searching batches',
   noResults: 'No pages or batches match.',
