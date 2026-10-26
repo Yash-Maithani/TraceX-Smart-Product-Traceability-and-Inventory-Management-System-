@@ -71,4 +71,6 @@ phase,method,path,super-admin,admin,manager,factory-manager,quality-inspector,di
 11,POST,/api/v1/ai/ask,allow,allow,allow,allow,allow,allow,deny,Ask TraceX: question to checked batch filter; rate-limited 20/15min per user; 503 AI_UNAVAILABLE when no key
 11,POST,/api/v1/ai/inspection-draft,allow,allow,deny,deny,allow,deny,deny,inspection assistant: notes to a draft the inspector reviews; same roles as POST /inspections; 503 AI_UNAVAILABLE when no key
 3,GET,/api/v1/products,allow,allow,allow,allow,allow,allow,deny,
+14,POST,/api/v1/products,allow,allow,allow,deny,deny,deny,deny,product catalogue: managers and administrators add products; SKU must be unique
+14,PATCH,/api/v1/products/:id,allow,allow,allow,deny,deny,deny,deny,product catalogue: SKU fixed; changes apply to batches created afterwards
 6,GET,/api/v1/dashboard/summary,allow,allow,allow,allow,allow,allow,deny,D-21 Proposed; pendingAccessRequests populated only for manager/admin/super-admin

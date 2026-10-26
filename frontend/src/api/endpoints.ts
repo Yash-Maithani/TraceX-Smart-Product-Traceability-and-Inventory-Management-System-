@@ -44,6 +44,7 @@ import type {
   InspectionPageResultDto,
   LoginResponseDto,
   ProductDto,
+  ProductUpsertDto,
   PublicTraceDto,
   ScanRequestDto,
   UpdateProfileDto,
@@ -99,6 +100,22 @@ export async function fetchProducts(): Promise<ProductDto[]> {
     method: 'GET'
   });
   return res.data ?? [];
+}
+
+export async function createProduct(payload: ProductUpsertDto): Promise<ProductDto> {
+  const res = await apiRequest<ProductDto>('/api/v1/products', {
+    method: 'POST',
+    body: payload
+  });
+  return res.data;
+}
+
+export async function updateProduct(id: string, payload: ProductUpsertDto): Promise<ProductDto> {
+  const res = await apiRequest<ProductDto>(`/api/v1/products/${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    body: payload
+  });
+  return res.data;
 }
 
 export async function fetchBatches(params: BatchListQueryParams = {}): Promise<BatchPageResultDto> {

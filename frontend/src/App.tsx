@@ -10,6 +10,7 @@ import { AppShell } from './layouts/AppShell';
 import {
   ActivatePage,
   ArchivedBatchesPage,
+  ProductsPage,
   BatchDetailPage,
   BatchesPage,
   DashboardPage,
@@ -110,6 +111,7 @@ export function App({ queryClient = defaultQueryClient }: { queryClient?: QueryC
                       }
                     />
                     <Route path="/batches/:id" element={<BatchDetailPage />} />
+                    <Route path="/products" element={<ProductsPage />} />
                     <Route
                       path="/import"
                       element={

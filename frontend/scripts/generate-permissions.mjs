@@ -220,6 +220,10 @@ export function buildPermissionsTypeScript(csvContent) {
     'export function canRollbackImport(user: PermissionSubject | null | undefined): boolean {',
     "  return canCallEndpoint(user, 'POST', '/api/v1/import/:id/rollback');",
     '}',
+  '',
+    'export function canManageProducts(user: PermissionSubject | null | undefined): boolean {',
+    "  return canCallEndpoint(user, 'POST', '/api/v1/products');",
+    '}',
     ''
   );
 

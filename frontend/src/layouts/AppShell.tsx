@@ -10,6 +10,7 @@ import {
   LogOut,
   Menu,
   MessageSquare,
+  Package,
   PanelLeftClose,
   PanelLeftOpen,
   Search,
@@ -74,6 +75,8 @@ function renderNavIcon(iconName: NavRouteItem['iconName']) {
       return <Bell size={17} aria-hidden="true" />;
     case 'message':
       return <MessageSquare size={17} aria-hidden="true" />;
+    case 'package':
+      return <Package size={17} aria-hidden="true" />;
   }
 }
 

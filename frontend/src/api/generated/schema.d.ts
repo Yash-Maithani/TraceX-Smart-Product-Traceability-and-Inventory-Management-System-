@@ -20,6 +20,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getProducts"];
+        put?: never;
+        post: operations["createProduct"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/messages/record/{refType}/{refId}": {
         parameters: {
             query?: never;
@@ -436,6 +452,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/products/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["updateProduct"];
+        trace?: never;
+    };
     "/api/v1/notifications/{id}/read": {
         parameters: {
             query?: never;
@@ -636,22 +668,6 @@ export interface paths {
             cookie?: never;
         };
         get: operations["getPublicTrace"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/products": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getProducts"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1048,6 +1064,45 @@ export interface components {
         FieldErrorDto: {
             field?: string;
             message?: string;
+        };
+        ProductUpsertDto: {
+            productName: string;
+            sku: string;
+            category: string;
+            /** Format: int32 */
+            shelfLifeDays: number;
+            riskLevel: string;
+            ingredients?: string;
+            allergens?: string[];
+            storageInstructions?: string;
+        };
+        ApiResponseProduct: {
+            success?: boolean;
+            requestId?: string;
+            data?: components["schemas"]["Product"];
+            message?: string;
+            code?: string;
+            error?: string;
+            fieldErrors?: components["schemas"]["FieldErrorDto"][];
+        };
+        Product: {
+            id?: string;
+            productName?: string;
+            sku?: string;
+            category?: string;
+            /** Format: int32 */
+            baseShelfLifeDays?: number;
+            /** Format: int32 */
+            predictedShelfLifeDays?: number;
+            predictedExpiryTemplate?: string;
+            riskLevel?: string;
+            ingredients?: string;
+            allergens?: string[];
+            storageInstructions?: string;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
         };
         MessageBodyDto: {
             body: string;
@@ -1455,8 +1510,8 @@ export interface components {
             preferences?: components["schemas"]["Preferences"];
             googleEmail?: string;
             active?: boolean;
-            deleted?: boolean;
             superAdmin?: boolean;
+            deleted?: boolean;
         };
         ResendOtpDto: {
             email: string;
@@ -1812,22 +1867,6 @@ export interface components {
             code?: string;
             error?: string;
             fieldErrors?: components["schemas"]["FieldErrorDto"][];
-        };
-        Product: {
-            id?: string;
-            productName?: string;
-            sku?: string;
-            category?: string;
-            /** Format: int32 */
-            baseShelfLifeDays?: number;
-            /** Format: int32 */
-            predictedShelfLifeDays?: number;
-            predictedExpiryTemplate?: string;
-            riskLevel?: string;
-            /** Format: date-time */
-            createdAt?: string;
-            /** Format: date-time */
-            updatedAt?: string;
         };
         ApiResponseNotificationListDto: {
             success?: boolean;
@@ -2237,6 +2276,50 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApiResponseVoid"];
+                };
+            };
+        };
+    };
+    getProducts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseListProduct"];
+                };
+            };
+        };
+    };
+    createProduct: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProductUpsertDto"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseProduct"];
                 };
             };
         };
@@ -2983,6 +3066,32 @@ export interface operations {
             };
         };
     };
+    updateProduct: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProductUpsertDto"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseProduct"];
+                };
+            };
+        };
+    };
     markRead: {
         parameters: {
             query?: never;
@@ -3329,26 +3438,6 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApiResponsePublicTraceDto"];
-                };
-            };
-        };
-    };
-    getProducts: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ApiResponseListProduct"];
                 };
             };
         };

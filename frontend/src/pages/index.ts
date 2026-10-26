@@ -8,6 +8,7 @@ export { DashboardPage } from '../features/dashboard/DashboardPage';
 export { BatchesPage } from '../features/batches/BatchesPage';
 export { BatchDetailPage } from '../features/batches/BatchDetailPage';
 export { ArchivedBatchesPage } from '../features/batches/ArchivedBatchesPage';
+export { ProductsPage } from '../features/products/ProductsPage';
 export { FefoPage } from '../features/fefo/FefoPage';
 export { InspectionsPage } from '../features/inspections/InspectionsPage';
 export { ProfilePage } from '../features/profile/ProfilePage';

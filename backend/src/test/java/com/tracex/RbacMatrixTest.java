@@ -55,6 +55,16 @@ public class RbacMatrixTest {
 
     private static final String NON_EXISTENT_ID = "000000000000000000000001";
 
+    /** A valid catalogue product, so validation passes and only the role decides the status. */
+    private static final String RBAC_PRODUCT_SKU = "RBAC-PRD";
+    private static final String RBAC_PRODUCT_BODY = "{\"productName\":\"RBAC Test Product\", \"sku\":\"" + RBAC_PRODUCT_SKU
+            + "\", \"category\":\"Test\", \"shelfLifeDays\":30, \"riskLevel\":\"LOW\"}";
+
+    @org.junit.jupiter.api.AfterAll
+    static void removeRbacProduct(@Autowired com.tracex.repository.ProductRepository productRepository) {
+        productRepository.findBySku(RBAC_PRODUCT_SKU).ifPresent(productRepository::delete);
+    }
+
     private final Map<String, User> testUsers = new HashMap<>();
 
     @BeforeEach
@@ -102,7 +112,7 @@ public class RbacMatrixTest {
     }
 
     @TestFactory
-    @DisplayName("RBAC Permission Matrix Suite (Phase <= 11)")
+    @DisplayName("RBAC Permission Matrix Suite (Phase <= 14)")
     Stream<DynamicTest> testRbacMatrixPhaseLeq4() throws IOException {
         Path matrixPath = findPermissionMatrixPath();
         assertThat(matrixPath).isNotNull();
@@ -124,7 +134,7 @@ public class RbacMatrixTest {
             if (parts.length < 9) continue;
 
             int phase = Integer.parseInt(parts[0].trim());
-            if (phase > 11) {
+            if (phase > 14) {
                 continue; // Covered in later phases
             }
 
@@ -197,6 +207,8 @@ public class RbacMatrixTest {
                             requestBuilder.content("{\"productId\":\"662f6b8a8b1a8d001c2a3b4c\", \"sourceLotCode\":\"L\", \"farmerName\":\"F\", \"village\":\"V\", \"quantityProduced\":1, \"unit\":\"Kg\", \"yieldPercent\":1.0, \"packDate\":\"2024-01-01T00:00:00Z\"}");
                         } else if (resolvedPath.contains("/qr/scan")) {
                             requestBuilder.content("{\"token\":\"test.token\"}");
+                        } else if (resolvedPath.startsWith("/api/v1/products")) {
+                            requestBuilder.content(RBAC_PRODUCT_BODY);
                         } else {
                             requestBuilder.content("{}");
                         }
@@ -218,8 +230,8 @@ public class RbacMatrixTest {
             }
         }
 
-        assertThat(evaluatedRowCount).isEqualTo(73);
-        assertThat(tests.size()).isEqualTo(511);
+        assertThat(evaluatedRowCount).isEqualTo(75);
+        assertThat(tests.size()).isEqualTo(525);
         log.info("Generated {} dynamic tests for {} active phase rows", tests.size(), evaluatedRowCount);
         return tests.stream();
     }

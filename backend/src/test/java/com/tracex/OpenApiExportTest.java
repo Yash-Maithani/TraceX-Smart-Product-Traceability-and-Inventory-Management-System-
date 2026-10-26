@@ -98,7 +98,7 @@ public class OpenApiExportTest {
             if (line.isEmpty()) continue;
             String[] cols = line.split(",");
             int phase = Integer.parseInt(cols[0].trim());
-            if (phase <= 11) {
+            if (phase <= 14) {
                 totalActiveMatrixRows++;
                 String method = cols[1].trim().toUpperCase();
                 String path = cols[2].trim().replaceAll(":([a-zA-Z0-9_]+)", "{$1}");
@@ -108,8 +108,8 @@ public class OpenApiExportTest {
             }
         }
 
-        assertEquals(73, totalActiveMatrixRows, "Expected 73 total active matrix rows for phase <= 11 (72 /api/v1/** + 1 /actuator/health)");
-        assertEquals(72, matrixApiOperations.size(), "Expected 72 /api/v1/** matrix rows for phase <= 11");
+        assertEquals(75, totalActiveMatrixRows, "Expected 75 total active matrix rows for phase <= 14 (74 /api/v1/** + 1 /actuator/health)");
+        assertEquals(74, matrixApiOperations.size(), "Expected 74 /api/v1/** matrix rows for phase <= 14");
         assertEquals(matrixApiOperations, openApiOperations,
                 "OpenAPI operations must match active /api/v1/** rows in permission-matrix.csv 1-to-1 without test-only endpoints");
 

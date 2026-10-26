@@ -51,6 +51,21 @@
   pointer-events: none;
 }
 
+/* The wordmark gives up its space so the collapse button lands on the rail's centre line */
+.fadeLabel.brandName {
+  transition:
+    opacity var(--duration-sidebar) var(--ease-standard),
+    flex-grow var(--duration-sidebar) var(--ease-standard);
+}
+
+.desktopSidebarCollapsed .brandName {
+  flex-grow: 0;
+}
+
+.desktopSidebarCollapsed .brandBlock {
+  gap: 0;
+}
+
 /* Hidden links must also leave the tab order; visibility flips after the fade ends */
 .desktopSidebarCollapsed .legalLinks {
   visibility: hidden;

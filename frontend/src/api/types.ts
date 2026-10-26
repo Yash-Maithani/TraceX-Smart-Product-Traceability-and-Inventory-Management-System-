@@ -81,6 +81,7 @@ export type FefoResultDto = Omit<
 };
 
 export type ProductDto = components['schemas']['Product'];
+export type ProductUpsertDto = components['schemas']['ProductUpsertDto'];
 export type InspectionDto = components['schemas']['Inspection'];
 export type InspectionCreateDto = components['schemas']['InspectionCreateDto'];
 export type ChecklistItemDto = components['schemas']['ChecklistItem'];

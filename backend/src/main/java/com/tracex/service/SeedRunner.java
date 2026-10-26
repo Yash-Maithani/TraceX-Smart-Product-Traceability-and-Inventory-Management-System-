@@ -226,7 +226,11 @@ public class SeedRunner implements CommandLineRunner {
 
     private void upsertProduct(String sku, String name, String category, Integer baseDays, Integer predDays, String template, String riskLevel) {
         Optional<Product> opt = productRepository.findBySku(sku);
-        Product p = opt.orElseGet(Product::new);
+        // Insert only: once a product exists, the product catalogue owns it and a restart must not undo edits
+        if (opt.isPresent()) {
+            return;
+        }
+        Product p = new Product();
         p.setSku(sku);
         p.setProductName(name);
         p.setCategory(category);
@@ -439,4 +443,4 @@ public class SeedRunner implements CommandLineRunner {
         batch.setQualityCheck(new Batch.QualityCheck(status, rating, inspection.getCreatedAt(), inspectorName));
         mongoTemplate.save(batch);
     }
-}
+}

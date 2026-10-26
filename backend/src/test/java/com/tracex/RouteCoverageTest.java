@@ -59,7 +59,7 @@ public class RouteCoverageTest {
                 String key = method + " " + path;
                 allMatrixEndpoints.add(key);
 
-                if (phase <= 11) {
+                if (phase <= 14) {
                     phaseLeq4MatrixEndpoints.add(key);
                 } else {
                     pendingLaterPhaseEndpoints.add(String.format("Phase %d: %s", phase, key));
@@ -120,7 +120,7 @@ public class RouteCoverageTest {
                 .withFailMessage("The following mapped Spring endpoints have no corresponding entry in docs/permission-matrix.csv:\n" + String.join("\n", unmappedRoutes))
                 .isEmpty();
 
-        // Direction 2: Every matrix row with phase <= 11 must map to a real Spring endpoint (actuator health is handled by Actuator)
+        // Direction 2: Every matrix row with phase <= 14 must map to a real Spring endpoint (actuator health is handled by Actuator)
         List<String> missingPhaseLeq4Routes = new ArrayList<>();
         for (String expectedRoute : phaseLeq4MatrixEndpoints) {
             if (expectedRoute.equals("GET /actuator/health")) {
@@ -132,11 +132,11 @@ public class RouteCoverageTest {
         }
 
         assertThat(missingPhaseLeq4Routes)
-                .withFailMessage("The following Phase <= 11 routes from permission-matrix.csv are not mapped in Spring Boot controllers:\n" + String.join("\n", missingPhaseLeq4Routes))
+                .withFailMessage("The following Phase <= 14 routes from permission-matrix.csv are not mapped in Spring Boot controllers:\n" + String.join("\n", missingPhaseLeq4Routes))
                 .isEmpty();
 
-        assertThat(phaseLeq4MatrixEndpoints).hasSize(73);
-        log.info("Two-way route coverage confirmed for Phase <= 11 ({} active endpoints). {} endpoints pending for later phases.",
+        assertThat(phaseLeq4MatrixEndpoints).hasSize(75);
+        log.info("Two-way route coverage confirmed for Phase <= 14 ({} active endpoints). {} endpoints pending for later phases.",
                 phaseLeq4MatrixEndpoints.size(), pendingLaterPhaseEndpoints.size());
     }
 

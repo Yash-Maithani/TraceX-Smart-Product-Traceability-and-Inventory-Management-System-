@@ -6,6 +6,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Document(collection = "products")
 public class Product {
@@ -18,6 +20,10 @@ public class Product {
     private Integer predictedShelfLifeDays;
     private String predictedExpiryTemplate;
     private String riskLevel;
+    /** Shopper-facing label details (product catalogue, 2026-10-26). Optional. */
+    private String ingredients;
+    private List<String> allergens = new ArrayList<>();
+    private String storageInstructions;
     
     @CreatedDate
     private Instant createdAt;
@@ -42,6 +48,12 @@ public class Product {
     public void setPredictedExpiryTemplate(String predictedExpiryTemplate) { this.predictedExpiryTemplate = predictedExpiryTemplate; }
     public String getRiskLevel() { return riskLevel; }
     public void setRiskLevel(String riskLevel) { this.riskLevel = riskLevel; }
+    public String getIngredients() { return ingredients; }
+    public void setIngredients(String ingredients) { this.ingredients = ingredients; }
+    public List<String> getAllergens() { return allergens; }
+    public void setAllergens(List<String> allergens) { this.allergens = allergens == null ? new ArrayList<>() : allergens; }
+    public String getStorageInstructions() { return storageInstructions; }
+    public void setStorageInstructions(String storageInstructions) { this.storageInstructions = storageInstructions; }
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }

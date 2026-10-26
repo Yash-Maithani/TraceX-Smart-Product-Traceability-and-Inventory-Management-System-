@@ -20,7 +20,8 @@ export interface NavRouteItem {
     | 'archive'
     | 'upload'
     | 'bell'
-    | 'message';
+    | 'message'
+    | 'package';
   endpoint: {
     method: HttpMethod;
     path: string;
@@ -56,6 +57,17 @@ export const NAV_ROUTES: readonly NavRouteItem[] = [
     endpoint: { method: 'GET', path: '/api/v1/batches' },
     minRoles: getAllowedRolesForEndpoint('GET', '/api/v1/batches'),
     phase: 6,
+    enabled: true,
+    group: 'operations'
+  },
+  {
+    path: '/products',
+    label: 'Products',
+    keywords: 'catalogue sku shelf life allergens ingredients',
+    iconName: 'package',
+    endpoint: { method: 'GET', path: '/api/v1/products' },
+    minRoles: getAllowedRolesForEndpoint('GET', '/api/v1/products'),
+    phase: 14,
     enabled: true,
     group: 'operations'
   },

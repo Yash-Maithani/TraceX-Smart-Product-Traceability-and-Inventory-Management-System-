@@ -44,7 +44,7 @@ export const BACKDROP_KEY_ROUTES: Record<BackdropKey, readonly string[]> = {
   'auth': ['/login', '/request-access', '/activate', '/verify-otp'],
   'auth-recovery': ['/forgot-password', '/reset-password'],
   'dashboard': ['/', '/dashboard'],
-  'batches': ['/batches', '/batches/new', '/batches/archived', '/batches/:id'],
+  'batches': ['/batches', '/batches/new', '/batches/archived', '/batches/:id', '/products'],
   'fefo': ['/fefo', '/dispatch/fefo'],
   'inspections': ['/inspections'],
   'dispatch': ['/dispatch'],
