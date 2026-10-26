@@ -3,7 +3,7 @@ info:
   title: OpenAPI definition
   version: v0
 servers:
-- url: http://localhost:35625
+- url: http://localhost:41307
   description: Generated server url
 paths:
   /api/v1/qr/scan:
@@ -20,6 +20,24 @@ paths:
       responses:
         "200":
           description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseVoid'
+  /api/v1/qr/report:
+    post:
+      tags:
+      - qr-controller
+      operationId: reportProblem
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductReportRequestDto'
+        required: true
+      responses:
+        "201":
+          description: Created
           content:
             '*/*':
               schema:
@@ -719,6 +737,30 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/ApiResponseProduct'
+  /api/v1/product-reports/{id}/resolve:
+    patch:
+      tags:
+      - product-report-controller
+      operationId: resolveReport
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResolveProductReportDto'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseProductReportDto'
   /api/v1/notifications/{id}/read:
     patch:
       tags:
@@ -1244,6 +1286,24 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/ApiResponseBatchScansDto'
+  /api/v1/batches/{id}/reports:
+    get:
+      tags:
+      - product-report-controller
+      operationId: getBatchReports
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseListProductReportDto'
   /api/v1/batches/{id}/qr:
     get:
       tags:
@@ -1423,6 +1483,26 @@ components:
         field:
           type: string
         message:
+          type: string
+    ProductReportRequestDto:
+      required:
+      - category
+      - message
+      - token
+      type: object
+      properties:
+        token:
+          type: string
+        category:
+          pattern: TASTE_OR_SMELL|PACKAGING|FOREIGN_OBJECT|ILLNESS|EXPIRY|OTHER
+          type: string
+        message:
+          maxLength: 1000
+          minLength: 10
+          type: string
+        contact:
+          maxLength: 120
+          minLength: 0
           type: string
     ProductUpsertDto:
       required:
@@ -2770,6 +2850,63 @@ components:
           format: date-time
         deleted:
           type: boolean
+    ResolveProductReportDto:
+      type: object
+      properties:
+        note:
+          maxLength: 500
+          minLength: 0
+          type: string
+    ApiResponseProductReportDto:
+      type: object
+      properties:
+        success:
+          type: boolean
+        requestId:
+          type: string
+        data:
+          $ref: '#/components/schemas/ProductReportDto'
+        message:
+          type: string
+        code:
+          type: string
+        error:
+          type: string
+        fieldErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldErrorDto'
+    ProductReportDto:
+      type: object
+      properties:
+        id:
+          type: string
+        batchId:
+          type: string
+        batchCode:
+          type: string
+        category:
+          type: string
+        message:
+          type: string
+        contact:
+          type: string
+          nullable: true
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        resolvedAt:
+          type: string
+          format: date-time
+          nullable: true
+        resolvedByName:
+          type: string
+          nullable: true
+        resolutionNote:
+          type: string
+          nullable: true
     ApiResponseNotificationDto:
       type: object
       properties:
@@ -2986,6 +3123,16 @@ components:
           $ref: '#/components/schemas/QualityCheckPublicDto'
         traceabilityNote:
           type: string
+        ingredients:
+          type: string
+          nullable: true
+        allergens:
+          type: array
+          items:
+            type: string
+        storageInstructions:
+          type: string
+          nullable: true
     QualityCheckPublicDto:
       type: object
       properties:
@@ -3589,6 +3736,27 @@ components:
           additionalProperties:
             type: integer
             format: int64
+    ApiResponseListProductReportDto:
+      type: object
+      properties:
+        success:
+          type: boolean
+        requestId:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductReportDto'
+        message:
+          type: string
+        code:
+          type: string
+        error:
+          type: string
+        fieldErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldErrorDto'
     ApiResponseBatchQrDto:
       type: object
       properties:

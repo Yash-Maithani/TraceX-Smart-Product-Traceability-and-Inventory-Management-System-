@@ -32,7 +32,7 @@ public class Notification {
 
     private List<String> recipientRoles = new ArrayList<>();
     private String recipientUserId;
-    private String type;    // batch_created, batch_imported, import_finished, batch_dispatched, inspection_completed, admin_action
+    private String type;    // batch_created, batch_imported, import_finished, batch_dispatched, inspection_completed, product_report, admin_action
     private String title;   // max 120
     private String message; // max 400
     private String refType; // batch, import, inspection, access_request

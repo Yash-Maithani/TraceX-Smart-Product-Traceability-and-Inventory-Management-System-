@@ -283,4 +283,67 @@ describe('PublicTracePage & LegacyTracePage (Phase 7 Part C & D)', () => {
     expect(traceSpy).not.toHaveBeenCalled();
     expect(scanSpy).not.toHaveBeenCalled();
   });
+
+  it('shows ingredients, allergens and storage from the product label', async () => {
+    vi.spyOn(Endpoints, 'fetchPublicTrace').mockResolvedValue({
+      ...SAMPLE_PUBLIC_TRACE,
+      ingredients: 'Raw wildflower honey',
+      allergens: ['Pollen'],
+      storageInstructions: 'Store below 25 C, away from sunlight.'
+    });
+    vi.spyOn(Endpoints, 'recordPublicScan').mockResolvedValue();
+    renderTracePage('/trace/t/token-label.tag');
+
+    expect(await screen.findByTestId('trace-label-section')).toBeInTheDocument();
+    expect(screen.getByTestId('trace-ingredients')).toHaveTextContent('Raw wildflower honey');
+    expect(screen.getByTestId('trace-allergens')).toHaveTextContent('Pollen');
+    expect(screen.getByTestId('trace-storage')).toHaveTextContent('Store below 25 C');
+  });
+
+  it('hides the label section when the product has no label details', async () => {
+    vi.spyOn(Endpoints, 'fetchPublicTrace').mockResolvedValue({ ...SAMPLE_TRACE_NO_QUALITY, allergens: [] });
+    vi.spyOn(Endpoints, 'recordPublicScan').mockResolvedValue();
+    renderTracePage('/trace/t/token-nolabel.tag');
+
+    expect(await screen.findByTestId('trace-product-name')).toBeInTheDocument();
+    expect(screen.queryByTestId('trace-label-section')).not.toBeInTheDocument();
+  });
+
+  it('lets a shopper report a problem against the scanned batch', async () => {
+    vi.spyOn(Endpoints, 'fetchPublicTrace').mockResolvedValue(SAMPLE_PUBLIC_TRACE);
+    vi.spyOn(Endpoints, 'recordPublicScan').mockResolvedValue();
+    const reportSpy = vi.spyOn(Endpoints, 'submitProductReport').mockResolvedValue();
+    renderTracePage('/trace/t/token-report.tag');
+
+    fireEvent.click(await screen.findByTestId('trace-report-open'));
+    fireEvent.click(screen.getByTestId('trace-report-submit'));
+    expect(reportSpy).not.toHaveBeenCalled();
+
+    fireEvent.change(screen.getByTestId('trace-report-category'), { target: { value: 'PACKAGING' } });
+    fireEvent.change(screen.getByTestId('trace-report-message'), { target: { value: 'The lid was already open.' } });
+    fireEvent.click(screen.getByTestId('trace-report-submit'));
+
+    expect(await screen.findByTestId('trace-report-sent')).toBeInTheDocument();
+    expect(reportSpy).toHaveBeenCalledWith({
+      token: 'token-report.tag',
+      category: 'PACKAGING',
+      message: 'The lid was already open.'
+    });
+  });
+
+  it('tells the shopper when they have sent too many reports', async () => {
+    vi.spyOn(Endpoints, 'fetchPublicTrace').mockResolvedValue(SAMPLE_PUBLIC_TRACE);
+    vi.spyOn(Endpoints, 'recordPublicScan').mockResolvedValue();
+    vi.spyOn(Endpoints, 'submitProductReport').mockRejectedValue(
+      new ApiError({ status: 429, code: 'RATE_LIMITED', message: 'Too many reports' })
+    );
+    renderTracePage('/trace/t/token-limit.tag');
+
+    fireEvent.click(await screen.findByTestId('trace-report-open'));
+    fireEvent.change(screen.getByTestId('trace-report-category'), { target: { value: 'OTHER' } });
+    fireEvent.change(screen.getByTestId('trace-report-message'), { target: { value: 'Something seems off here.' } });
+    fireEvent.click(screen.getByTestId('trace-report-submit'));
+
+    expect(await screen.findByTestId('trace-report-error')).toHaveTextContent('Too many reports from this device');
+  });
 });

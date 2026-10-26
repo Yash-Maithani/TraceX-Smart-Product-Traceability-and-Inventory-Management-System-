@@ -45,6 +45,8 @@ import type {
   LoginResponseDto,
   ProductDto,
   ProductUpsertDto,
+  ProductReportDto,
+  ProductReportRequestDto,
   PublicTraceDto,
   ScanRequestDto,
   UpdateProfileDto,
@@ -321,6 +323,30 @@ export async function recordPublicScan(payload: ScanRequestDto): Promise<void> {
     body: payload,
     skipAuth: true
   });
+}
+
+/** A shopper reports a problem from the public QR page (no sign-in). */
+export async function submitProductReport(payload: ProductReportRequestDto): Promise<void> {
+  await apiRequest<void>('/api/v1/qr/report', {
+    method: 'POST',
+    body: payload,
+    skipAuth: true
+  });
+}
+
+export async function fetchBatchReports(id: string): Promise<ProductReportDto[]> {
+  const res = await apiRequest<ProductReportDto[]>(`/api/v1/batches/${encodeURIComponent(id)}/reports`, {
+    method: 'GET'
+  });
+  return res.data;
+}
+
+export async function resolveProductReport(id: string, note: string): Promise<ProductReportDto> {
+  const res = await apiRequest<ProductReportDto>(`/api/v1/product-reports/${encodeURIComponent(id)}/resolve`, {
+    method: 'PATCH',
+    body: { note }
+  });
+  return res.data;
 }
 
 // ============================================================================

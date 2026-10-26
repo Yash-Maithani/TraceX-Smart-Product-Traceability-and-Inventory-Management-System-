@@ -220,9 +220,17 @@ export function buildPermissionsTypeScript(csvContent) {
     'export function canRollbackImport(user: PermissionSubject | null | undefined): boolean {',
     "  return canCallEndpoint(user, 'POST', '/api/v1/import/:id/rollback');",
     '}',
-  '',
+    '',
     'export function canManageProducts(user: PermissionSubject | null | undefined): boolean {',
     "  return canCallEndpoint(user, 'POST', '/api/v1/products');",
+    '}',
+    '',
+    'export function canViewShopperReports(user: PermissionSubject | null | undefined): boolean {',
+    "  return canCallEndpoint(user, 'GET', '/api/v1/batches/:id/reports');",
+    '}',
+    '',
+    'export function canResolveShopperReports(user: PermissionSubject | null | undefined): boolean {',
+    "  return canCallEndpoint(user, 'PATCH', '/api/v1/product-reports/:id/resolve');",
     '}',
     ''
   );

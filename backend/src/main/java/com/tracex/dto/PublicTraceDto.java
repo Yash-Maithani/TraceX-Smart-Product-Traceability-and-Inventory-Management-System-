@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.List;
 
 public class PublicTraceDto {
 
@@ -24,6 +25,12 @@ public class PublicTraceDto {
     private String status;
     private QualityCheckPublicDto qualityCheck;
     private String traceabilityNote;
+
+    @Schema(nullable = true)
+    private String ingredients;
+    private List<String> allergens = List.of();
+    @Schema(nullable = true)
+    private String storageInstructions;
 
     public PublicTraceDto() {
     }
@@ -78,4 +85,13 @@ public class PublicTraceDto {
 
     public String getTraceabilityNote() { return traceabilityNote; }
     public void setTraceabilityNote(String traceabilityNote) { this.traceabilityNote = traceabilityNote; }
+
+    public String getIngredients() { return ingredients; }
+    public void setIngredients(String ingredients) { this.ingredients = ingredients; }
+
+    public List<String> getAllergens() { return allergens; }
+    public void setAllergens(List<String> allergens) { this.allergens = allergens == null ? List.of() : allergens; }
+
+    public String getStorageInstructions() { return storageInstructions; }
+    public void setStorageInstructions(String storageInstructions) { this.storageInstructions = storageInstructions; }
 }

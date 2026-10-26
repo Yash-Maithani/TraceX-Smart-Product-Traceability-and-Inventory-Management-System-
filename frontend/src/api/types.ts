@@ -102,6 +102,9 @@ export type AccessRequestStatus = NonNullable<components['schemas']['AccessReque
 export type BatchQrDto = components['schemas']['BatchQrDto'];
 export type BatchScansDto = components['schemas']['BatchScansDto'];
 export type PublicTraceDto = components['schemas']['PublicTraceDto'];
+export type ProductReportRequestDto = components['schemas']['ProductReportRequestDto'];
+export type ProductReportDto = components['schemas']['ProductReportDto'];
+export type ResolveProductReportDto = components['schemas']['ResolveProductReportDto'];
 export type ScanRequestDto = components['schemas']['ScanRequestDto'];
 
 // Phase 8 Bulk Import DTOs

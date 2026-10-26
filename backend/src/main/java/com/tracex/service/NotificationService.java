@@ -24,7 +24,8 @@ import java.util.Map;
  * Notifications and live updates (M-09, D-4, SPEC §8.5).
  *
  * `notify(...)` stores a notification and pushes it on the stream as the matching live event
- * (`batch:created`, `batch:dispatched`, `import:finished`, `inspection:created`, `access-request:created`).
+ * (`batch:created`, `batch:dispatched`, `import:finished`, `inspection:created`, `access-request:created`,
+ * `product-report:created`).
  * `broadcastChange(...)` pushes a live-only `batch:updated` event with no stored notification, so open
  * lists refresh. Payloads carry ids, codes and counts only: never farmer names (D-9) or other personal data.
  * A failure here is logged and never fails the business action that triggered it.
@@ -39,6 +40,7 @@ public class NotificationService {
     public static final List<String> DISPATCH_WATCHERS = List.of("factory-manager", "manager", "admin");
     public static final List<String> INSPECTION_WATCHERS = List.of("factory-manager", "manager", "admin", "dispatch-coordinator");
     public static final List<String> ACCESS_WATCHERS = List.of("admin");
+    public static final List<String> REPORT_WATCHERS = List.of("quality-inspector", "manager", "admin");
 
     private final MongoTemplate mongoTemplate;
     private final NotificationStreamRegistry streams;
@@ -87,6 +89,14 @@ public class NotificationService {
                     inserted + " new batches were added by bulk import and are ready for inspection.",
                     "import", jobId);
         }
+    }
+
+    public void productReportSubmitted(String batchId, String batchCode, String productName,
+                                       String categoryLabel, boolean urgent) {
+        notify("product-report:created", "product_report", REPORT_WATCHERS, null, null,
+                (urgent ? "Urgent shopper report on " : "Shopper report on ") + batchCode,
+                "A shopper reported \"" + categoryLabel + "\" for " + productName + " batch " + batchCode + ".",
+                "batch", batchId);
     }
 
     public void accessRequestSubmitted(String requestId, String requestedRole) {

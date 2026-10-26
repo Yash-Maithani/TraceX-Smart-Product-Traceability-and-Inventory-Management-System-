@@ -15,6 +15,7 @@ const STALE_KEYS: Record<string, readonly (readonly unknown[])[]> = {
   'import:finished': [['import', 'history'], ['batches'], ['fefo'], ['dashboard', 'summary']],
   'inspection:created': [['inspections'], ['batches'], ['fefo'], ['dashboard', 'summary']],
   'access-request:created': [['team'], ['dashboard', 'summary']],
+  'product-report:created': [['batches']],
   'message:new': [['messages']]
 };
 

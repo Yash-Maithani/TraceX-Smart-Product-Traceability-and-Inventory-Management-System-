@@ -73,4 +73,7 @@ phase,method,path,super-admin,admin,manager,factory-manager,quality-inspector,di
 3,GET,/api/v1/products,allow,allow,allow,allow,allow,allow,deny,
 14,POST,/api/v1/products,allow,allow,allow,deny,deny,deny,deny,product catalogue: managers and administrators add products; SKU must be unique
 14,PATCH,/api/v1/products/:id,allow,allow,allow,deny,deny,deny,deny,product catalogue: SKU fixed; changes apply to batches created afterwards
+14,POST,/api/v1/qr/report,allow,allow,allow,allow,allow,allow,allow,public; shopper reports a problem by trace token; rate-limited per IP; contact optional
+14,GET,/api/v1/batches/:id/reports,allow,allow,allow,allow,allow,deny,deny,shopper reports on one batch; same readers as inspections
+14,PATCH,/api/v1/product-reports/:id/resolve,allow,allow,allow,deny,allow,deny,deny,quality team and managers close a shopper report
 6,GET,/api/v1/dashboard/summary,allow,allow,allow,allow,allow,allow,deny,D-21 Proposed; pendingAccessRequests populated only for manager/admin/super-admin

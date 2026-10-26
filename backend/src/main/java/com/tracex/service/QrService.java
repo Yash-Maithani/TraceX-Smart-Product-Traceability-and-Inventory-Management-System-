@@ -12,6 +12,7 @@ import com.tracex.exception.ValidationException;
 import com.tracex.model.Batch;
 import com.tracex.model.ScanEvent;
 import com.tracex.repository.BatchRepository;
+import com.tracex.repository.ProductRepository;
 import com.tracex.repository.ScanEventRepository;
 import com.tracex.security.RateLimiter;
 import com.tracex.util.BatchFreshness;
@@ -37,6 +38,7 @@ public class QrService {
     private static final Set<String> VALID_SOURCES = Set.of("factory", "buyer", "QA");
 
     private final BatchRepository batchRepository;
+    private final ProductRepository productRepository;
     private final ScanEventRepository scanEventRepository;
     private final TraceTokenService traceTokenService;
     private final RateLimiter rateLimiter;
@@ -46,6 +48,7 @@ public class QrService {
 
     public QrService(
             BatchRepository batchRepository,
+            ProductRepository productRepository,
             ScanEventRepository scanEventRepository,
             TraceTokenService traceTokenService,
             RateLimiter rateLimiter,
@@ -54,6 +57,7 @@ public class QrService {
             @Value("${tracex.security.public-trace-base-url:http://localhost:5174}") String publicTraceBaseUrl
     ) {
         this.batchRepository = batchRepository;
+        this.productRepository = productRepository;
         this.scanEventRepository = scanEventRepository;
         this.traceTokenService = traceTokenService;
         this.rateLimiter = rateLimiter;
@@ -120,6 +124,15 @@ public class QrService {
         }
 
         dto.setTraceabilityNote(batch.getTraceabilityNote());
+
+        // Label details come from the product catalogue, so an edit there shows on every batch's QR page.
+        if (batch.getProductId() != null) {
+            productRepository.findById(batch.getProductId()).ifPresent(product -> {
+                dto.setIngredients(product.getIngredients());
+                dto.setAllergens(product.getAllergens());
+                dto.setStorageInstructions(product.getStorageInstructions());
+            });
+        }
         return dto;
     }
 

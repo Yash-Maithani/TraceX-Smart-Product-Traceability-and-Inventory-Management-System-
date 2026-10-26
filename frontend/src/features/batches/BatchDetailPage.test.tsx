@@ -136,6 +136,7 @@ describe('BatchDetailPage (Phase 6 Part D)', () => {
     vi.restoreAllMocks();
     // Phase 10.1 comments section: keep its own fetch out of these tests
     vi.spyOn(Endpoints, 'fetchRecordComments').mockResolvedValue([]);
+    vi.spyOn(Endpoints, 'fetchBatchReports').mockResolvedValue([]);
   });
 
   it('renders batch overview, raw material correction, note update, archive dialog, and inspection history for admin', async () => {

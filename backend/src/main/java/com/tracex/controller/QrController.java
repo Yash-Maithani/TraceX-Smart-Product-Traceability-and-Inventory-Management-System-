@@ -1,11 +1,13 @@
 package com.tracex.controller;
 
 import com.tracex.dto.ApiResponse;
+import com.tracex.dto.ProductReportRequestDto;
 import com.tracex.dto.PublicTraceDto;
 import com.tracex.dto.ScanRequestDto;
 import com.tracex.exception.ApiException;
 import com.tracex.exception.ErrorCode;
 import com.tracex.security.RateLimiter;
+import com.tracex.service.ProductReportService;
 import com.tracex.service.QrService;
 import com.tracex.util.RequestIdContext;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,20 +25,26 @@ import java.time.Duration;
 public class QrController {
 
     private final QrService qrService;
+    private final ProductReportService productReportService;
     private final RateLimiter rateLimiter;
     private final int traceRateLimit;
     private final int scanRateLimit;
+    private final int reportRateLimit;
 
     public QrController(
             QrService qrService,
+            ProductReportService productReportService,
             RateLimiter rateLimiter,
             @Value("${tracex.rate-limit.trace:60}") int traceRateLimit,
-            @Value("${tracex.rate-limit.scan:60}") int scanRateLimit
+            @Value("${tracex.rate-limit.scan:60}") int scanRateLimit,
+            @Value("${tracex.rate-limit.report:5}") int reportRateLimit
     ) {
         this.qrService = qrService;
+        this.productReportService = productReportService;
         this.rateLimiter = rateLimiter;
         this.traceRateLimit = traceRateLimit;
         this.scanRateLimit = scanRateLimit;
+        this.reportRateLimit = reportRateLimit;
     }
 
     @GetMapping("/trace/t/{token}")
@@ -73,5 +81,20 @@ public class QrController {
         boolean staff = auth != null && auth.getPrincipal() instanceof com.tracex.security.UserPrincipal;
         qrService.recordScan(body.getToken(), body.getSource(), request, staff);
         return ApiResponse.ok(null, "Scan recorded successfully", requestId);
+    }
+
+    /** A shopper reports a problem with the batch they scanned (public, pick-list #2). */
+    @PostMapping("/report")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiResponse<Void> reportProblem(
+            @Valid @RequestBody ProductReportRequestDto body,
+            HttpServletRequest request
+    ) {
+        String clientIp = rateLimiter.resolveClientIp(request);
+        if (!rateLimiter.allowRequest("report:" + clientIp, reportRateLimit, Duration.ofHours(1))) {
+            throw new ApiException(ErrorCode.RATE_LIMITED, "Too many reports from this device. Please try again later.", HttpStatus.TOO_MANY_REQUESTS);
+        }
+        productReportService.submit(body, clientIp);
+        return ApiResponse.ok(null, "Report sent to the quality team", RequestIdContext.getOrCreate());
     }
 }

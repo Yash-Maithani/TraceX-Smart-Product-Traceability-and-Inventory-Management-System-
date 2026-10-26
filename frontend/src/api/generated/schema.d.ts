@@ -20,6 +20,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/qr/report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["reportProblem"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/products": {
         parameters: {
             query?: never;
@@ -468,6 +484,22 @@ export interface paths {
         patch: operations["updateProduct"];
         trace?: never;
     };
+    "/api/v1/product-reports/{id}/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["resolveReport"];
+        trace?: never;
+    };
     "/api/v1/notifications/{id}/read": {
         parameters: {
             query?: never;
@@ -884,6 +916,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/batches/{id}/reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBatchReports"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/batches/{id}/qr": {
         parameters: {
             query?: never;
@@ -1064,6 +1112,12 @@ export interface components {
         FieldErrorDto: {
             field?: string;
             message?: string;
+        };
+        ProductReportRequestDto: {
+            token: string;
+            category: string;
+            message: string;
+            contact?: string;
         };
         ProductUpsertDto: {
             productName: string;
@@ -1747,6 +1801,33 @@ export interface components {
             updatedAt?: string;
             deleted?: boolean;
         };
+        ResolveProductReportDto: {
+            note?: string;
+        };
+        ApiResponseProductReportDto: {
+            success?: boolean;
+            requestId?: string;
+            data?: components["schemas"]["ProductReportDto"];
+            message?: string;
+            code?: string;
+            error?: string;
+            fieldErrors?: components["schemas"]["FieldErrorDto"][];
+        };
+        ProductReportDto: {
+            id?: string;
+            batchId?: string;
+            batchCode?: string;
+            category?: string;
+            message?: string;
+            contact?: string | null;
+            status?: string;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            resolvedAt?: string | null;
+            resolvedByName?: string | null;
+            resolutionNote?: string | null;
+        };
         ApiResponseNotificationDto: {
             success?: boolean;
             requestId?: string;
@@ -1851,6 +1932,9 @@ export interface components {
             status?: string;
             qualityCheck?: components["schemas"]["QualityCheckPublicDto"];
             traceabilityNote?: string;
+            ingredients?: string | null;
+            allergens?: string[];
+            storageInstructions?: string | null;
         };
         QualityCheckPublicDto: {
             status?: string;
@@ -2173,6 +2257,15 @@ export interface components {
                 [key: string]: number;
             };
         };
+        ApiResponseListProductReportDto: {
+            success?: boolean;
+            requestId?: string;
+            data?: components["schemas"]["ProductReportDto"][];
+            message?: string;
+            code?: string;
+            error?: string;
+            fieldErrors?: components["schemas"]["FieldErrorDto"][];
+        };
         ApiResponseBatchQrDto: {
             success?: boolean;
             requestId?: string;
@@ -2271,6 +2364,30 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseVoid"];
+                };
+            };
+        };
+    };
+    reportProblem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProductReportRequestDto"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -3092,6 +3209,32 @@ export interface operations {
             };
         };
     };
+    resolveReport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResolveProductReportDto"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseProductReportDto"];
+                };
+            };
+        };
+    };
     markRead: {
         parameters: {
             query?: never;
@@ -3738,6 +3881,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApiResponseBatchScansDto"];
+                };
+            };
+        };
+    };
+    getBatchReports: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseListProductReportDto"];
                 };
             };
         };

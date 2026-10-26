@@ -68,6 +68,7 @@ public class SecurityConfig {
                                 "/api/v1/auth/reset-password",
                                 "/api/v1/qr/trace/t/**",
                                 "/api/v1/qr/scan",
+                                "/api/v1/qr/report",
                                 "/actuator/health",
                                 "/api/v1/docs",
                                 "/api/v1/docs/**",

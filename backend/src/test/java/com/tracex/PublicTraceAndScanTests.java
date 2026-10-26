@@ -126,6 +126,37 @@ public class PublicTraceAndScanTests {
     }
 
     @Test
+    @DisplayName("Public trace: label details come from the product catalogue")
+    void testPublicTraceShowsProductLabelDetails() throws Exception {
+        Batch batch = createTestBatch(LocalDate.of(2026, 9, 1), LocalDate.of(2026, 12, 1), "ACTIVE", null);
+
+        JsonNode before = objectMapper.readTree(mockMvc.perform(get("/api/v1/qr/trace/t/" + batch.getTraceToken()))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString()).path("data");
+        assertThat(before.path("allergens").isArray()).isTrue();
+
+        String oldIngredients = testProduct.getIngredients();
+        List<String> oldAllergens = testProduct.getAllergens();
+        String oldStorage = testProduct.getStorageInstructions();
+        try {
+            testProduct.setIngredients("Apricots, cane sugar, lemon juice");
+            testProduct.setAllergens(List.of("Sulphites"));
+            testProduct.setStorageInstructions("Refrigerate after opening.");
+            productRepository.save(testProduct);
+
+            JsonNode data = objectMapper.readTree(mockMvc.perform(get("/api/v1/qr/trace/t/" + batch.getTraceToken()))
+                    .andExpect(status().isOk()).andReturn().getResponse().getContentAsString()).path("data");
+            assertThat(data.path("ingredients").asText()).isEqualTo("Apricots, cane sugar, lemon juice");
+            assertThat(data.path("allergens").get(0).asText()).isEqualTo("Sulphites");
+            assertThat(data.path("storageInstructions").asText()).isEqualTo("Refrigerate after opening.");
+        } finally {
+            testProduct.setIngredients(oldIngredients);
+            testProduct.setAllergens(oldAllergens);
+            testProduct.setStorageInstructions(oldStorage);
+            productRepository.save(testProduct);
+        }
+    }
+
+    @Test
     @DisplayName("Public trace: whitelist asserted by exact JSON key set, no farmerName, no traceToken")
     void testPublicTraceWhitelistAndPrivacy() throws Exception {
         Batch batch = createTestBatch(LocalDate.of(2026, 9, 1), LocalDate.of(2026, 12, 1), "ACTIVE", null);
@@ -146,7 +177,8 @@ public class PublicTraceAndScanTests {
 
         List<String> expectedKeys = List.of(
                 "batchCode", "productName", "sku", "village",
-                "packDate", "expiryDate", "status", "qualityCheck", "traceabilityNote"
+                "packDate", "expiryDate", "status", "qualityCheck", "traceabilityNote",
+                "ingredients", "allergens", "storageInstructions"
         );
         assertThat(fieldNames).containsExactlyInAnyOrderElementsOf(expectedKeys);
 

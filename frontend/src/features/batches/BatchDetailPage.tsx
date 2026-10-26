@@ -34,7 +34,8 @@ import {
   canDispatchBatch,
   canEditBatchNote,
   canEditRawMaterial,
-  canViewBatchInspections
+  canViewBatchInspections,
+  canViewShopperReports
 } from '../../auth/permissions.generated';
 import {
   Button,
@@ -61,6 +62,7 @@ import { formatBusinessDate, formatTimestamp } from '../../lib/dates';
 import { DispatchDialog } from './DispatchDialog';
 import { EMPTY_VALUE, formatDays } from '../../lib/format';
 import { RecordComments } from '../messages/RecordComments';
+import { ShopperReportsSection } from './ShopperReportsSection';
 import { DETAIL_STRINGS as D } from '../../strings/batchDetail';
 import { STATUS_STRINGS } from '../../strings/status';
 
@@ -596,6 +598,8 @@ export function BatchDetailPage() {
                 </ul>
               )}
             </section>
+
+            {batch.id && canViewShopperReports(user) ? <ShopperReportsSection batchId={batch.id} /> : null}
 
             <section className={coreStyles.sectionCard} data-testid="batch-dispatch-history-section">
               <div className={coreStyles.sectionHeader}>

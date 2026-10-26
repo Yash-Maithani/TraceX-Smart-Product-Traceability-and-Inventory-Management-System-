@@ -135,7 +135,7 @@ public class RouteCoverageTest {
                 .withFailMessage("The following Phase <= 14 routes from permission-matrix.csv are not mapped in Spring Boot controllers:\n" + String.join("\n", missingPhaseLeq4Routes))
                 .isEmpty();
 
-        assertThat(phaseLeq4MatrixEndpoints).hasSize(75);
+        assertThat(phaseLeq4MatrixEndpoints).hasSize(78);
         log.info("Two-way route coverage confirmed for Phase <= 14 ({} active endpoints). {} endpoints pending for later phases.",
                 phaseLeq4MatrixEndpoints.size(), pendingLaterPhaseEndpoints.size());
     }

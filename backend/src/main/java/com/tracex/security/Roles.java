@@ -16,5 +16,6 @@ public final class Roles {
     public static final String IMPORTERS = BATCH_EDITORS;
     public static final String DISPATCHERS = "hasAnyRole('ADMIN', 'SUPER_ADMIN', 'DISPATCH_COORDINATOR')";
     public static final String INSPECTION_READERS = "hasAnyRole('ADMIN', 'SUPER_ADMIN', 'MANAGER', 'FACTORY_MANAGER', 'QUALITY_INSPECTOR')";
+    public static final String REPORT_HANDLERS = "hasAnyRole('ADMIN', 'SUPER_ADMIN', 'MANAGER', 'QUALITY_INSPECTOR')";
     public static final String INSPECTORS = "hasAnyRole('ADMIN', 'SUPER_ADMIN', 'QUALITY_INSPECTOR')";
 }

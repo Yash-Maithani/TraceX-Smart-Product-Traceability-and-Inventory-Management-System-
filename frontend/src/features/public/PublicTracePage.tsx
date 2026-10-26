@@ -22,6 +22,7 @@ import { formatBusinessDate, formatTimestamp } from '../../lib/dates';
 import { logger } from '../../lib/logger';
 import { STRINGS } from '../../strings/en';
 import { TRACE_STRINGS as T } from '../../strings/trace';
+import { ReportProblemForm } from './ReportProblemForm';
 
 export function PublicTracePage() {
   const { token = '' } = useParams<{ token: string }>();
@@ -212,6 +213,44 @@ export function PublicTracePage() {
                   </section>
                 ) : null}
 
+                {traceData.ingredients || traceData.storageInstructions || (traceData.allergens?.length ?? 0) > 0 ? (
+                  <section className={publicStyles.subSection} aria-labelledby="trace-label-heading" data-testid="trace-label-section">
+                    <h2 id="trace-label-heading" className={publicStyles.sectionHeading}>
+                      {T.label.heading}
+                    </h2>
+                    <dl className={publicStyles.labelList}>
+                      <div>
+                        <dt>{T.label.allergens}</dt>
+                        <dd>
+                          {traceData.allergens && traceData.allergens.length > 0 ? (
+                            <ul className={publicStyles.allergenList} data-testid="trace-allergens">
+                              {traceData.allergens.map((a) => (
+                                <li key={a} className={publicStyles.allergenTag}>
+                                  {a}
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <span data-testid="trace-allergens-none">{T.label.noAllergens}</span>
+                          )}
+                        </dd>
+                      </div>
+                      {traceData.ingredients ? (
+                        <div>
+                          <dt>{T.label.ingredients}</dt>
+                          <dd data-testid="trace-ingredients">{traceData.ingredients}</dd>
+                        </div>
+                      ) : null}
+                      {traceData.storageInstructions ? (
+                        <div>
+                          <dt>{T.label.storage}</dt>
+                          <dd data-testid="trace-storage">{traceData.storageInstructions}</dd>
+                        </div>
+                      ) : null}
+                    </dl>
+                  </section>
+                ) : null}
+
                 <section className={publicStyles.subSection} aria-labelledby="trace-journey-heading">
                   <h2 id="trace-journey-heading" className={publicStyles.sectionHeading}>
                     {T.journeyTitle}
@@ -227,6 +266,8 @@ export function PublicTracePage() {
                     </p>
                   </section>
                 ) : null}
+
+                <ReportProblemForm token={token} />
               </>
             ) : null}
           </div>
