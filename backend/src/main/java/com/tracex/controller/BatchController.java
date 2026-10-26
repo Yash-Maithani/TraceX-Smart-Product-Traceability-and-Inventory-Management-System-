@@ -84,9 +84,11 @@ public class BatchController {
         String requestId = RequestIdContext.getOrCreate();
         BatchDetailDto dispatched = batchService.dispatchBatch(id, dto, principal.getUser(), requestId);
         List<com.tracex.model.Batch.DispatchHistoryEntry> history = dispatched.getDispatchHistory();
-        boolean outOfOrder = history != null && !history.isEmpty() && history.get(history.size() - 1).isOutOfOrder();
+        com.tracex.model.Batch.DispatchHistoryEntry latest = history != null && !history.isEmpty() ? history.get(history.size() - 1) : null;
+        boolean outOfOrder = latest != null && latest.isOutOfOrder();
         notificationService.batchDispatched(principal.getUser(), dispatched.getId(), dispatched.getBatchCode(),
-                dispatched.getBuyerName(), outOfOrder);
+                dispatched.getBuyerName(), outOfOrder, latest != null ? latest.getQuantity() : null,
+                dispatched.getUnit(), dispatched.getQuantityRemaining());
         if (dispatched.getWarning() != null) {
             return ApiResponse.ok(dispatched, dispatched.getWarning(), requestId);
         }

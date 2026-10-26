@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.tracex.util.FlexibleLocalDateDeserializer;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
@@ -21,6 +22,11 @@ public class BatchDispatchDto {
     @Size(max = 500, message = "overrideReason cannot exceed 500 characters")
     private String overrideReason;
 
+    /** Units to ship; leave out to ship everything that is left (pick-list #4). */
+    @Min(value = 1, message = "quantity must be at least 1")
+    @Schema(nullable = true, example = "40")
+    private Integer quantity;
+
     public BatchDispatchDto() {}
 
     public BatchDispatchDto(String buyerName, LocalDate dispatchDate, String overrideReason) {
@@ -35,4 +41,6 @@ public class BatchDispatchDto {
     public void setDispatchDate(LocalDate dispatchDate) { this.dispatchDate = dispatchDate; }
     public String getOverrideReason() { return overrideReason; }
     public void setOverrideReason(String overrideReason) { this.overrideReason = overrideReason; }
+    public Integer getQuantity() { return quantity; }
+    public void setQuantity(Integer quantity) { this.quantity = quantity; }
 }

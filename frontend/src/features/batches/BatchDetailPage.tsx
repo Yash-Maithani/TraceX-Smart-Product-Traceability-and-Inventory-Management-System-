@@ -346,7 +346,7 @@ export function BatchDetailPage() {
         at: d.dispatchedAt ?? `${d.dispatchDate ?? ''}T00:00:00`,
         icon: <Truck size={16} aria-hidden="true" />,
         iconLabel: D.history.dispatchLabel,
-        title: D.history.dispatch(d.buyerName ?? ''),
+        title: D.history.dispatch(d.buyerName ?? '', d.quantity, batch.unit),
         time: formatBusinessDate(d.dispatchDate),
         body: d.outOfOrder ? D.history.override(d.overrideReason ?? '') : D.history.dispatchedBy(d.dispatchedBy ?? ''),
         tone: d.outOfOrder ? 'warning' : 'info'
@@ -418,7 +418,11 @@ export function BatchDetailPage() {
                 status={batch.status}
                 testId="detail-shelf-life"
               />
-              <span className={styles.qty}>{D.quantity(batch.quantityProduced, batch.unit)}</span>
+              <span className={styles.qty} data-testid="detail-quantity">
+                {(batch.quantityDispatched ?? 0) > 0 && batch.lifecycleState !== 'DISPATCHED'
+                  ? D.quantityLeft(batch.quantityRemaining ?? 0, batch.quantityProduced ?? 0, batch.unit)
+                  : D.quantity(batch.quantityProduced, batch.unit)}
+              </span>
             </span>
           ) : undefined
         }
@@ -614,7 +618,10 @@ export function BatchDetailPage() {
                   {batch.dispatchHistory.map((d, idx) => (
                     <li key={`${d.dispatchedAt ?? idx}-${idx}`} className={coreStyles.timelineItem}>
                       <div className={coreStyles.timelineHeader}>
-                        <strong>Buyer: {d.buyerName}</strong>
+                        <strong>
+                          Buyer: {d.buyerName}
+                          {d.quantity ? ` (${D.quantity(d.quantity, batch.unit)})` : ''}
+                        </strong>
                         <span>Dispatch Date: {formatBusinessDate(d.dispatchDate)}</span>
                       </div>
                       <div className={coreStyles.timelineHeader}>
@@ -711,7 +718,9 @@ export function BatchDetailPage() {
               </div>
               {batch.buyerName ? (
                 <div className={coreStyles.metaItem}>
-                  <span className={coreStyles.metaLabel}>Dispatched to</span>
+                  <span className={coreStyles.metaLabel}>
+                    {batch.lifecycleState === 'DISPATCHED' ? 'Dispatched to' : 'Last shipment to'}
+                  </span>
                   <span className={coreStyles.metaValue} data-testid="detail-buyer-name">
                     {batch.buyerName} ({formatBusinessDate(batch.dispatchDate)})
                   </span>

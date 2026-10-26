@@ -65,6 +65,8 @@ describe('FefoPage, InspectionsPage, and ProfilePage (Phase 6 Part D)', () => {
           productName: 'Organic Forest Honey',
           sku: 'OFH-500',
           quantityProduced: 100,
+          quantityDispatched: 40,
+          quantityRemaining: 60,
           unit: 'Kg',
           packDate: '2026-04-01',
           expiryDate: '2026-10-10',
@@ -150,6 +152,8 @@ describe('FefoPage, InspectionsPage, and ProfilePage (Phase 6 Part D)', () => {
     await waitFor(() => {
       expect(screen.getByTestId('fefo-rank-TX-2026-10-001')).toHaveTextContent('#1');
     });
+    // Partial dispatch (#4): stock left after earlier shipments
+    expect(screen.getByTestId('fefo-stock-TX-2026-10-001')).toHaveTextContent('60 of 100 Kg');
 
     // Redesign R5: tab counts, next batch per product, and on-hold rows blocked
     expect(screen.getByTestId('fefo-tab-queue')).toHaveTextContent('4');

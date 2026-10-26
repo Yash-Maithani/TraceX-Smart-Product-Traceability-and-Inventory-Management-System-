@@ -19,10 +19,14 @@ export const FEFO_STRINGS = {
     order: 'Order',
     batch: 'Batch',
     shelfLife: 'Shelf life',
+    stock: 'In stock',
     expires: 'Expires',
     quality: 'Quality',
     action: 'Dispatch'
   },
+  /** Stock left on a batch; after a partial dispatch it reads "80 of 120 Units". */
+  stock: (remaining: number, produced: number, unit: string | undefined) =>
+    remaining < produced ? `${remaining} of ${produced} ${unit ?? ''}`.trim() : `${produced} ${unit ?? ''}`.trim(),
   orderLabel: (rank: number) => `Position ${rank} in the queue`,
   nextForProduct: 'Next for this product',
   notInspected: 'Not inspected',
@@ -55,6 +59,10 @@ export const FEFO_STRINGS = {
     buyer: 'Buyer',
     buyerPlaceholder: 'Buyer or company name',
     buyerRequired: 'Enter the buyer.',
+    quantity: 'Quantity to ship',
+    quantityHint: (remaining: number, unit: string) =>
+      `${remaining} ${unit} in stock. Ship less to keep the rest in the queue.`,
+    quantityInvalid: (remaining: number) => `Enter a whole number from 1 to ${remaining}.`,
     date: 'Dispatch date',
     dateHint: 'Leave blank to use today.',
     overrideReason: 'Reason for shipping out of order',
@@ -78,6 +86,9 @@ export const FEFO_STRINGS = {
     expiredBody: 'An expired batch cannot be shipped.',
     successTitle: 'Batch dispatched',
     successBody: (code: string, buyer: string) => `${code} dispatched to ${buyer}.`,
+    partialTitle: 'Part of the batch dispatched',
+    partialBody: (qty: number, unit: string, code: string, buyer: string, left: number) =>
+      `${qty} ${unit} of ${code} dispatched to ${buyer}. ${left} ${unit} stay in the queue.`,
     warningTitle: 'Batch dispatched with a quality note'
   },
   blocked: {

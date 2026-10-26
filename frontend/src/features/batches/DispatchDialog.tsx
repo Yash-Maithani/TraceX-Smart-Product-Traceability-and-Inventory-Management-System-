@@ -32,6 +32,7 @@ export function DispatchDialog({
   const { pushToast } = useToast();
 
   const [buyerName, setBuyerName] = useState('');
+  const [quantity, setQuantity] = useState('');
   const [dispatchDate, setDispatchDate] = useState('');
   const [overrideReason, setOverrideReason] = useState('');
   const [requiresOverride, setRequiresOverride] = useState(false);
@@ -43,6 +44,7 @@ export function DispatchDialog({
   useEffect(() => {
     if (!open) {
       setBuyerName('');
+      setQuantity('');
       setDispatchDate('');
       setOverrideReason('');
       setRequiresOverride(false);
@@ -54,6 +56,10 @@ export function DispatchDialog({
   }, [open, batch?.id]);
 
   const canOverride = canDispatchBatch(user);
+  const unit = batch?.unit ?? 'units';
+  const remaining = batch?.quantityRemaining ?? batch?.quantityProduced ?? 0;
+  // Blank means "everything left"; the field starts blank and shows the stock as a hint
+  const parsedQuantity = quantity.trim() === '' ? remaining : Number(quantity.trim());
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -62,6 +68,7 @@ export function DispatchDialog({
       }
       return dispatchBatch(batch.id, {
         buyerName: buyerName.trim(),
+        ...(quantity.trim() !== '' ? { quantity: parsedQuantity } : {}),
         ...(dispatchDate.trim() ? { dispatchDate: dispatchDate.trim() } : {}),
         ...(requiresOverride && overrideReason.trim()
           ? { overrideReason: overrideReason.trim() }
@@ -84,6 +91,18 @@ export function DispatchDialog({
           title: S.warningTitle,
           description: warningMsg,
           variant: 'warning'
+        });
+      } else if ((res.data.quantityRemaining ?? 0) > 0) {
+        pushToast({
+          title: S.partialTitle,
+          description: S.partialBody(
+            parsedQuantity,
+            unit,
+            res.data.batchCode ?? batch?.batchCode ?? '',
+            res.data.buyerName ?? buyerName.trim(),
+            res.data.quantityRemaining ?? 0
+          ),
+          variant: 'success'
         });
       } else {
         pushToast({
@@ -139,6 +158,9 @@ export function DispatchDialog({
     const nextFieldErrors: Record<string, string> = {};
     if (!buyerName.trim()) {
       nextFieldErrors.buyerName = S.buyerRequired;
+    }
+    if (!Number.isInteger(parsedQuantity) || parsedQuantity < 1 || parsedQuantity > remaining) {
+      nextFieldErrors.quantity = S.quantityInvalid(remaining);
     }
     if (requiresOverride && !overrideReason.trim()) {
       nextFieldErrors.overrideReason = S.overrideRequired;
@@ -261,6 +283,30 @@ export function DispatchDialog({
             placeholder={S.buyerPlaceholder}
             disabled={mutation.isPending || Boolean(blockedCode)}
             data-testid="dispatch-buyer-input"
+          />
+        </Field>
+
+        <Field label={S.quantity} hint={S.quantityHint(remaining, unit)} error={fieldErrors.quantity}>
+          <Input
+            type="number"
+            inputMode="numeric"
+            min={1}
+            max={remaining}
+            step={1}
+            value={quantity}
+            placeholder={String(remaining)}
+            onChange={(e) => {
+              setQuantity(e.target.value);
+              if (fieldErrors.quantity) {
+                setFieldErrors((prev) => {
+                  const next = { ...prev };
+                  delete next.quantity;
+                  return next;
+                });
+              }
+            }}
+            disabled={mutation.isPending || Boolean(blockedCode)}
+            data-testid="dispatch-quantity-input"
           />
         </Field>
 

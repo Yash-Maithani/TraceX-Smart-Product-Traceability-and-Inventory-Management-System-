@@ -308,6 +308,20 @@ public class BatchService {
             fieldErrors.add(new FieldErrorDto("overrideReason", "overrideReason cannot exceed 500 characters"));
         }
 
+        // Partial dispatch (pick-list #4): ship part of what is left; leaving quantity out ships all of it
+        int alreadyDispatched = batch.getQuantityDispatched();
+        int remaining = Math.max(0, batch.getQuantityProduced() - alreadyDispatched);
+        int shipQuantity = (dto != null && dto.getQuantity() != null) ? dto.getQuantity() : remaining;
+        if (dto != null && dto.getQuantity() != null) {
+            if (dto.getQuantity() < 1) {
+                fieldErrors.add(new FieldErrorDto("quantity", "quantity must be at least 1"));
+            } else if (dto.getQuantity() > remaining) {
+                fieldErrors.add(new FieldErrorDto("quantity", "quantity cannot exceed the " + remaining + " "
+                        + (batch.getUnit() != null ? batch.getUnit() : "units") + " left in this batch"));
+            }
+        }
+        boolean fullyDispatched = shipQuantity >= remaining;
+
         if (!fieldErrors.isEmpty()) {
             throw new ValidationException("Validation failed", fieldErrors);
         }
@@ -341,7 +355,11 @@ public class BatchService {
                 Criteria.where("expiryDate").gte(tomorrowDateStr),
                 Criteria.where("expiryDate").regex(BatchFreshness.ISO_LOCAL_DATE_REGEX),
                 // M1 (Phase 13): an inspection that turns FAILED after the checks above still blocks the update
-                Criteria.where("qualityCheck.status").ne("FAILED")
+                Criteria.where("qualityCheck.status").ne("FAILED"),
+                // Two partial dispatches at once: only the one that saw the current shipped count wins
+                alreadyDispatched == 0
+                        ? new Criteria().orOperator(Criteria.where("quantityDispatched").is(0), Criteria.where("quantityDispatched").exists(false))
+                        : Criteria.where("quantityDispatched").is(alreadyDispatched)
         ));
 
         Batch.DispatchHistoryEntry historyEntry = new Batch.DispatchHistoryEntry(
@@ -352,9 +370,11 @@ public class BatchService {
                 outOfOrder ? trimmedOverrideReason : null,
                 outOfOrder
         );
+        historyEntry.setQuantity(shipQuantity);
 
         Update update = new Update()
-                .set("lifecycleState", "DISPATCHED")
+                .set("lifecycleState", fullyDispatched ? "DISPATCHED" : "ACTIVE")
+                .set("quantityDispatched", alreadyDispatched + shipQuantity)
                 .set("buyerName", trimmedBuyerName)
                 .set("dispatchDate", effectiveDispatchDate.toString())
                 .set("updatedAt", now)
@@ -395,10 +415,15 @@ public class BatchService {
             throw new ApiException(ErrorCode.CONFLICT, "Batch state changed concurrently", HttpStatus.CONFLICT);
         }
 
+        String unit = updated.getUnit() != null ? updated.getUnit() : "units";
+        String shipped = fullyDispatched
+                ? shipQuantity + " " + unit + ", batch complete"
+                : shipQuantity + " " + unit + ", " + (remaining - shipQuantity) + " left";
+
         // Audit BATCH_DISPATCHED with batchCode, outOfOrder flag, and overrideReason (no buyerName or farmerName PII)
         String auditSummary = outOfOrder
-                ? "Batch dispatched with FEFO override: " + updated.getBatchCode() + " (override=true, reason=" + trimmedOverrideReason + ")"
-                : "Batch dispatched: " + updated.getBatchCode() + " (override=false)";
+                ? "Batch dispatched with FEFO override: " + updated.getBatchCode() + " (" + shipped + "; override=true, reason=" + trimmedOverrideReason + ")"
+                : "Batch dispatched: " + updated.getBatchCode() + " (" + shipped + "; override=false)";
         auditService.record(
                 actorId,
                 actorUsername,
@@ -407,7 +432,8 @@ public class BatchService {
                 updated.getId(),
                 auditSummary,
                 null,
-                Map.of("batchCode", updated.getBatchCode(), "outOfOrder", outOfOrder),
+                Map.of("batchCode", updated.getBatchCode(), "outOfOrder", outOfOrder,
+                        "quantity", shipQuantity, "quantityDispatched", updated.getQuantityDispatched()),
                 outOfOrder ? trimmedOverrideReason : null
         );
 
@@ -471,6 +497,10 @@ public class BatchService {
             batch.setSourceLotCode(v);
         }
         if (dto.getQuantityProduced() != null) {
+            if (dto.getQuantityProduced() < batch.getQuantityDispatched()) {
+                throw new ValidationException("quantityProduced", "quantityProduced cannot be less than the "
+                        + batch.getQuantityDispatched() + " already dispatched");
+            }
             recordChange(changes, before, after, "quantityProduced", batch.getQuantityProduced(), dto.getQuantityProduced());
             batch.setQuantityProduced(dto.getQuantityProduced());
         }
@@ -582,6 +612,9 @@ public class BatchService {
         dto.setFarmerName(batch.getFarmerName());
         dto.setVillage(batch.getVillage());
         dto.setQuantityProduced(batch.getQuantityProduced());
+        // Batches dispatched before partial dispatch existed shipped everything but never counted it
+        boolean legacyDispatched = "DISPATCHED".equals(batch.getLifecycleState()) && batch.getQuantityDispatched() == 0;
+        dto.setQuantityDispatched(legacyDispatched ? batch.getQuantityProduced() : batch.getQuantityDispatched());
         dto.setUnit(batch.getUnit());
         dto.setYieldPercent(batch.getYieldPercent());
         dto.setPackDate(batch.getPackDate());

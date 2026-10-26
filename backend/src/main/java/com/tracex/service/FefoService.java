@@ -259,6 +259,7 @@ public class FefoService {
         dto.setFarmerName(batch.getFarmerName());
         dto.setVillage(batch.getVillage());
         dto.setQuantityProduced(batch.getQuantityProduced());
+        dto.setQuantityDispatched(batch.getQuantityDispatched());
         dto.setUnit(batch.getUnit());
         dto.setYieldPercent(batch.getYieldPercent());
         dto.setPackDate(batch.getPackDate());

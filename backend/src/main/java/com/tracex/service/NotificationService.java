@@ -62,9 +62,18 @@ public class NotificationService {
     }
 
     public void batchDispatched(User actor, String batchId, String batchCode, String buyerName, boolean outOfOrder) {
+        batchDispatched(actor, batchId, batchCode, buyerName, outOfOrder, null, null, 0);
+    }
+
+    /** {@code quantity} null means the shipment size is unknown; {@code remaining} above 0 means a partial dispatch. */
+    public void batchDispatched(User actor, String batchId, String batchCode, String buyerName, boolean outOfOrder,
+                                Integer quantity, String unit, int remaining) {
+        String what = quantity == null ? "Batch " + batchCode
+                : quantity + " " + (unit != null ? unit : "units") + " of batch " + batchCode;
+        String rest = remaining > 0 ? " " + remaining + " " + (unit != null ? unit : "units") + " remain in stock." : "";
         notify("batch:dispatched", "batch_dispatched", DISPATCH_WATCHERS, null, actor,
-                "Batch " + batchCode + " dispatched",
-                "Batch " + batchCode + " was dispatched to " + buyerName + (outOfOrder ? " out of FEFO order, with a recorded reason." : "."),
+                remaining > 0 ? "Batch " + batchCode + " partly dispatched" : "Batch " + batchCode + " dispatched",
+                what + " dispatched to " + buyerName + (outOfOrder ? " out of FEFO order, with a recorded reason." : ".") + rest,
                 "batch", batchId);
     }
 

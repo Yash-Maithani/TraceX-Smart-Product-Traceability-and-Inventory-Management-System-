@@ -333,6 +333,51 @@ describe('BatchesPage, ArchivedBatchesPage, CreateBatchDialog, and DispatchDialo
     });
   });
 
+  it('ships part of a batch from DispatchDialog and blocks more than is in stock', async () => {
+    const dispatchSpy = vi.spyOn(Endpoints, 'dispatchBatch').mockResolvedValue({
+      success: true,
+      data: {
+        ...SAMPLE_BATCHES[0]!,
+        lifecycleState: 'ACTIVE',
+        buyerName: 'Hill Mart',
+        quantityDispatched: 70,
+        quantityRemaining: 30
+      }
+    });
+    const onSuccess = vi.fn();
+    renderWithProviders(
+      <DispatchDialog
+        open
+        onClose={vi.fn()}
+        onSuccess={onSuccess}
+        batch={{ ...SAMPLE_BATCHES[0]!, quantityDispatched: 20, quantityRemaining: 80 }}
+      />,
+      {
+        id: 'u-coord',
+        name: 'Dispatch Coordinator',
+        username: 'coordinator',
+        email: 'coordinator@tracex.demo',
+        role: 'dispatch-coordinator',
+        superAdmin: false,
+        active: true
+      }
+    );
+
+    expect(screen.getByText(/80 Kg in stock/)).toBeInTheDocument();
+    fireEvent.change(screen.getByTestId('dispatch-buyer-input'), { target: { value: 'Hill Mart' } });
+    fireEvent.change(screen.getByTestId('dispatch-quantity-input'), { target: { value: '81' } });
+    fireEvent.click(screen.getByTestId('dispatch-submit-btn'));
+    expect(await screen.findByText('Enter a whole number from 1 to 80.')).toBeInTheDocument();
+    expect(dispatchSpy).not.toHaveBeenCalled();
+
+    fireEvent.change(screen.getByTestId('dispatch-quantity-input'), { target: { value: '50' } });
+    fireEvent.click(screen.getByTestId('dispatch-submit-btn'));
+    await waitFor(() => {
+      expect(dispatchSpy).toHaveBeenCalledWith('b-1', { buyerName: 'Hill Mart', quantity: 50 });
+      expect(onSuccess).toHaveBeenCalled();
+    });
+  });
+
   it('renders ArchivedBatchesPage and restores an archived batch for admin', async () => {
     vi.spyOn(Endpoints, 'fetchArchivedBatches').mockResolvedValue([
       {

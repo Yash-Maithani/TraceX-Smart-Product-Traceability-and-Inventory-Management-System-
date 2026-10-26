@@ -34,6 +34,8 @@ public class Batch {
     private String farmerName;
     private String village;
     private int quantityProduced;
+    /** Units shipped so far across partial dispatches (pick-list #4); missing on older batches means 0. */
+    private int quantityDispatched;
     private String unit;
     private double yieldPercent;
     
@@ -127,6 +129,9 @@ public class Batch {
         private LocalDate dispatchDate;
         private String overrideReason;
         private boolean outOfOrder;
+        /** Units in this shipment; null on entries written before partial dispatch, which shipped the whole batch. */
+        @Schema(nullable = true)
+        private Integer quantity;
 
         public DispatchHistoryEntry() {}
         public DispatchHistoryEntry(String dispatchedBy, Instant dispatchedAt, String buyerName,
@@ -151,6 +156,8 @@ public class Batch {
         public void setOverrideReason(String overrideReason) { this.overrideReason = overrideReason; }
         public boolean isOutOfOrder() { return outOfOrder; }
         public void setOutOfOrder(boolean outOfOrder) { this.outOfOrder = outOfOrder; }
+        public Integer getQuantity() { return quantity; }
+        public void setQuantity(Integer quantity) { this.quantity = quantity; }
     }
 
     // Getters and Setters
@@ -170,6 +177,8 @@ public class Batch {
     public void setVillage(String village) { this.village = village; }
     public int getQuantityProduced() { return quantityProduced; }
     public void setQuantityProduced(int quantityProduced) { this.quantityProduced = quantityProduced; }
+    public int getQuantityDispatched() { return quantityDispatched; }
+    public void setQuantityDispatched(int quantityDispatched) { this.quantityDispatched = quantityDispatched; }
     public String getUnit() { return unit; }
     public void setUnit(String unit) { this.unit = unit; }
     public double getYieldPercent() { return yieldPercent; }

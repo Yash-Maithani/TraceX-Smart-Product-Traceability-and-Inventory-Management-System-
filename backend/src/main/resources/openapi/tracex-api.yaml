@@ -3,7 +3,7 @@ info:
   title: OpenAPI definition
   version: v0
 servers:
-- url: http://localhost:41307
+- url: http://localhost:41563
   description: Generated server url
 paths:
   /api/v1/qr/scan:
@@ -2134,6 +2134,9 @@ components:
         quantityProduced:
           type: integer
           format: int32
+        quantityDispatched:
+          type: integer
+          format: int32
         unit:
           type: string
         yieldPercent:
@@ -2213,6 +2216,9 @@ components:
           type: string
         deleted:
           type: boolean
+        quantityRemaining:
+          type: integer
+          format: int32
     DispatchHistoryEntry:
       type: object
       properties:
@@ -2231,6 +2237,10 @@ components:
           type: string
         outOfOrder:
           type: boolean
+        quantity:
+          type: integer
+          format: int32
+          nullable: true
     NoteHistoryEntry:
       type: object
       properties:
@@ -2369,9 +2379,9 @@ components:
           type: string
         active:
           type: boolean
-        superAdmin:
-          type: boolean
         deleted:
+          type: boolean
+        superAdmin:
           type: boolean
     ResendOtpDto:
       required:
@@ -2798,6 +2808,9 @@ components:
         quantityProduced:
           type: integer
           format: int32
+        quantityDispatched:
+          type: integer
+          format: int32
         unit:
           type: string
         yieldPercent:
@@ -2850,6 +2863,9 @@ components:
           format: date-time
         deleted:
           type: boolean
+        quantityRemaining:
+          type: integer
+          format: int32
     ResolveProductReportDto:
       type: object
       properties:
@@ -3032,6 +3048,12 @@ components:
           maxLength: 500
           minLength: 0
           type: string
+        quantity:
+          minimum: 1
+          type: integer
+          format: int32
+          nullable: true
+          example: 40
     UpdateRoleDto:
       required:
       - role

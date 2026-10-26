@@ -161,6 +161,17 @@ export function FefoPage() {
       )
     },
     {
+      key: 'stock',
+      header: S.columns.stock,
+      nowrap: true,
+      numeric: true,
+      render: (row) => (
+        <span data-testid={`fefo-stock-${row.batchCode}`}>
+          {S.stock(row.quantityRemaining ?? row.quantityProduced ?? 0, row.quantityProduced ?? 0, row.unit)}
+        </span>
+      )
+    },
+    {
       key: 'shelf',
       header: S.columns.shelfLife,
       render: (row) => (

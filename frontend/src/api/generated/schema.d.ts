@@ -1432,6 +1432,8 @@ export interface components {
             village?: string;
             /** Format: int32 */
             quantityProduced?: number;
+            /** Format: int32 */
+            quantityDispatched?: number;
             unit?: string;
             /** Format: double */
             yieldPercent?: number;
@@ -1482,6 +1484,8 @@ export interface components {
             warning?: string;
             qrAbsoluteUrl?: string;
             deleted?: boolean;
+            /** Format: int32 */
+            quantityRemaining?: number;
         };
         DispatchHistoryEntry: {
             dispatchedBy?: string;
@@ -1495,6 +1499,8 @@ export interface components {
             dispatchDate?: string;
             overrideReason?: string;
             outOfOrder?: boolean;
+            /** Format: int32 */
+            quantity?: number | null;
         };
         NoteHistoryEntry: {
             note?: string;
@@ -1564,8 +1570,8 @@ export interface components {
             preferences?: components["schemas"]["Preferences"];
             googleEmail?: string;
             active?: boolean;
-            superAdmin?: boolean;
             deleted?: boolean;
+            superAdmin?: boolean;
         };
         ResendOtpDto: {
             email: string;
@@ -1765,6 +1771,8 @@ export interface components {
             village?: string;
             /** Format: int32 */
             quantityProduced?: number;
+            /** Format: int32 */
+            quantityDispatched?: number;
             unit?: string;
             /** Format: double */
             yieldPercent?: number;
@@ -1800,6 +1808,8 @@ export interface components {
             /** Format: date-time */
             updatedAt?: string;
             deleted?: boolean;
+            /** Format: int32 */
+            quantityRemaining?: number;
         };
         ResolveProductReportDto: {
             note?: string;
@@ -1888,6 +1898,11 @@ export interface components {
              */
             dispatchDate?: string;
             overrideReason?: string;
+            /**
+             * Format: int32
+             * @example 40
+             */
+            quantity?: number | null;
         };
         UpdateRoleDto: {
             /** @enum {string} */

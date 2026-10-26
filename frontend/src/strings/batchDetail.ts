@@ -12,6 +12,8 @@ export const DETAIL_STRINGS = {
   exception: 'Expiry date problem:',
   exceptionFallback: 'The expiry date is missing or not a valid date. Correct the details to fix it.',
   quantity: (qty: number | undefined, unit: string | undefined) => `${qty ?? 0} ${unit ?? ''}`.trim(),
+  quantityLeft: (left: number, produced: number, unit: string | undefined) =>
+    `${left} of ${produced} ${unit ?? ''} left`.trim(),
   bestBefore: (date: string) => `Best before ${date}`,
   history: {
     heading: 'History',
@@ -28,7 +30,8 @@ export const DETAIL_STRINGS = {
       return `Inspection ${word}, rated ${rating} of 5`;
     },
     dispatchLabel: 'Dispatched',
-    dispatch: (buyer: string) => `Dispatched to ${buyer}`,
+    dispatch: (buyer: string, qty?: number | null, unit?: string) =>
+      qty ? `Dispatched ${qty} ${unit ?? 'units'} to ${buyer}` : `Dispatched to ${buyer}`,
     dispatchedBy: (who: string) => `Recorded by ${who}`,
     override: (reason: string) => `Shipped out of order. Reason: ${reason}`,
     scanLabel: 'Scanned',

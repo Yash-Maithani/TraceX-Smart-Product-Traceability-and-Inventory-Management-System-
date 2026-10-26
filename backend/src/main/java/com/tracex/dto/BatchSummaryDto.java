@@ -17,6 +17,7 @@ public class BatchSummaryDto {
     private String farmerName;
     private String village;
     private int quantityProduced;
+    private int quantityDispatched;
     private String unit;
     private double yieldPercent;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
@@ -61,6 +62,12 @@ public class BatchSummaryDto {
     public void setVillage(String village) { this.village = village; }
     public int getQuantityProduced() { return quantityProduced; }
     public void setQuantityProduced(int quantityProduced) { this.quantityProduced = quantityProduced; }
+
+    public int getQuantityDispatched() { return quantityDispatched; }
+    public void setQuantityDispatched(int quantityDispatched) { this.quantityDispatched = quantityDispatched; }
+
+    /** Units still in stock; the dispatch queue and the dispatch dialog work from this. */
+    public int getQuantityRemaining() { return Math.max(0, quantityProduced - quantityDispatched); }
     public String getUnit() { return unit; }
     public void setUnit(String unit) { this.unit = unit; }
     public double getYieldPercent() { return yieldPercent; }
