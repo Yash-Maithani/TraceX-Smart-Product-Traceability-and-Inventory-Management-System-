@@ -10,6 +10,8 @@ import {
   LogOut,
   Menu,
   MessageSquare,
+  PanelLeftClose,
+  PanelLeftOpen,
   Search,
   Settings,
   Shield,
@@ -22,6 +24,7 @@ import {
 import styles from './AppShell.module.css';
 import consoleStyles from '../components/ui/console.module.css';
 import { useAuth } from '../auth/AuthContext';
+import { useTheme } from '../hooks/useTheme';
 import { useLiveUpdates } from '../hooks/useLiveUpdates';
 import { usePreferencesSync } from '../hooks/usePreferencesSync';
 import { NotificationBell } from './NotificationBell';
@@ -91,6 +94,9 @@ export function AppShell() {
   const { user, logout, logoutAll } = useAuth();
   usePreferencesSync();
   useLiveUpdates();
+  const { prefs, setSidebarCollapsed } = useTheme();
+  const collapsed = prefs.sidebarCollapsed;
+  const toggleSidebar = () => setSidebarCollapsed(!collapsed);
   const location = useLocation();
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -127,6 +133,9 @@ export function AppShell() {
       } else if (e.key === '?') {
         e.preventDefault();
         setShortcutsOpen(true);
+      } else if (e.key === '[') {
+        e.preventDefault();
+        setSidebarCollapsed(!collapsed);
       } else if (e.key.toLowerCase() === 'g') {
         goPendingAt.current = Date.now();
       } else if (goPendingAt.current && Date.now() - goPendingAt.current < GO_TO_WINDOW_MS) {
@@ -140,7 +149,7 @@ export function AppShell() {
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [navigate, navItems]);
+  }, [navigate, navItems, collapsed, setSidebarCollapsed]);
 
   // Focus trap and Escape handling for mobile navigation drawer
   useEffect(() => {
@@ -179,10 +188,11 @@ export function AppShell() {
 
   const roleLabel = user?.role ? (STRINGS.roles[user.role] ?? user.role) : '';
 
-  const renderNavGroup = (label: string, items: NavRouteItem[]) =>
+  /** compact: the collapsed desktop sidebar fades the labels out (CSS) and shows them as tooltips instead. */
+  const renderNavGroup = (label: string, items: NavRouteItem[], compact: boolean) =>
     items.length === 0 ? null : (
       <div className={styles.navGroup}>
-        <div className={styles.navGroupLabel}>{label}</div>
+        <div className={`${styles.navGroupLabel} ${styles.fadeLabel}`}>{label}</div>
         <ul className={styles.navList}>
           {items.map((item) => (
             <li key={item.path}>
@@ -190,9 +200,10 @@ export function AppShell() {
                 to={item.path}
                 end={item.path === '/' || item.path === '/batches'}
                 className={({ isActive }) => `${styles.navLink} ${isActive ? styles.navLinkActive : ''}`}
+                title={compact ? item.label : undefined}
               >
                 {renderNavIcon(item.iconName)}
-                <span>{item.label}</span>
+                <span className={styles.fadeLabel}>{item.label}</span>
               </NavLink>
             </li>
           ))}
@@ -200,21 +211,23 @@ export function AppShell() {
       </div>
     );
 
-  const renderNavigationLinks = () => (
+  const renderNavigationLinks = (compact = false) => (
     <>
-      {renderNavGroup(SHELL_STRINGS.navGroups.operations, operationsItems)}
-      {renderNavGroup(SHELL_STRINGS.navGroups.team, teamItems)}
+      {renderNavGroup(SHELL_STRINGS.navGroups.operations, operationsItems, compact)}
+      {renderNavGroup(SHELL_STRINGS.navGroups.team, teamItems, compact)}
     </>
   );
 
-  const renderUserSection = (scope: 'desktop' | 'mobile' = 'desktop') => (
+  const renderUserSection = (scope: 'desktop' | 'mobile' = 'desktop') => {
+    const compact = scope === 'desktop' && collapsed;
+    return (
     <div className={styles.sidebarFooter}>
       {user ? (
         <div className={styles.userCard} data-testid={scope === 'desktop' ? 'shell-user-card' : 'mobile-shell-user-card'}>
-          <span className={styles.userAvatar} aria-hidden="true">
+          <span className={styles.userAvatar} aria-hidden="true" title={compact ? `${user.name}, ${roleLabel}` : undefined}>
             {initialsOf(user.name ?? '')}
           </span>
-          <div className={styles.userText}>
+          <div className={`${styles.userText} ${styles.fadeLabel}`}>
             <div className={styles.userName} data-testid={scope === 'desktop' ? 'shell-user-name' : 'mobile-shell-user-name'}>
               {user.name}
             </div>
@@ -229,39 +242,59 @@ export function AppShell() {
           variant="ghost"
           size="sm"
           onClick={logout}
+          title={compact ? STRINGS.common.signOut : undefined}
           leftIcon={<LogOut size={15} />}
           data-testid={scope === 'desktop' ? 'sign-out-btn' : 'mobile-sign-out-btn'}
         >
-          {STRINGS.common.signOut}
+          <span className={styles.fadeLabel}>{STRINGS.common.signOut}</span>
         </Button>
         <Button
           variant="ghost"
           size="sm"
           onClick={() => setConfirmLogoutAllOpen(true)}
+          title={compact ? STRINGS.common.signOutAll : undefined}
           leftIcon={<ShieldOff size={15} />}
           data-testid={scope === 'desktop' ? 'sign-out-all-btn' : 'mobile-sign-out-all-btn'}
         >
-          {STRINGS.common.signOutAll}
+          <span className={styles.fadeLabel}>{STRINGS.common.signOutAll}</span>
         </Button>
       </div>
-      <nav aria-label={SHELL_STRINGS.legalNavLabel} className={styles.legalLinks}>
+      <nav aria-label={SHELL_STRINGS.legalNavLabel} className={`${styles.legalLinks} ${styles.fadeLabel}`}>
         <NavLink to="/privacy">{SHELL_STRINGS.privacy}</NavLink>
         <NavLink to="/terms">{SHELL_STRINGS.terms}</NavLink>
       </nav>
     </div>
-  );
+    );
+  };
 
   return (
     <div className={styles.shellRoot}>
       <SkipLink targetId="main-content" />
       <OfflineBanner />
       <div className={styles.shellBody}>
-        <aside className={styles.desktopSidebar} aria-label="Sidebar" data-testid="desktop-sidebar">
+        <aside
+          className={`${styles.desktopSidebar} ${collapsed ? styles.desktopSidebarCollapsed : ''}`}
+          aria-label="Sidebar"
+          data-testid="desktop-sidebar"
+          data-collapsed={collapsed}
+        >
           <div className={styles.sidebarScroll}>
             <div className={styles.brandBlock}>
-              <span className={styles.brandName}>{STRINGS.app.name}</span>
+              <span className={`${styles.brandName} ${styles.fadeLabel}`}>{STRINGS.app.name}</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                iconOnly
+                className={styles.collapseBtn}
+                aria-label={collapsed ? SHELL_STRINGS.expandSidebar : SHELL_STRINGS.collapseSidebar}
+                aria-expanded={!collapsed}
+                title={`${collapsed ? SHELL_STRINGS.expandSidebar : SHELL_STRINGS.collapseSidebar} ([)`}
+                onClick={toggleSidebar}
+                leftIcon={collapsed ? <PanelLeftOpen size={17} /> : <PanelLeftClose size={17} />}
+                data-testid="sidebar-collapse-btn"
+              />
             </div>
-            <nav aria-label={STRINGS.nav.sidebarLabel}>{renderNavigationLinks()}</nav>
+            <nav aria-label={STRINGS.nav.sidebarLabel}>{renderNavigationLinks(collapsed)}</nav>
           </div>
           {renderUserSection('desktop')}
         </aside>

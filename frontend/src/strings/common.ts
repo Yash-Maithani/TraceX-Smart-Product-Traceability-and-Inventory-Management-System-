@@ -39,6 +39,8 @@ export const SHELL_STRINGS = {
   privacy: 'Privacy Policy',
   terms: 'Terms and Conditions',
   legalNavLabel: 'Legal',
+  collapseSidebar: 'Collapse sidebar',
+  expandSidebar: 'Expand sidebar',
   signOutAllTitle: 'Sign out on every device?',
   signOutAllBody:
     'Every browser signed in to your account, including this one, is signed out now. You will need your password to sign in again.',
@@ -48,6 +50,7 @@ export const SHELL_STRINGS = {
     { keys: ['Ctrl', 'K'], label: 'Search pages and batches' },
     { keys: ['/'], label: 'Search pages and batches' },
     { keys: ['?'], label: 'Show this list' },
+    { keys: ['['], label: 'Collapse or expand the sidebar' },
     { keys: ['G', 'D'], label: 'Go to the dashboard' },
     { keys: ['G', 'B'], label: 'Go to batches' },
     { keys: ['G', 'F'], label: 'Go to the dispatch queue' },

@@ -68,10 +68,13 @@
   /* Motion (150ms maximum) */
   --duration-fast: 100ms;
   --duration-normal: 150ms;
+  /* Sidebar open and close only: a width change reads as a jump at 150ms */
+  --duration-sidebar: 200ms;
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
 
   /* Layout Dimensions */
   --sidebar-width: 15rem;
+  --sidebar-width-collapsed: 4rem;
   --topbar-height: 3.5rem;
   --touch-target-min: 2.5rem;
   --content-max-width: 90rem;
@@ -393,6 +396,7 @@ html[data-theme="dark"] {
   :root {
     --duration-fast: 0s;
     --duration-normal: 0s;
+    --duration-sidebar: 0s;
   }
 
   *,
