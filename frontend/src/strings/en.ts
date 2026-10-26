@@ -71,6 +71,13 @@ export const STRINGS = {
     emailLabel: 'Email Address',
     emailPlaceholder: 'name@example.com',
     roleLabel: 'Role',
+    roleDescriptions: {
+      'factory-manager': 'Creates batches and imports production records.',
+      'quality-inspector': 'Inspects batches and records pass or fail results.',
+      'dispatch-coordinator': 'Dispatches stock from the queue, soonest expiry first.',
+      'manager': 'Oversees operations, creates batches and views the team.',
+      'admin': 'Manages users, roles and access requests.'
+    },
     submitRequestBtn: 'Submit Request',
     requestAccessSuccess: 'Access request submitted. An administrator will review your request and send an invitation link by email.',
 

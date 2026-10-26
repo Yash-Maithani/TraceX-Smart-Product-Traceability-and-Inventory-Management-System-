@@ -1,0 +1,127 @@
+/* Role picker on Request Access: one card per role, backed by native radio inputs */
+.roleGroup {
+  border: 0;
+  margin: 0 0 var(--space-4) 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.roleLegend {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0;
+  margin-bottom: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+}
+
+.requiredMark {
+  color: var(--status-danger-text);
+}
+
+.roleGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+/* The last card (Administrator) spans the row so five cards fill the grid evenly */
+.roleOption:last-child {
+  grid-column: 1 / -1;
+}
+
+.roleOption {
+  position: relative;
+  display: block;
+  cursor: pointer;
+}
+
+.roleInput {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+}
+
+.roleCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  height: 100%;
+  padding: var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background-color: var(--bg-surface);
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard);
+}
+
+.roleOption:hover .roleCard {
+  border-color: var(--border-strong);
+}
+
+.roleInput:checked + .roleCard {
+  border-color: var(--accent-primary);
+  background-color: var(--accent-subtle-bg);
+}
+
+.roleInput:focus-visible + .roleCard {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.roleIcon {
+  display: inline-flex;
+  color: var(--text-secondary);
+}
+
+.roleInput:checked + .roleCard .roleIcon {
+  color: var(--accent-primary);
+}
+
+.roleCheck {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  color: var(--accent-primary);
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+
+.roleInput:checked + .roleCard .roleCheck {
+  opacity: 1;
+}
+
+.roleName {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+}
+
+.roleInput:checked + .roleCard .roleName {
+  color: var(--accent-subtle-text);
+}
+
+.roleDescription {
+  font-size: var(--text-xs);
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+
+.roleError {
+  margin: var(--space-2) 0 0 0;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  color: var(--status-danger-text);
+}
+
+@media (max-width: 359px) {
+  .roleGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
